@@ -218,7 +218,7 @@ export default function HomePage() {
           <span style={styles.titleGradient}>CyberSlayers</span>
         </div>
         <ul style={styles.navLinks}>
-          <li><a href="#" style={styles.navLink}>Home</a></li>
+          <li><a href="/" style={styles.navLink}>Home</a></li>
           <li><a href="#" style={styles.navLink}>About Us</a></li>
           <li><a href="#" style={styles.navLink}>Games</a></li>
         </ul>

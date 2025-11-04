@@ -3,7 +3,8 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
-
+import GameDashboard from './pages/GameDashboard';
+import AboutUs from './pages/AboutUs';
 function App() {
   return (
     <Router>
@@ -12,6 +13,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/game" element={<GameDashboard />} />
+          <Route path="/about" element={<AboutUs />} />
         </Routes>
       </div>
     </Router>
