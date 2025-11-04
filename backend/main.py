@@ -186,6 +186,34 @@ async def login_user(user_data: UserSignUp):
             detail="Login failed"
         )
 
+
+@app.get("/api/auth/logout")
+async def logout_user():
+    return {"message": "Logout successful"}
+
+
+@app.get("/api/auth/pull_game_data")
+async def pull_game_data():
+    try: 
+        users_ref = db.collection('users')
+        users = users_ref.where('games').stream()   
+        users_current_game_scores = []
+        for key in users.item():
+            game_score = key['games']
+            users_current_game_scores.append(game_score)
+        return users_current_game_scores
+        
+    
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Login failed"
+        )
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app", 
