@@ -50,9 +50,9 @@ export default function LoginPage() {
         // Store user data in localStorage (in production, use proper state management)
         localStorage.setItem('cyberslayers_user', JSON.stringify(data.user));
         
-        // Redirect to home after 1.5 seconds
+        // Redirect to dashboard after 1.5 seconds
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard');
         }, 1500);
       } else {
         setMessage({ 
