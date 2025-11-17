@@ -128,13 +128,13 @@ export default function GameDashboard() {
 
   // Add game data to arenas
   const arenasWithData = arenas.map(arena => {
-    const scoreField = arena.gameNum === 3 ? 'game3_scroe' : `game${arena.gameNum}_score`;
+    const scoreField = `game${arena.gameNum}_score`;
     const score = games[scoreField] || 0;
     const gameStatus = getGameStatus(score);
     const isLocked = arena.gameNum > 1 && (
       arena.gameNum === 2 ? games['game1_score'] === 0 : 
       arena.gameNum === 3 ? games['game2_score'] === 0 : 
-      arena.gameNum === 4 ? games['game3_scroe'] === 0 : false
+      arena.gameNum === 4 ? games['game3_score'] === 0 : false
     );
 
     return {

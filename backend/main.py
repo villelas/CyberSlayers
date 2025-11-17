@@ -196,22 +196,23 @@ async def logout_user():
 async def pull_game_data():
     try: 
         users_ref = db.collection('users')
-        users = users_ref.where('games').stream()   
+        users = users_ref.stream()   
         users_current_game_scores = []
-        for key in users.item():
-            game_score = key['games']
-            users_current_game_scores.append(game_score)
+        for user_doc in users:
+            user_data = user_doc.to_dict()
+            if 'games' in user_data:
+                game_score = user_data['games']
+                users_current_game_scores.append(game_score)
         return users_current_game_scores
-        
     
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Login error: {e}")
+        logger.error(f"Pull game data error: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Login failed"
+            detail="Failed to pull game data"
         )
 
 
