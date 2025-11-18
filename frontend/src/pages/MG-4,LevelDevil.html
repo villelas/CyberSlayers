@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Level Devil - Cybersecurity Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #eee;
+        }
+
+        #gameContainer {
+            text-align: center;
+        }
+
+        #gameCanvas {
+            border: 3px solid #0f3460;
+            background: #16213e;
+            display: block;
+            margin: 20px auto;
+            image-rendering: pixelated;
+        }
+
+        #ui {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        #message {
+            margin-top: 15px;
+            height: 60px;
+            font-size: 16px;
+            color: #e94560;
+            font-weight: bold;
+        }
+
+        #controls {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .key {
+            background: #0f3460;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <span>Level: <span id="levelDisplay">1</span>/5</span>
+            <span style="margin-left: 30px;">Deaths: <span id="deathCount">0</span></span>
+        </div>
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+        <div id="message"></div>
+        <div id="controls">
+            Controls: <span class="key">←</span> <span class="key">→</span> Move | <span class="key">SPACE</span> Jump | <span class="key">↑</span> Enter Door | <span class="key">R</span> Restart Level
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const messageEl = document.getElementById('message');
+        const levelDisplayEl = document.getElementById('levelDisplay');
+        const deathCountEl = document.getElementById('deathCount');
+
+        let currentLevel = 1;
+        let deaths = 0;
+        let player = {
+            x: 50,
+            y: 350,
+            width: 30,
+            height: 30,
+            vx: 0,
+            vy: 0,
+            speed: 4,
+            jumpPower: 13.5,
+            grounded: false,
+            color: '#00d9ff',
+            dying: false
+        };
+
+        const GRAVITY = 0.45;
+        const GROUND_Y = 400;
+
+        let platforms = [];
+        let door = { x: 0, y: 0, width: 40, height: 50 };
+        let hazards = [];
+        let movingPlatforms = [];
+        let levelTrick = null;
+        let trickActivated = false;
+        let keys = {};
+        let deathAnimation = { active: false, frame: 0, particles: [] };
+
+        const levels = {
+            1: {
+                name: "Trust Nothing",
+                platforms: [
+                    { x: 0, y: 420, width: 800, height: 30 }, // ground
+                    { x: 200, y: 350, width: 150, height: 20 },
+                    { x: 450, y: 280, width: 150, height: 20 }
+                ],
+                door: { x: 720, y: 350 },
+                hazards: [],
+                trick: "fake_platform",
+                message: "Watch out! Not everything is as it seems..."
+            },
+            2: {
+                name: "Shifting Reality",
+                platforms: [
+                    { x: 0, y: 420, width: 800, height: 30 },
+                    { x: 120, y: 360, width: 100, height: 20 },
+                    { x: 280, y: 300, width: 100, height: 20 },
+                    { x: 440, y: 240, width: 100, height: 20 },
+                    { x: 600, y: 300, width: 100, height: 20 }
+                ],
+                door: { x: 650, y: 250 },
+                hazards: [],
+                trick: "platform_vanish",
+                message: "The ground beneath you isn't stable..."
+            },
+            3: {
+                name: "Hidden Dangers",
+                platforms: [
+                    { x: 0, y: 420, width: 800, height: 30 },
+                    { x: 100, y: 350, width: 90, height: 20 },
+                    { x: 250, y: 290, width: 90, height: 20 },
+                    { x: 400, y: 230, width: 90, height: 20 },
+                    { x: 550, y: 290, width: 90, height: 20 },
+                    { x: 680, y: 350, width: 90, height: 20 }
+                ],
+                door: { x: 710, y: 300 },
+                hazards: [],
+                trick: "spawn_hazards",
+                message: "Threats can appear when you least expect them..."
+            },
+            4: {
+                name: "Deceptive Path",
+                platforms: [
+                    { x: 0, y: 420, width: 800, height: 30 },
+                    { x: 90, y: 360, width: 85, height: 20 },
+                    { x: 220, y: 300, width: 85, height: 20 },
+                    { x: 350, y: 240, width: 85, height: 20 },
+                    { x: 480, y: 180, width: 85, height: 20 },
+                    { x: 610, y: 240, width: 85, height: 20 }
+                ],
+                door: { x: 640, y: 190 },
+                hazards: [],
+                trick: "door_moves",
+                message: "Your goal might not stay where you think..."
+            },
+            5: {
+                name: "Total Chaos",
+                platforms: [
+                    { x: 0, y: 420, width: 800, height: 30 },
+                    { x: 80, y: 360, width: 90, height: 20 },
+                    { x: 210, y: 300, width: 90, height: 20 },
+                    { x: 340, y: 240, width: 90, height: 20 },
+                    { x: 470, y: 180, width: 90, height: 20 },
+                    { x: 600, y: 240, width: 90, height: 20 }
+                ],
+                door: { x: 630, y: 190 },
+                hazards: [],
+                trick: "everything",
+                message: "Nothing is safe. Trust nobody. Good luck!"
+            }
+        };
+
+        function loadLevel(levelNum) {
+            const level = levels[levelNum];
+            platforms = JSON.parse(JSON.stringify(level.platforms));
+            door = { ...level.door, width: 40, height: 50 };
+            hazards = [];
+            movingPlatforms = [];
+            trickActivated = false;
+            levelTrick = level.trick;
+            
+            player.x = 50;
+            player.y = 350;
+            player.vx = 0;
+            player.vy = 0;
+            player.dying = false;
+            
+            deathAnimation.active = false;
+            deathAnimation.frame = 0;
+            deathAnimation.particles = [];
+            
+            levelDisplayEl.textContent = levelNum;
+            showMessage(level.message);
+        }
+
+        function showMessage(msg, duration = 3000) {
+            messageEl.textContent = msg;
+            setTimeout(() => {
+                if (messageEl.textContent === msg) {
+                    messageEl.textContent = '';
+                }
+            }, duration);
+        }
+
+        function activateTrick() {
+            if (trickActivated) return;
+            trickActivated = true;
+
+            switch(levelTrick) {
+                case "fake_platform":
+                    // Remove middle platform when player gets close
+                    if (player.x > 180) {
+                        platforms = platforms.filter(p => p.x !== 200);
+                        showMessage("Gotcha! That platform was fake!");
+                    }
+                    break;
+
+                case "platform_vanish":
+                    // Platforms disappear when stepped on
+                    for (let i = platforms.length - 1; i >= 0; i--) {
+                        const p = platforms[i];
+                        if (p.y !== GROUND_Y + 20 && 
+                            player.x + player.width > p.x && 
+                            player.x < p.x + p.width &&
+                            Math.abs(player.y + player.height - p.y) < 10 &&
+                            player.grounded) {
+                            const platformIndex = i;
+                            setTimeout(() => {
+                                if (platforms[platformIndex]) {
+                                    platforms.splice(platformIndex, 1);
+                                }
+                            }, 800);
+                            showMessage("The platform is crumbling!");
+                            break;
+                        }
+                    }
+                    trickActivated = false; // Allow multiple triggers
+                    break;
+
+                case "spawn_hazards":
+                    if (player.x > 200 && hazards.length === 0) {
+                        hazards.push({ x: 250, y: GROUND_Y, width: 40, height: 20 });
+                        hazards.push({ x: 420, y: GROUND_Y, width: 40, height: 20 });
+                        hazards.push({ x: 570, y: GROUND_Y, width: 40, height: 20 });
+                        showMessage("Danger appeared!");
+                    }
+                    break;
+
+                case "door_moves":
+                    if (player.x > 300 && door.x > 200) {
+                        door.x = 100;
+                        door.y = 310;
+                        showMessage("The exit moved!");
+                    }
+                    break;
+
+                case "everything":
+                    if (player.x > 150 && hazards.length === 0) {
+                        hazards.push({ x: 300, y: GROUND_Y, width: 35, height: 20 });
+                        hazards.push({ x: 500, y: GROUND_Y, width: 35, height: 20 });
+                        showMessage("Everything is changing!");
+                    }
+                    if (player.x > 300 && platforms.length > 3) {
+                        setTimeout(() => {
+                            if (platforms.length > 3) {
+                                platforms.splice(2, 1);
+                            }
+                        }, 1500);
+                    }
+                    if (player.x > 450 && door.x < 500) {
+                        setTimeout(() => {
+                            door.x = 50;
+                            door.y = 370;
+                        }, 2000);
+                    }
+                    trickActivated = false;
+                    break;
+            }
+        }
+
+        function update() {
+            // Skip update if death animation is playing
+            if (deathAnimation.active) {
+                deathAnimation.frame++;
+                // Update particles
+                for (let p of deathAnimation.particles) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.3; // gravity on particles
+                    p.life--;
+                }
+                deathAnimation.particles = deathAnimation.particles.filter(p => p.life > 0);
+                
+                if (deathAnimation.frame > 60) {
+                    deathAnimation.active = false;
+                    deathAnimation.frame = 0;
+                    deathAnimation.particles = [];
+                    loadLevel(currentLevel);
+                }
+                return;
+            }
+
+            if (player.dying) return;
+
+            // Horizontal movement
+            if (keys['ArrowLeft']) player.vx = -player.speed;
+            else if (keys['ArrowRight']) player.vx = player.speed;
+            else player.vx = 0;
+
+            player.x += player.vx;
+
+            // Gravity
+            player.vy += GRAVITY;
+            player.y += player.vy;
+
+            // Ground collision
+            player.grounded = false;
+            if (player.y + player.height >= GROUND_Y + 20) {
+                player.y = GROUND_Y + 20 - player.height;
+                player.vy = 0;
+                player.grounded = true;
+            }
+
+            // Platform collision
+            for (let p of platforms) {
+                if (player.x + player.width > p.x && 
+                    player.x < p.x + p.width &&
+                    player.y + player.height > p.y &&
+                    player.y + player.height < p.y + p.height + 10 &&
+                    player.vy >= 0) {
+                    player.y = p.y - player.height;
+                    player.vy = 0;
+                    player.grounded = true;
+                }
+            }
+
+            // Boundary check
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Death by falling
+            if (player.y > canvas.height) {
+                die();
+            }
+
+            // Hazard collision
+            for (let h of hazards) {
+                if (player.x + player.width > h.x && 
+                    player.x < h.x + h.width &&
+                    player.y + player.height > h.y &&
+                    player.y < h.y + h.height) {
+                    die();
+                }
+            }
+
+            // Door collision (win) - must press up while inside door
+            if (player.x + player.width > door.x && 
+                player.x < door.x + door.width &&
+                player.y + player.height > door.y &&
+                player.y < door.y + door.height) {
+                
+                if (keys['ArrowUp']) {
+                    nextLevel();
+                }
+            }
+
+            // Activate tricks
+            activateTrick();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#16213e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw platforms
+            ctx.fillStyle = '#0f3460';
+            for (let p of platforms) {
+                ctx.fillRect(p.x, p.y, p.width, p.height);
+                ctx.strokeStyle = '#1a5490';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(p.x, p.y, p.width, p.height);
+            }
+
+            // Draw hazards
+            ctx.fillStyle = '#e94560';
+            for (let h of hazards) {
+                ctx.fillRect(h.x, h.y, h.width, h.height);
+                // Draw spikes
+                ctx.beginPath();
+                for (let i = 0; i < h.width; i += 10) {
+                    ctx.moveTo(h.x + i, h.y + h.height);
+                    ctx.lineTo(h.x + i + 5, h.y);
+                    ctx.lineTo(h.x + i + 10, h.y + h.height);
+                }
+                ctx.fill();
+            }
+
+            // Draw door with hint text
+            ctx.fillStyle = '#00ff88';
+            ctx.fillRect(door.x, door.y, door.width, door.height);
+            ctx.strokeStyle = '#00cc66';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(door.x, door.y, door.width, door.height);
+            ctx.fillStyle = '#00cc66';
+            ctx.fillRect(door.x + 15, door.y + 20, 10, 10);
+            
+            // Show "Press ↑" hint when player is near door
+            if (player.x + player.width > door.x - 20 && 
+                player.x < door.x + door.width + 20 &&
+                player.y + player.height > door.y - 20 &&
+                player.y < door.y + door.height + 20 &&
+                !deathAnimation.active) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText('Press ↑', door.x + door.width / 2, door.y - 10);
+            }
+
+            // Draw death animation particles
+            if (deathAnimation.active) {
+                for (let p of deathAnimation.particles) {
+                    ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.life / 40})`;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                }
+            }
+
+            // Draw player (unless dying)
+            if (!deathAnimation.active) {
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.strokeStyle = '#00a8cc';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(player.x, player.y, player.width, player.height);
+            }
+        }
+
+        function die() {
+            if (player.dying || deathAnimation.active) return;
+            
+            player.dying = true;
+            deaths++;
+            deathCountEl.textContent = deaths;
+            
+            // Create dust particle explosion
+            deathAnimation.active = true;
+            deathAnimation.frame = 0;
+            deathAnimation.particles = [];
+            
+            // Generate dust cloud particles - more numerous and varied
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 3;
+                const grayValue = 150 + Math.floor(Math.random() * 80);
+                deathAnimation.particles.push({
+                    x: player.x + Math.random() * player.width,
+                    y: player.y + Math.random() * player.height,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - Math.random() * 2,
+                    size: 2 + Math.random() * 5,
+                    color: { r: grayValue, g: grayValue, b: grayValue },
+                    life: 30 + Math.floor(Math.random() * 20)
+                });
+            }
+            
+            showMessage("You died! Restarting level...", 1500);
+        }
+
+        function nextLevel() {
+            if (keys['ArrowUp']) {
+                keys['ArrowUp'] = false; // Prevent multiple triggers
+            }
+            
+            if (currentLevel < 5) {
+                currentLevel++;
+                showMessage(`Level ${currentLevel} unlocked!`, 2000);
+                setTimeout(() => loadLevel(currentLevel), 500);
+            } else {
+                showMessage(`You beat all 5 levels! Total deaths: ${deaths}`, 5000);
+                setTimeout(() => {
+                    currentLevel = 1;
+                    deaths = 0;
+                    deathCountEl.textContent = 0;
+                    loadLevel(1);
+                }, 5000);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            if (e.key === ' ' && player.grounded) {
+                player.vy = -player.jumpPower;
+                player.grounded = false;
+            }
+            
+            if (e.key.toLowerCase() === 'r') {
+                loadLevel(currentLevel);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Start game
+        loadLevel(1);
+        gameLoop();
+    </script>
+</body>
+</html>
