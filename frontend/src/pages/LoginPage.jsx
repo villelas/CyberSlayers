@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, ArrowLeft, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { API_ENDPOINTS } from '../config';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ export default function LoginPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

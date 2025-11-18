@@ -9,3 +9,4 @@ python-dotenv==1.0.0
 alembic==1.12.1
 psycopg2-binary==2.9.9
 firebase-admin
+email-validator

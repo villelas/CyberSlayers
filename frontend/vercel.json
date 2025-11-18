@@ -1,0 +1,9 @@
+{
+    "buildCommand": "npm run build",
+    "outputDirectory": "build",
+    "devCommand": "npm start",
+    "framework": "create-react-app",
+    "env": {
+      "REACT_APP_API_URL": "https://cyberslayers-backend-252197785525.us-central1.run.app"
+    }
+  }

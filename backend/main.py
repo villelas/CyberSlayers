@@ -8,15 +8,26 @@ from datetime import datetime
 import logging
 import hashlib
 import uuid
+import os
+import json
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Firebase with your service account
+# Initialize Firebase with environment-aware credentials
 try:
     if not firebase_admin._apps:
-        cred = credentials.Certificate("cyberslayers-service-account.json")
+        # Check if running on Cloud Run (with Secret Manager)
+        if os.getenv("FIREBASE_CREDENTIALS"):
+            logger.info("Using FIREBASE_CREDENTIALS from environment")
+            cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
+            cred = credentials.Certificate(cred_dict)
+        # Local development
+        else:
+            logger.info("Using local service account file")
+            cred = credentials.Certificate("cyberslayers-service-account.json")
+        
         firebase_admin.initialize_app(cred)
     
     db = firestore.client()
@@ -31,10 +42,25 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# Get environment
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+# CORS middleware - Update with your Vercel frontend URL
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://cyberslayers-1sfb6k8tn-villelas-projects.vercel.app",
+]
+
+# Add production frontend URL when deploying
+if ENVIRONMENT == "production":
+    allowed_origins.append("https://cyberslayers-villelas-projects.vercel.app")
+    # Also allow preview deployments
+    allowed_origins.append("https://cyberslayers-1sfb6k8tn-villelas-projects.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,13 +89,18 @@ class UserResponse(BaseModel):
 # Routes
 @app.get("/")
 async def root():
-    return {"message": "CyberSlayers API is running! 🛡️"}
+    return {
+        "message": "CyberSlayers API is running! 🛡️",
+        "environment": ENVIRONMENT,
+        "status": "healthy"
+    }
 
 @app.get("/api/health")
 async def health_check():
     return {
         "status": "healthy",
         "firestore": "connected",
+        "environment": ENVIRONMENT,
         "timestamp": datetime.now()
     }
 
@@ -205,7 +236,6 @@ async def pull_game_data():
                 users_current_game_scores.append(game_score)
         return users_current_game_scores
     
-
     except HTTPException:
         raise
     except Exception as e:
@@ -216,11 +246,12 @@ async def pull_game_data():
         )
 
 
-### GUYS THIS IS HOW YOU RUN IT :python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 if __name__ == "__main__":
+    # Get port from environment variable (for Cloud Run compatibility)
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "main:app", 
         host="0.0.0.0", 
-        port=8000, 
+        port=port, 
         reload=True
     )
