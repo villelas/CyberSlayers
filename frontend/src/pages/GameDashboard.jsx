@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Star, Trophy, Zap, Play, Lock, Home, LogOut, X, Target, Sword, Eye } from 'lucide-react';
+import '../App.css';
 
 export default function GameDashboard() {
   const navigate = useNavigate();
@@ -63,14 +64,8 @@ export default function GameDashboard() {
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        fontSize: '1.5rem'
+      <div className="loading-container" style={{
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
       }}>
         Loading your cyber security network... 🔐
       </div>
@@ -90,7 +85,7 @@ export default function GameDashboard() {
       description: "Master authentication protocols and secure access systems",
       emoji: "🛡️",
       icon: Shield,
-      position: { top: '65%', left: '8%' }, // Percentage-based positioning
+      position: { top: '65%', left: '8%' },
       color: '#e91e63',
       terrain: 'security'
     },
@@ -146,26 +141,11 @@ export default function GameDashboard() {
   });
 
   const styles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-      color: 'white',
-      fontFamily: 'Arial, sans-serif',
-      padding: '1rem',
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-      overflow: 'hidden'
-    },
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '15px',
       padding: '0.8rem 1rem',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
       marginBottom: '0.8rem',
       flexWrap: 'wrap',
       gap: '0.5rem'
@@ -177,80 +157,18 @@ export default function GameDashboard() {
     },
     userName: {
       fontSize: 'clamp(1rem, 2vw, 1.3rem)',
-      fontWeight: 'bold',
-      background: 'linear-gradient(45deg, #fff, #00bcd4)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text'
+      fontWeight: 'bold'
     },
     navButtons: {
       display: 'flex',
       gap: '0.5rem'
     },
-    navButton: {
-      padding: '0.5rem 1rem',
-      background: 'rgba(255, 255, 255, 0.2)',
-      border: 'none',
-      borderRadius: '10px',
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-      fontWeight: 'bold'
-    },
-    progressContainer: {
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '15px',
-      padding: '1rem 1.5rem',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      textAlign: 'center',
-      marginBottom: '0.8rem'
-    },
-    progressTitle: {
-      fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)',
-      fontWeight: 'bold',
-      marginBottom: '0.8rem'
-    },
-    progressBarContainer: {
-      width: '100%',
-      height: '20px',
-      background: 'rgba(0, 0, 0, 0.1)',
-      borderRadius: '10px',
-      overflow: 'hidden',
-      position: 'relative'
-    },
-    progressBar: {
-      height: '100%',
-      background: `linear-gradient(90deg, ${progressColor}, ${progressColor}dd)`,
-      borderRadius: '10px',
-      transition: 'width 1s ease-in-out'
-    },
-    progressText: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      fontWeight: 'bold',
-      fontSize: '0.8rem',
-      color: 'white',
-      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
-    },
-    progressMessage: {
-      marginTop: '0.5rem',
-      fontSize: 'clamp(0.85rem, 1.8vw, 1rem)',
-      opacity: 0.9
-    },
     mapCard: {
       background: 'rgba(255, 255, 255, 0.1)',
       backdropFilter: 'blur(20px)',
       borderRadius: '20px',
-      padding: '1.5rem',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      padding: 'clamp(1rem, 2vw, 2rem)',
+      border: '2px solid rgba(255, 255, 255, 0.2)',
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
@@ -258,25 +176,25 @@ export default function GameDashboard() {
       overflow: 'hidden'
     },
     mapTitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(1.3rem, 3vw, 2rem)',
+      fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
       fontWeight: 'bold',
+      textAlign: 'center',
       marginBottom: '1rem',
-      textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+      background: 'linear-gradient(45deg, #00bcd4, #9c27b0, #f093fb)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      textShadow: '0 0 30px rgba(0,188,212,0.3)'
     },
     mapContainer: {
       position: 'relative',
       flex: 1,
-      width: '100%',
-      background: `
-        radial-gradient(circle at 8% 65%, rgba(233, 30, 99, 0.1) 0%, transparent 35%),
-        radial-gradient(circle at 38% 45%, rgba(33, 150, 243, 0.1) 0%, transparent 35%),
-        radial-gradient(circle at 62% 20%, rgba(76, 175, 80, 0.1) 0%, transparent 35%),
-        radial-gradient(circle at 82% 20%, rgba(156, 39, 176, 0.1) 0%, transparent 35%)
-      `,
+      background: 'linear-gradient(135deg, rgba(26,26,46,0.4) 0%, rgba(22,33,62,0.4) 50%, rgba(15,52,96,0.4) 100%)',
       borderRadius: '15px',
-      border: '2px dashed rgba(255, 255, 255, 0.3)',
-      minHeight: '300px'
+      border: '2px solid rgba(0, 188, 212, 0.3)',
+      boxShadow: '0 0 40px rgba(0,188,212,0.2), inset 0 0 60px rgba(0,0,0,0.3)',
+      minHeight: '400px',
+      overflow: 'hidden'
     },
     pathSvg: {
       position: 'absolute',
@@ -284,199 +202,104 @@ export default function GameDashboard() {
       left: 0,
       width: '100%',
       height: '100%',
-      zIndex: 1
+      zIndex: 1,
+      pointerEvents: 'none'
     },
     gameCard: {
       position: 'absolute',
-      width: 'clamp(100px, 12vw, 130px)',
-      height: 'clamp(100px, 12vw, 130px)',
+      width: 'clamp(80px, 12vw, 120px)',
+      height: 'clamp(80px, 12vw, 120px)',
       background: 'rgba(255, 255, 255, 0.15)',
       backdropFilter: 'blur(15px)',
-      borderRadius: '20px',
+      borderRadius: '15px',
       border: '2px solid rgba(255, 255, 255, 0.3)',
       cursor: 'pointer',
-      transition: 'all 0.4s ease',
-      zIndex: 10,
+      transition: 'all 0.3s ease',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
-      padding: '0.8rem',
-      transform: 'translate(-50%, -50%)'
-    },
-    gameCardLocked: {
-      filter: 'grayscale(100%) brightness(0.7)',
-      cursor: 'not-allowed',
-      opacity: 0.6
+      padding: 'clamp(0.5rem, 1vw, 0.8rem)',
+      zIndex: 2,
+      transform: 'translate(-50%, -50%)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
     },
     gameCardHover: {
-      transform: 'translate(-50%, -50%) scale(1.1)',
-      boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
-      zIndex: 20,
-      border: '2px solid rgba(255, 255, 255, 0.5)'
+      transform: 'translate(-50%, -50%) scale(1.15)',
+      boxShadow: '0 15px 50px rgba(0,188,212,0.6)',
+      border: '2px solid rgba(0,188,212,0.8)'
+    },
+    gameCardLocked: {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+      filter: 'grayscale(0.7)'
+    },
+    gameNumber: {
+      position: 'absolute',
+      top: '5px',
+      left: '5px',
+      background: 'rgba(0, 0, 0, 0.7)',
+      borderRadius: '50%',
+      width: 'clamp(20px, 3vw, 24px)',
+      height: 'clamp(20px, 3vw, 24px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
+      fontWeight: 'bold',
+      border: '1px solid rgba(255, 255, 255, 0.3)'
+    },
+    statusBadge: {
+      position: 'absolute',
+      top: '5px',
+      right: '5px',
+      borderRadius: '50%',
+      width: 'clamp(22px, 3.5vw, 28px)',
+      height: 'clamp(22px, 3.5vw, 28px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '2px solid white',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
     },
     gameIcon: {
       fontSize: 'clamp(2rem, 4vw, 2.5rem)',
       marginBottom: '0.3rem'
     },
     gameTitle: {
-      fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
+      fontSize: 'clamp(0.65rem, 1.2vw, 0.85rem)',
       fontWeight: 'bold',
       textAlign: 'center',
-      color: 'white',
-      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-      lineHeight: '1.2'
-    },
-    gameNumber: {
-      position: 'absolute',
-      top: '-8px',
-      left: '-8px',
-      width: 'clamp(24px, 3vw, 28px)',
-      height: 'clamp(24px, 3vw, 28px)',
-      borderRadius: '50%',
-      background: 'linear-gradient(145deg, #667eea, #764ba2)',
-      color: 'white',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
-      fontWeight: 'bold',
-      border: '2px solid rgba(255, 255, 255, 0.3)',
-      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
-    },
-    statusBadge: {
-      position: 'absolute',
-      top: '-8px',
-      right: '-8px',
-      width: 'clamp(24px, 3vw, 28px)',
-      height: 'clamp(24px, 3vw, 28px)',
-      borderRadius: '50%',
-      border: '2px solid rgba(255, 255, 255, 0.3)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-    },
-    modal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.7)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '1rem'
-    },
-    modalContent: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      borderRadius: '24px',
-      padding: '2rem',
-      maxWidth: '500px',
-      width: '100%',
-      color: 'white',
-      position: 'relative',
-      border: '3px solid rgba(255, 255, 255, 0.3)',
-      maxHeight: '90vh',
-      overflowY: 'auto'
-    },
-    modalClose: {
-      position: 'absolute',
-      top: '1rem',
-      right: '1rem',
-      background: 'rgba(255, 255, 255, 0.2)',
-      border: 'none',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-      color: 'white',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transition: 'all 0.3s ease'
-    },
-    modalHeader: {
-      textAlign: 'center',
-      marginBottom: '1.5rem'
-    },
-    modalEmoji: {
-      fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-      marginBottom: '1rem'
-    },
-    modalTitle: {
-      fontSize: 'clamp(1.3rem, 3vw, 2rem)',
-      fontWeight: 'bold',
-      marginBottom: '0.5rem'
-    },
-    modalDescription: {
-      fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-      opacity: 0.9
-    },
-    modalStats: {
-      background: 'rgba(255, 255, 255, 0.1)',
-      borderRadius: '16px',
-      padding: '1rem',
-      marginBottom: '1.5rem'
-    },
-    modalButtons: {
-      display: 'flex',
-      gap: '1rem',
-      justifyContent: 'center',
-      flexWrap: 'wrap'
-    },
-    modalButton: {
-      padding: '1rem 2rem',
-      border: 'none',
-      borderRadius: '12px',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      fontSize: 'clamp(0.9rem, 1.8vw, 1rem)'
-    },
-    playButton: {
-      background: 'linear-gradient(45deg, #00bcd4, #2196f3)',
-      color: 'white'
-    },
-    cancelButton: {
-      background: 'rgba(255, 255, 255, 0.2)',
-      color: 'white'
+      lineHeight: '1.2',
+      textShadow: '0 2px 4px rgba(0,0,0,0.8)'
     }
   };
 
   return (
-    <div style={styles.container}>
+    <div className="cyber-container bg-gradient-primary" style={{padding: '1rem', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', overflow: 'hidden'}}>
       {/* Header */}
-      <div style={styles.header}>
+      <div className="glass-card" style={styles.header}>
         <div style={styles.userInfo}>
           <Shield size={32} color="#00bcd4" />
           <div>
-            <div style={styles.userName}>
+            <div className="text-gradient-secondary" style={styles.userName}>
               {userData.email.split('@')[0]}'s Cyber Dashboard
             </div>
-            <div style={{ fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)', opacity: 0.7 }}>
+            <div className="text-muted" style={{ fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)' }}>
               Security Level {Math.floor(userData.overall_game_progress / 25) + 1} Analyst
             </div>
           </div>
         </div>
         <div style={styles.navButtons}>
           <button 
-            style={styles.navButton}
+            className="btn-nav"
             onClick={() => navigate('/')}
-            onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
-            onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
           >
             <Home size={16} />
             Home
           </button>
           <button 
-            style={styles.navButton}
+            className="btn-nav"
             onClick={handleLogout}
             onMouseEnter={(e) => e.target.style.background = 'rgba(255, 69, 58, 0.3)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
@@ -488,22 +311,23 @@ export default function GameDashboard() {
       </div>
 
       {/* Progress Section */}
-      <div style={styles.progressContainer}>
-        <div style={styles.progressTitle}>
+      <div className="progress-container">
+        <div className="progress-title">
           🛡️ Cyber Security Mastery Progress 🛡️
         </div>
-        <div style={styles.progressBarContainer}>
+        <div className="progress-bar-wrapper">
           <div 
+            className="progress-bar"
             style={{
-              ...styles.progressBar,
-              width: `${userData.overall_game_progress}%`
+              width: `${userData.overall_game_progress}%`,
+              background: `linear-gradient(90deg, ${progressColor}, ${progressColor}dd)`
             }}
           />
-          <div style={styles.progressText}>
+          <div className="progress-text">
             {userData.overall_game_progress}% Complete
           </div>
         </div>
-        <div style={styles.progressMessage}>
+        <div className="progress-message">
           {userData.overall_game_progress < 25 && "💾 Systems initializing... Building foundation!"}
           {userData.overall_game_progress >= 25 && userData.overall_game_progress < 50 && "🔒 Security protocols active! Excellent progress!"}
           {userData.overall_game_progress >= 50 && userData.overall_game_progress < 75 && "⚡ Advanced systems online! Almost there!"}
@@ -523,9 +347,9 @@ export default function GameDashboard() {
           <svg style={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <linearGradient id="cyberPath" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#667eea" stopOpacity="0.8" />
-                <stop offset="33%" stopColor="#764ba2" stopOpacity="0.8" />
-                <stop offset="66%" stopColor="#f093fb" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.8" />
+                <stop offset="33%" stopColor="#16213e" stopOpacity="0.8" />
+                <stop offset="66%" stopColor="#0f3460" stopOpacity="0.8" />
                 <stop offset="100%" stopColor="#00bcd4" stopOpacity="0.8" />
               </linearGradient>
               <filter id="glow">
@@ -574,24 +398,22 @@ export default function GameDashboard() {
 
       {/* Game Modal */}
       {showModal && selectedArena && (
-        <div style={styles.modal} onClick={() => setShowModal(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button 
-              style={styles.modalClose}
+              className="modal-close"
               onClick={() => setShowModal(false)}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
-              onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
             >
               <X size={20} />
             </button>
             
-            <div style={styles.modalHeader}>
-              <div style={styles.modalEmoji}>{selectedArena.emoji}</div>
-              <div style={styles.modalTitle}>{selectedArena.name}</div>
-              <div style={styles.modalDescription}>{selectedArena.description}</div>
+            <div className="modal-header">
+              <div className="modal-emoji">{selectedArena.emoji}</div>
+              <div className="modal-title">{selectedArena.name}</div>
+              <div className="modal-description">{selectedArena.description}</div>
             </div>
 
-            <div style={styles.modalStats}>
+            <div className="modal-stats">
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <span>Security Score:</span>
                 <span style={{ fontWeight: 'bold', color: selectedArena.gameStatus.color }}>
@@ -612,18 +434,16 @@ export default function GameDashboard() {
               </div>
             </div>
 
-            <div style={styles.modalButtons}>
+            <div className="modal-buttons">
               <button 
-                style={{...styles.modalButton, ...styles.playButton}}
+                className="modal-button modal-button-play"
                 onClick={handlePlayGame}
-                onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               >
                 <Play size={20} />
                 Access System!
               </button>
               <button 
-                style={{...styles.modalButton, ...styles.cancelButton}}
+                className="modal-button modal-button-cancel"
                 onClick={() => setShowModal(false)}
               >
                 Stand By
