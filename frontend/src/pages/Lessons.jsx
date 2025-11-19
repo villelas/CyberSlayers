@@ -2,21 +2,318 @@ import React, { useState } from 'react';
 import { Shield, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const AboutUs = () => {
+const ModulesPage = () => {
   const navigate = useNavigate();
 
+  // --- MODULE DATA ---
+  const modules = [
+    {
+      id: 1,
+      title: 'Module 1 – Digital Footprint',
+      shortTitle: 'Digital Footprint',
+      content:
+        'In the hunt for Lagdrakul, Te-Qwuiz teaches that every “rune you etch” online becomes part of your digital footprint: (1) once posted, information is permanent, (2) enemies can track you using the details you reveal, (3) sharing personal data helps attackers build profiles, and (4) protecting your identity protects your future self. The realm learns that even heroes should think before they carve their mark into the network stone.',
+      quizQuestions: [
+        {
+          key: 'm1q1',
+          prompt: 'Is online information easily erased once posted?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'Yes — once deleted, it disappears from your permanent digital footprint.'
+            },
+            {
+              value: 'correct',
+              label:
+                'No — once shared, it becomes part of your permanent digital footprint.'
+            }
+          ]
+        },
+        {
+          key: 'm1q2',
+          prompt: 'Why does oversharing online put you at risk?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'It does not — the internet is already a collection of information.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Attackers can use your information to track or target you, or pretend to be you and trick others.'
+            }
+          ]
+        },
+        {
+          key: 'm1q3',
+          prompt:
+            'What kind of information should you protect to avoid profiling?',
+          options: [
+            {
+              value: 'wrong',
+              label: 'Video game scores.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Personal details such as location, habits, or identity clues. Don’t post anything you wouldn’t want a parent or future boss to see.'
+            }
+          ]
+        },
+        {
+          key: 'm1q4',
+          prompt:
+            'How does guarding your online presence protect your future?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'It lets you share more information with strangers more easily.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Because posts can be used later for reputation, privacy, or security attacks.'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 2,
+      title: 'Module 2 – Deepfakes (False Faces)',
+      shortTitle: 'Deepfakes (False Faces)',
+      content:
+        'As the investigation deepens, Te-Qwuiz discovers “shadow helms” — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn’t guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.',
+      quizQuestions: [
+        {
+          key: 'm2q1',
+          prompt: 'Can a forged image or voice appear convincingly real?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'Yes — deepfakes can imitate trusted people with high accuracy.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'No — fake images and voices are always easy to spot at a glance.'
+            }
+          ]
+        },
+        {
+          key: 'm2q2',
+          prompt:
+            'When you recognize a face or voice online, should you automatically trust it?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'Yes — if you recognize them, it’s always safe to trust the account.'
+            },
+            {
+              value: 'correct',
+              label:
+                'No — familiarity doesn’t prove authenticity, especially for celebrities or politicians.'
+            }
+          ]
+        },
+        {
+          key: 'm2q3',
+          prompt: 'What is the best defense against deepfake manipulation?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'Verify the source before believing or acting on the content.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'React quickly and share the content before anyone else does.'
+            }
+          ]
+        },
+        {
+          key: 'm2q4',
+          prompt: 'How can you expose a deepfake more easily?',
+          options: [
+            {
+              value: 'correct',
+              label: 'Compare information across multiple channels.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Only look at likes and comments — if it’s popular, it must be real.'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 3,
+      title: 'Module 3 – Phishing Scams (The Phishers’ Net)',
+      shortTitle: 'Phishing Scams (The Phishers’ Net)',
+      content:
+        'Lagdrakul’s agents unleash waves of enchanted scrolls that tempt the unwary: (1) phishing messages push urgency to override reason, (2) no legitimate ally asks for passwords or private keys, (3) suspicious links and attachments are a major danger, and (4) when in doubt, contact the supposed sender directly through a trusted channel. Knights learn that quick clicks can lead to quick downfall.',
+      quizQuestions: [
+        {
+          key: 'm3q1',
+          prompt:
+            'What tactic do phishing messages use to make you act without thinking?',
+          options: [
+            {
+              value: 'correct',
+              label: 'Urgency or pressure.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Polite greetings and lots of emojis to seem friendly and harmless.'
+            }
+          ]
+        },
+        {
+          key: 'm3q2',
+          prompt:
+            'Should you ever give passwords, private keys, or money over messages?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'No — no legitimate organization or ally will request them this way.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Yes — as long as the message looks official and has a logo.'
+            }
+          ]
+        },
+        {
+          key: 'm3q3',
+          prompt: 'Why are unknown links and attachments risky?',
+          options: [
+            {
+              value: 'correct',
+              label: 'They may hide malware or traps.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'They just make the message look more impressive and are always safe to click.'
+            }
+          ]
+        },
+        {
+          key: 'm3q4',
+          prompt: 'How do you verify a suspicious message?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'Reach out to the sender through a known, trusted channel and double-check details.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Reply directly to the message and follow any links it includes right away.'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 4,
+      title: 'Module 4 – Public Networks Safety (The Polluted Well)',
+      shortTitle: 'Public Networks Safety (The Polluted Well)',
+      content:
+        'When Lagdrakul poisons public digital wells, Te-Qwuiz warns that (1) shared networks expose all users to eavesdropping, (2) logging into sensitive accounts on public access points is dangerous, (3) secure connections and encryption protect travelers, and (4) using personal defenses like firewalls and shields prevents outsiders from spying. A hero should never drink unguarded from a shared source.',
+      quizQuestions: [
+        {
+          key: 'm4q1',
+          prompt: 'What risk do public networks pose?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'They allow attackers to intercept data from anyone connected.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'They automatically make your internet faster and safer with no effort.'
+            }
+          ]
+        },
+        {
+          key: 'm4q2',
+          prompt:
+            'Should you access banking or private accounts on public networks?',
+          options: [
+            {
+              value: 'correct',
+              label: 'No — it greatly increases your vulnerability.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Yes — public Wi-Fi is built for handling all sensitive information.'
+            }
+          ]
+        },
+        {
+          key: 'm4q3',
+          prompt:
+            'What are some common public networks that might be like this?',
+          options: [
+            {
+              value: 'correct',
+              label: 'Airports, coffee shops, and malls.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Only your bedroom and home router — everywhere else is always safe.'
+            }
+          ]
+        },
+        {
+          key: 'm4q4',
+          prompt:
+            'What personal protection helps block spying on public networks?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'Firewalls, shield-like protections, or VPNs that encrypt your traffic.'
+            },
+            {
+              value: 'wrong',
+              label: 'Turning your screen brightness to maximum.'
+            }
+          ]
+        }
+      ]
+    }
+  ];
+
+  // --- STATE ---
   const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [answers, setAnswers] = useState({
-    q1: '',
-    q2: '',
-    q3: '',
-    q4: ''
-  });
+  const [activeModuleId, setActiveModuleId] = useState(null);
+  const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
   const [percentage, setPercentage] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const [totalPercentAccum, setTotalPercentAccum] = useState(0);
 
+  const activeModule = modules.find((m) => m.id === activeModuleId);
+
+  // --- STYLES ---
   const styles = {
     container: {
       minHeight: '100vh',
@@ -75,19 +372,13 @@ const AboutUs = () => {
       transition: 'transform 0.3s ease'
     },
     pageWrapper: {
-      maxWidth: '900px',
-      width: '100%',
+      maxWidth: '1100px',
       margin: '3rem auto 0',
-      padding: '2.5rem 2rem',
-      background: 'rgba(255, 255, 255, 0.06)',
-      borderRadius: '20px',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      backdropFilter: 'blur(18px)',
-      boxShadow: '0 18px 40px rgba(0, 0, 0, 0.5)'
+      padding: '0 2rem'
     },
     header: {
       textAlign: 'center',
-      marginBottom: '1.75rem'
+      marginBottom: '2rem'
     },
     title: {
       fontSize: '2.5rem',
@@ -97,7 +388,7 @@ const AboutUs = () => {
     subtitle: {
       fontSize: '1rem',
       color: '#d0d0d0',
-      maxWidth: '500px',
+      maxWidth: '550px',
       margin: '0 auto'
     },
     badgeRow: {
@@ -119,29 +410,46 @@ const AboutUs = () => {
       fontWeight: 'bold',
       color: '#00bcd4'
     },
-    sectionTitle: {
-      fontSize: '1.4rem',
-      fontWeight: '800',
-      marginTop: '1.5rem',
-      marginBottom: '0.5rem'
+    modulesGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '1.5rem',
+      marginTop: '2rem'
     },
-    text: {
-      fontSize: '1rem',
-      color: '#f0f0f0',
-      lineHeight: '1.7',
+    moduleCard: {
+      background: 'rgba(255, 255, 255, 0.06)',
+      borderRadius: '20px',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      backdropFilter: 'blur(18px)',
+      boxShadow: '0 18px 40px rgba(0, 0, 0, 0.5)',
+      padding: '1.5rem 1.75rem',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
+    },
+    moduleTitle: {
+      fontSize: '1.25rem',
+      fontWeight: '800',
       marginBottom: '0.75rem'
     },
+    moduleText: {
+      fontSize: '0.98rem',
+      color: '#f0f0f0',
+      lineHeight: '1.7',
+      marginBottom: '1rem'
+    },
     startQuizBtn: {
-      marginTop: '1.75rem',
+      marginTop: '0.75rem',
+      alignSelf: 'flex-start',
       display: 'inline-flex',
       alignItems: 'center',
       gap: '0.5rem',
-      padding: '0.9rem 1.8rem',
+      padding: '0.8rem 1.6rem',
       background: 'linear-gradient(45deg, #00bcd4, #2196f3)',
       border: 'none',
       borderRadius: '14px',
       color: 'white',
-      fontSize: '1rem',
+      fontSize: '0.95rem',
       fontWeight: 'bold',
       cursor: 'pointer',
       boxShadow: '0 10px 30px rgba(0, 188, 212, 0.5)',
@@ -158,8 +466,10 @@ const AboutUs = () => {
     },
     quizCard: {
       width: '95%',
-      maxWidth: '700px',
-      background: 'rgba(15, 52, 96, 0.95)',
+      maxWidth: '750px',
+      maxHeight: '90vh',
+      overflowY: 'auto',
+      background: 'rgba(15, 52, 96, 0.96)',
       borderRadius: '22px',
       border: '1px solid rgba(0, 188, 212, 0.5)',
       boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
@@ -255,8 +565,25 @@ const AboutUs = () => {
     }
   };
 
+  // --- HANDLERS ---
+  const openQuiz = (moduleId) => {
+    const module = modules.find((m) => m.id === moduleId);
+    if (!module) return;
+
+    const blankAnswers = {};
+    module.quizQuestions.forEach((q) => {
+      blankAnswers[q.key] = '';
+    });
+
+    setActiveModuleId(moduleId);
+    setAnswers(blankAnswers);
+    setScore(null);
+    setPercentage(null);
+    setIsQuizOpen(true);
+  };
+
   const handleAnswerChange = (questionKey, value) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
       [questionKey]: value
     }));
@@ -264,20 +591,15 @@ const AboutUs = () => {
 
   const handleSubmitQuiz = (e) => {
     e.preventDefault();
+    if (!activeModule) return;
 
-    const correctAnswers = {
-      q1: 'correct',
-      q2: 'correct',
-      q3: 'correct',
-      q4: 'correct'
-    };
-
+    const questions = activeModule.quizQuestions;
     let s = 0;
-    Object.keys(correctAnswers).forEach(q => {
-      if (answers[q] === correctAnswers[q]) s += 1;
+    questions.forEach((q) => {
+      if (answers[q.key] === 'correct') s += 1;
     });
 
-    const totalQuestions = Object.keys(correctAnswers).length;
+    const totalQuestions = questions.length;
     const perc = Math.round((s / totalQuestions) * 100);
 
     setScore(s);
@@ -296,7 +618,7 @@ const AboutUs = () => {
 
   return (
     <div style={styles.container}>
-      {/* NAVBAR FROM HOMEPAGE */}
+      {/* NAVBAR */}
       <nav style={styles.nav}>
         <div
           style={styles.logo}
@@ -323,64 +645,61 @@ const AboutUs = () => {
 
       {/* PAGE CONTENT */}
       <div style={styles.pageWrapper}>
-        {/* Header */}
         <header style={styles.header}>
           <h1 style={styles.title}>
             <span style={styles.titleGradient}>
-              Welcome to CyberSlayers Content Modules
+              CyberSlayers Content Modules
             </span>
           </h1>
           <p style={styles.subtitle}>
-            For every module: read the content, take the quiz, score at least{' '}
-            <strong>75/100</strong>, then unlock the next game encounter.
+            For each module: read the story, take the quiz, score at least{' '}
+            <strong>75%</strong>, and then continue your quest against Lagdrakul&apos;s
+            forces.
           </p>
           <div style={styles.badgeRow}>
             <div style={styles.badge}>
               <Shield size={16} color="#00bcd4" />
-              Module 1 – Digital Footprint
+              4 Story-Driven Cyber Modules
             </div>
             <div style={styles.badge}>
               <Sparkles size={16} color="#9c27b0" />
-              Story-Based Cyber Lessons
+              Quizzes & Progress Feedback
             </div>
           </div>
         </header>
 
-        {/* Module Content */}
-        <section>
-          <h2 style={styles.sectionTitle}>Module 1 – Digital Footprint</h2>
-          <p style={styles.text}>
-            In the hunt for Lagdrakul, Te-Qwuiz teaches that every “rune you etch” online
-            becomes part of your digital footprint: (1) once posted, information is
-            permanent, (2) enemies can track you using the details you reveal, (3) sharing
-            personal data helps attackers build profiles, and (4) protecting your identity
-            protects your future self. The realm learns that even heroes should think before
-            they carve their mark into the network stone.
-          </p>
-
-          {/* Button to open quiz */}
-          <button
-            style={styles.startQuizBtn}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow =
-                '0 14px 36px rgba(0, 188, 212, 0.7)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow =
-                '0 10px 30px rgba(0, 188, 212, 0.5)';
-            }}
-            onClick={() => setIsQuizOpen(true)}
-          >
-            <Sparkles size={18} />
-            Start Quiz for Module 1
-          </button>
-        </section>
+        {/* MODULE CARDS */}
+        <div style={styles.modulesGrid}>
+          {modules.map((mod) => (
+            <section key={mod.id} style={styles.moduleCard}>
+              <div>
+                <h2 style={styles.moduleTitle}>{mod.title}</h2>
+                <p style={styles.moduleText}>{mod.content}</p>
+              </div>
+              <button
+                style={styles.startQuizBtn}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow =
+                    '0 14px 36px rgba(0, 188, 212, 0.7)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow =
+                    '0 10px 30px rgba(0, 188, 212, 0.5)';
+                }}
+                onClick={() => openQuiz(mod.id)}
+              >
+                <Sparkles size={18} />
+                Start Quiz for {mod.shortTitle}
+              </button>
+            </section>
+          ))}
+        </div>
       </div>
 
-      {/* Quiz Popup Overlay */}
-      {isQuizOpen && (
+      {/* QUIZ POPUP */}
+      {isQuizOpen && activeModule && (
         <div style={styles.quizOverlay}>
           <div style={styles.quizCard}>
             <button
@@ -393,180 +712,38 @@ const AboutUs = () => {
 
             <div style={styles.quizHeader}>
               <Shield size={24} color="#00bcd4" />
-              <h2 style={styles.quizTitle}>Module 1 Quiz – Digital Footprint</h2>
+              <h2 style={styles.quizTitle}>
+                {activeModule.title} — Quiz
+              </h2>
             </div>
 
             <form onSubmit={handleSubmitQuiz}>
-              {/* Question 1 */}
-              <div style={styles.questionBlock}>
-                <p style={styles.questionText}>
-                  1. Is online information easily erased once posted?
-                </p>
-                <ul style={styles.optionsList}>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q1a">
-                      <input
-                        id="q1a"
-                        type="radio"
-                        name="q1"
-                        value="wrong"
-                        style={styles.radio}
-                        checked={answers.q1 === 'wrong'}
-                        onChange={() => handleAnswerChange('q1', 'wrong')}
-                      />
-                      <span>
-                        Yes — once deleted, it disappears from your permanent digital
-                        footprint.
-                      </span>
-                    </label>
-                  </li>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q1b">
-                      <input
-                        id="q1b"
-                        type="radio"
-                        name="q1"
-                        value="correct"
-                        style={styles.radio}
-                        checked={answers.q1 === 'correct'}
-                        onChange={() => handleAnswerChange('q1', 'correct')}
-                      />
-                      <span>
-                        No — once shared, it becomes part of your permanent digital
-                        footprint.
-                      </span>
-                    </label>
-                  </li>
-                </ul>
-              </div>
+              {activeModule.quizQuestions.map((q) => (
+                <div key={q.key} style={styles.questionBlock}>
+                  <p style={styles.questionText}>{q.prompt}</p>
+                  <ul style={styles.optionsList}>
+                    {q.options.map((opt, idx) => (
+                      <li key={idx} style={styles.optionItem}>
+                        <label style={styles.optionLabel} htmlFor={`${q.key}-${idx}`}>
+                          <input
+                            id={`${q.key}-${idx}`}
+                            type="radio"
+                            name={q.key}
+                            value={opt.value}
+                            style={styles.radio}
+                            checked={answers[q.key] === opt.value}
+                            onChange={() =>
+                              handleAnswerChange(q.key, opt.value)
+                            }
+                          />
+                          <span>{opt.label}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
 
-              {/* Question 2 */}
-              <div style={styles.questionBlock}>
-                <p style={styles.questionText}>
-                  2. Why does oversharing online put you at risk?
-                </p>
-                <ul style={styles.optionsList}>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q2a">
-                      <input
-                        id="q2a"
-                        type="radio"
-                        name="q2"
-                        value="wrong"
-                        style={styles.radio}
-                        checked={answers.q2 === 'wrong'}
-                        onChange={() => handleAnswerChange('q2', 'wrong')}
-                      />
-                      <span>
-                        It does not — the internet is already a collection of information.
-                      </span>
-                    </label>
-                  </li>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q2b">
-                      <input
-                        id="q2b"
-                        type="radio"
-                        name="q2"
-                        value="correct"
-                        style={styles.radio}
-                        checked={answers.q2 === 'correct'}
-                        onChange={() => handleAnswerChange('q2', 'correct')}
-                      />
-                      <span>
-                        Attackers can use your information to track or target you, or
-                        pretend to be you and trick others.
-                      </span>
-                    </label>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Question 3 */}
-              <div style={styles.questionBlock}>
-                <p style={styles.questionText}>
-                  3. What kind of information should you protect to avoid profiling?
-                </p>
-                <ul style={styles.optionsList}>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q3a">
-                      <input
-                        id="q3a"
-                        type="radio"
-                        name="q3"
-                        value="wrong"
-                        style={styles.radio}
-                        checked={answers.q3 === 'wrong'}
-                        onChange={() => handleAnswerChange('q3', 'wrong')}
-                      />
-                      <span>Video game scores.</span>
-                    </label>
-                  </li>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q3b">
-                      <input
-                        id="q3b"
-                        type="radio"
-                        name="q3"
-                        value="correct"
-                        style={styles.radio}
-                        checked={answers.q3 === 'correct'}
-                        onChange={() => handleAnswerChange('q3', 'correct')}
-                      />
-                      <span>
-                        Personal details such as location, habits, or identity clues. Don’t
-                        post anything you wouldn’t want a parent, teacher, or future boss
-                        to see.
-                      </span>
-                    </label>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Question 4 */}
-              <div style={styles.questionBlock}>
-                <p style={styles.questionText}>
-                  4. How does guarding your online presence protect your future?
-                </p>
-                <ul style={styles.optionsList}>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q4a">
-                      <input
-                        id="q4a"
-                        type="radio"
-                        name="q4"
-                        value="wrong"
-                        style={styles.radio}
-                        checked={answers.q4 === 'wrong'}
-                        onChange={() => handleAnswerChange('q4', 'wrong')}
-                      />
-                      <span>
-                        It makes it so that you can share information freely with
-                        strangers.
-                      </span>
-                    </label>
-                  </li>
-                  <li style={styles.optionItem}>
-                    <label style={styles.optionLabel} htmlFor="q4b">
-                      <input
-                        id="q4b"
-                        type="radio"
-                        name="q4"
-                        value="correct"
-                        style={styles.radio}
-                        checked={answers.q4 === 'correct'}
-                        onChange={() => handleAnswerChange('q4', 'correct')}
-                      />
-                      <span>
-                        Because posts can be used later for reputation, privacy, or
-                        security attacks.
-                      </span>
-                    </label>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Actions + Results */}
               <div style={styles.quizActions}>
                 <button
                   type="submit"
@@ -582,12 +759,16 @@ const AboutUs = () => {
                 </button>
 
                 <div style={styles.resultText}>
-                  {percentage !== null && (
+                  {percentage !== null ? (
                     <>
                       <div>
-                        Score:{' '}
+                        Score for{' '}
                         <span style={styles.highlight}>
-                          {score}/4 ({percentage}%)
+                          {activeModule.shortTitle}
+                        </span>
+                        :{' '}
+                        <span style={styles.highlight}>
+                          {score}/{activeModule.quizQuestions.length} ({percentage}%)
                         </span>{' '}
                         —{' '}
                         <span style={hasPassed ? styles.passText : styles.failText}>
@@ -596,14 +777,16 @@ const AboutUs = () => {
                       </div>
                       {averagePercent !== null && attempts > 1 && (
                         <div>
-                          Avg over {attempts} attempts:{' '}
+                          Overall average across {attempts} attempts:{' '}
                           <span style={styles.highlight}>{averagePercent}%</span>
                         </div>
                       )}
                     </>
-                  )}
-                  {percentage === null && (
-                    <div>Answer all questions, then hit Submit to see your score.</div>
+                  ) : (
+                    <div>
+                      Answer all questions, then press <strong>Submit Quiz</strong> to
+                      see your score.
+                    </div>
                   )}
                 </div>
               </div>
@@ -615,4 +798,4 @@ const AboutUs = () => {
   );
 };
 
-export default AboutUs;
+export default ModulesPage;
