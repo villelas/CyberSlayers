@@ -49,7 +49,6 @@ const AboutUs = () => {
       cursor: 'pointer',
       fontSize: '0.95rem',
       letterSpacing: '0.03em',
-      textTransform: 'uppercase'
     },
     loginBtn: {
       padding: '0.75rem 1.5rem',
