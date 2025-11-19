@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 import { Shield, Lock, Code, Zap, ChevronRight, PlayCircle, Users, BookOpen } from 'lucide-react';
 
 export default function HomePage() {
@@ -219,7 +219,7 @@ export default function HomePage() {
         </div>
         <ul style={styles.navLinks}>
           <li><a href="/" style={styles.navLink}>Home</a></li>
-          <li><a href="#" style={styles.navLink}>About Us</a></li>
+          <li><a href='/aboutus' style={styles.navLink}>About Us</a></li>
           <li><a href="#" style={styles.navLink}>Games</a></li>
         </ul>
         <button 
