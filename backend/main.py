@@ -26,7 +26,7 @@ try:
         # Local development
         else:
             logger.info("Using local service account file")
-            cred = credentials.Certificate("cyberslayers-service-account.json")
+            cred = credentials.Certificate("cyberslayers-service-account-new.json")
         
         firebase_admin.initialize_app(cred)
     

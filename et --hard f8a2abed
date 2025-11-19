@@ -1,0 +1,31 @@
+[33m66692ba4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Remove secret file and add to gitignore
+[33m233c8f5e[m routes
+[33mbcbc0515[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Rerouted the games link to the game dashboard
+[33mf8a2abed[m Merge branch 'main' of https://github.com/villelas/CyberSlayers
+[33m64031c8d[m adding game files
+[33m296695ac[m Adding About Us Page
+[33mda421fc2[m Code for game2
+[33ma8763132[m This commit is to add game 2
+[33m8c890d17[m added about us link
+[33m825005cf[m Merge and remove service account file
+[33me6c57808[m Deploy CyberSlayers to Cloud Run and Vercel
+[33m35c576ae[m Add Level Devil game HTML structure and logic
+[33md22fabaf[m Create BossFight-Lagdrakul.jsx
+[33m1535a68f[m Remove sensitive data from service account JSONf
+[33mf667d0ba[m  fix git ignore and issues on api calls
+[33m77ed55cf[m Merge remote changes
+[33m05b49934[m Firebase add
+[33m89074954[m game dashboard
+[33m7dc24a52[m game dashboard
+[33mf21034d9[m Temporary commit before history rewrite
+[33m4a8994ed[m Temporary commit before history rewrite
+[33mf1ed558d[m Remove service account file from Git tracking and update .gitignore
+[33m3ba36424[m gamedataapi
+[33mbb23cbe9[m gamedataapi
+[33me61bf462[m Add .gitignore file
+[33mb3882ef7[m  home page / login / sign up / firebase db / fastapi 2 apis
+[33mfde162e2[m  Basic Page strcuture
+[33m0fa559fe[m firebase config file
+[33mec29cf42[m setting up the frontnend and backend
+[33m9b9d7a5e[m Enhance README with detailed project information
+[33m985ecf6d[m Initial commit
