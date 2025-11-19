@@ -220,7 +220,7 @@ export default function HomePage() {
         <ul style={styles.navLinks}>
           <li><a href="/" style={styles.navLink}>Home</a></li>
           <li><a href='/aboutus' style={styles.navLink}>About Us</a></li>
-          <li><a href="#" style={styles.navLink}>Games</a></li>
+          <li><a href="/games" style={styles.navLink}>Games</a></li>
         </ul>
         <button 
           style={styles.loginBtn}
