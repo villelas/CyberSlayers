@@ -9,8 +9,7 @@ import Password_Security_Game from './pages/password_security_game.jsx';
 import Phishing_Detection_Game from './pages/phishing_detection_game.jsx';
 import Malware_Analysis_Lab from './pages/malware_analysis_lab.jsx';
 import Network_Command_Center from './pages/network_command_center.jsx';
-
-
+import Lessons from './pages/Lessons.jsx';
 
 function App() {
   return (
@@ -27,6 +26,7 @@ function App() {
           <Route path="/phishing-detection-hub" element={<Phishing_Detection_Game />} />
           <Route path="/malware-analysis-lab" element={<Malware_Analysis_Lab />} />
           <Route path="/network-command-center" element={<Network_Command_Center />} />
+          <Route path="/lessons" element={<Lessons />} />
         </Routes>
       </div>
     </Router>

@@ -59,6 +59,7 @@ export default function HomePage() {
         <ul className="nav-links">
           <li><a href="/" className="nav-link">Home</a></li>
           <li><a href='/aboutus' className="nav-link">About Us</a></li>
+          <li><a href="/lessons" className="nav-link">Lessons</a></li>
           <li><a href="/games" className="nav-link">Games</a></li>
         </ul>
         <button 

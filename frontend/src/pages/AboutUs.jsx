@@ -49,7 +49,6 @@ const AboutUs = () => {
       cursor: 'pointer',
       fontSize: '0.95rem',
       letterSpacing: '0.03em',
-      textTransform: 'uppercase'
     },
     loginBtn: {
       padding: '0.75rem 1.5rem',
@@ -206,10 +205,11 @@ const AboutUs = () => {
           <Shield size={24} color="#00bcd4" />
           <span style={styles.titleGradient}>CyberSlayers</span>
         </div>
-        <ul style={styles.navLinks}>
-          <li><a href="/" style={styles.navLink}>Home</a></li>
-          <li><a href="/aboutus" style={styles.navLink}>About Us</a></li>
-          <li><a href="/games" style={styles.navLink}>Games</a></li>
+        <ul className="nav-links">
+          <li><a href="/" className="nav-link">Home</a></li>
+          <li><a href='/aboutus' className="nav-link">About Us</a></li>
+          <li><a href="/lessons" className="nav-link">Lessons</a></li>
+          <li><a href="/games" className="nav-link">Games</a></li>
         </ul>
         <button
           style={styles.loginBtn}
