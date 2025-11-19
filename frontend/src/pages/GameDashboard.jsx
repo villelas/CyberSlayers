@@ -126,11 +126,7 @@ export default function GameDashboard() {
     const scoreField = `game${arena.gameNum}_score`;
     const score = games[scoreField] || 0;
     const gameStatus = getGameStatus(score);
-    const isLocked = arena.gameNum > 1 && (
-      arena.gameNum === 2 ? games['game1_score'] === 0 : 
-      arena.gameNum === 3 ? games['game2_score'] === 0 : 
-      arena.gameNum === 4 ? games['game3_score'] === 0 : false
-    );
+    const isLocked = false; // All games unlocked
 
     return {
       ...arena,
