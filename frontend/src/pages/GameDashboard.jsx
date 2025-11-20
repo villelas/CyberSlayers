@@ -311,7 +311,7 @@ export default function GameDashboard() {
   const arenas = [
     {
       gameNum: 1,
-      name: 'Password Security Core',
+      name: 'Digital Footprint Protection',
       description: 'Master authentication protocols and secure access systems',
       emoji: '🛡️',
       icon: Shield,
@@ -321,7 +321,7 @@ export default function GameDashboard() {
     },
     {
       gameNum: 2,
-      name: 'Phishing Detection Hub',
+      name: 'Deepfakes/Grooming Detection',
       description: 'Scan and identify malicious network communications',
       emoji: '🔍',
       icon: Eye,
@@ -331,7 +331,7 @@ export default function GameDashboard() {
     },
     {
       gameNum: 3,
-      name: 'Malware Analysis Lab',
+      name: 'Scam Detection',
       description: 'Reverse engineer and neutralize cyber threats',
       emoji: '🔬',
       icon: Sword,
@@ -341,7 +341,7 @@ export default function GameDashboard() {
     },
     {
       gameNum: 4,
-      name: 'Network Command Center',
+      name: 'Public Network Safety',
       description: 'Monitor and defend the entire cyber infrastructure',
       emoji: '🖥️',
       icon: Target,
