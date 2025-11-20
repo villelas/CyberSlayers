@@ -1,555 +1,272 @@
-import { useState } from 'react';
+// SnakeGame.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, ArrowLeft, Lock, Key, Eye, AlertTriangle, CheckCircle, XCircle, Trophy, Zap, BookOpen, Target } from 'lucide-react';
-import '../App.css';
 
-export default function PasswordSecurityGame() {
+const BOARD_SIZE = 20;
+const WIN_SCORE = 25;
+const DASHBOARD_ROUTE = '/dashboard'; // <-- change if your dashboard route is different
+
+function getRandomFood(snake) {
+  while (true) {
+    const x = Math.floor(Math.random() * BOARD_SIZE);
+    const y = Math.floor(Math.random() * BOARD_SIZE);
+    const onSnake = snake.some((seg) => seg.x === x && seg.y === y);
+    if (!onSnake) return { x, y };
+  }
+}
+
+export default function SnakeGame() {
   const navigate = useNavigate();
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+
+  const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
+  const [direction, setDirection] = useState({ x: 1, y: 0 });
+  const [food, setFood] = useState(getRandomFood([{ x: 10, y: 10 }]));
+  const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [speed] = useState(150); // ms per tick
 
-  // Quiz questions
-  const quizQuestions = [
-    {
-      question: "Which password is the STRONGEST? 💪",
-      options: [
-        "password123",
-        "M!x3dUp#2024",
-        "soccer",
-        "12345678"
-      ],
-      correct: 1,
-      explanation: "Great choice! Strong passwords mix uppercase letters, lowercase letters, numbers, AND symbols. This makes them super hard to crack!"
-    },
-    {
-      question: "Should you use the SAME password for everything?",
-      options: [
-        "Yes, so I don't forget!",
-        "No way! Different passwords for different accounts",
-        "Only for important stuff",
-        "It doesn't matter"
-      ],
-      correct: 1,
-      explanation: "Correct! If a hacker gets ONE password and you use it everywhere, they can get into ALL your accounts. Use different passwords to stay safe! 🔒"
-    },
-    {
-      question: "What is two-factor authentication (2FA)? 🔐",
-      options: [
-        "Using two different passwords",
-        "A second security check, like a code sent to your phone",
-        "Logging in from two devices",
-        "Having two email accounts"
-      ],
-      correct: 1,
-      explanation: "You got it! 2FA is like having TWO locks on your door instead of one. Even if someone steals your password, they still can't get in without the second code!"
-    },
-    {
-      question: "Someone emails you saying 'Your account is locked! Click here and enter your password.' What do you do?",
-      options: [
-        "Click the link and enter my password quickly",
-        "Reply with my password",
-        "DELETE IT! Real companies never ask for passwords by email",
-        "Forward it to my friends"
-      ],
-      correct: 2,
-      explanation: "Smart thinking! This is called PHISHING - a trick to steal your password. Real companies like Roblox, Instagram, or Gmail will NEVER ask for your password in an email!"
-    },
-    {
-      question: "What's the BEST way to remember all your passwords?",
-      options: [
-        "Write them on a sticky note on your computer",
-        "Tell your best friend to remember them",
-        "Use a password manager app",
-        "Use the same simple password for everything"
-      ],
-      correct: 2,
-      explanation: "Perfect! Password managers are like super-secure vaults that remember ALL your passwords. You only need to remember ONE master password! 🗝️"
-    },
-    {
-      question: "Your friend asks to borrow your gaming account for 'just 5 minutes.' What should you do?",
-      options: [
-        "Give them my password - they're my friend!",
-        "Never share my password with ANYONE, even friends",
-        "Share it but make them promise not to tell",
-        "Post it on social media so everyone can use it"
-      ],
-      correct: 1,
-      explanation: "Exactly right! Even your best friend shouldn't know your passwords. What if they accidentally tell someone else? Keep your passwords SECRET! 🤫"
+  // === WIN CONDITION: 25 apples => go back to dashboard ======================
+  useEffect(() => {
+    if (score >= WIN_SCORE) {
+      // You could show a toast/toaster in your layout if you want “You collected 25 apples!”
+      navigate(DASHBOARD_ROUTE);
     }
-  ];
+  }, [score, navigate]);
 
-  const handleAnswerClick = (answerIndex) => {
-    setSelectedAnswer(answerIndex);
-    setShowResult(true);
+  // keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (gameOver) return;
 
-    if (answerIndex === quizQuestions[currentQuestion].correct) {
-      setScore(score + 1);
-    }
+      if (e.key === 'ArrowUp' || e.key === 'w') {
+        if (direction.y === 1) return;
+        setDirection({ x: 0, y: -1 });
+      } else if (e.key === 'ArrowDown' || e.key === 's') {
+        if (direction.y === -1) return;
+        setDirection({ x: 0, y: 1 });
+      } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+        if (direction.x === 1) return;
+        setDirection({ x: -1, y: 0 });
+      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+        if (direction.x === -1) return;
+        setDirection({ x: 1, y: 0 });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [direction, gameOver]);
+
+  // game loop
+  useEffect(() => {
+    if (gameOver) return;
+
+    const intervalId = setInterval(() => {
+      setSnake((prevSnake) => {
+        const head = prevSnake[0];
+        const newHead = {
+          x: head.x + direction.x,
+          y: head.y + direction.y
+        };
+
+        // wall collision
+        if (
+          newHead.x < 0 ||
+          newHead.x >= BOARD_SIZE ||
+          newHead.y < 0 ||
+          newHead.y >= BOARD_SIZE
+        ) {
+          setGameOver(true);
+          return prevSnake;
+        }
+
+        // self collision
+        const hitSelf = prevSnake.some(
+          (seg) => seg.x === newHead.x && seg.y === newHead.y
+        );
+        if (hitSelf) {
+          setGameOver(true);
+          return prevSnake;
+        }
+
+        const newSnake = [newHead, ...prevSnake];
+
+        // food
+        if (newHead.x === food.x && newHead.y === food.y) {
+          setScore((prev) => prev + 1);
+          setFood(getRandomFood(newSnake));
+          return newSnake; // grow
+        } else {
+          newSnake.pop();
+          return newSnake;
+        }
+      });
+    }, speed);
+
+    return () => clearInterval(intervalId);
+  }, [direction, food, speed, gameOver]);
+
+  const handleRestart = () => {
+    const initialSnake = [{ x: 10, y: 10 }];
+    setSnake(initialSnake);
+    setDirection({ x: 1, y: 0 });
+    setFood(getRandomFood(initialSnake));
+    setGameOver(false);
+    setScore(0); // <-- reset apples collected
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestion + 1 < quizQuestions.length) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-      setShowResult(false);
-    } else {
-      setQuizCompleted(true);
-    }
+  const handleExit = () => {
+    navigate(DASHBOARD_ROUTE);
   };
 
-  const resetQuiz = () => {
-    setCurrentQuestion(0);
-    setScore(0);
-    setSelectedAnswer(null);
-    setShowResult(false);
-    setQuizCompleted(false);
+  const boardStyle = {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${BOARD_SIZE}, 20px)`,
+    gridTemplateRows: `repeat(${BOARD_SIZE}, 20px)`,
+    background: '#111827',
+    border: '4px solid #4b5563',
+    borderRadius: '8px',
+    boxShadow: '0 0 20px rgba(0,0,0,0.5)'
   };
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      padding: '2rem',
-      paddingTop: '1rem'
-    },
-    backButton: {
-      marginBottom: '2rem'
-    },
-    header: {
-      textAlign: 'center',
-      marginBottom: '3rem'
-    },
-    title: {
-      fontSize: 'clamp(2rem, 5vw, 3rem)',
-      fontWeight: 'bold',
-      marginBottom: '1rem',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '1rem',
-      flexWrap: 'wrap'
-    },
-    subtitle: {
-      fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-      color: '#cccccc',
-      maxWidth: '800px',
-      margin: '0 auto'
-    },
-    contentGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      gap: '2rem',
-      maxWidth: '1200px',
-      margin: '0 auto'
-    },
-    infoSection: {
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '20px',
-      border: '1px solid rgba(0, 188, 212, 0.3)',
-      padding: 'clamp(1.5rem, 3vw, 2.5rem)',
-      marginBottom: '2rem'
-    },
-    sectionTitle: {
-      fontSize: 'clamp(1.3rem, 2.5vw, 1.8rem)',
-      fontWeight: 'bold',
-      marginBottom: '1rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem'
-    },
-    infoGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: '1.5rem',
-      marginTop: '1.5rem'
-    },
-    infoCard: {
-      background: 'rgba(0, 0, 0, 0.2)',
-      padding: '1.5rem',
-      borderRadius: '12px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      transition: 'transform 0.3s ease'
-    },
-    infoCardIcon: {
-      marginBottom: '1rem'
-    },
-    infoCardTitle: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      marginBottom: '0.5rem',
-      color: '#00bcd4'
-    },
-    infoCardText: {
-      fontSize: '0.95rem',
-      color: '#cccccc',
-      lineHeight: '1.5'
-    },
-    quizSection: {
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '20px',
-      border: '1px solid rgba(156, 39, 176, 0.3)',
-      padding: 'clamp(1.5rem, 3vw, 2.5rem)',
-      marginBottom: '2rem'
-    },
-    quizHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '2rem',
-      flexWrap: 'wrap',
-      gap: '1rem'
-    },
-    questionNumber: {
-      fontSize: '1rem',
-      color: '#9c27b0',
-      fontWeight: 'bold'
-    },
-    scoreDisplay: {
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      padding: '0.5rem 1rem',
-      background: 'rgba(0, 188, 212, 0.2)',
-      borderRadius: '20px',
-      border: '1px solid rgba(0, 188, 212, 0.5)'
-    },
-    question: {
-      fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
-      fontWeight: 'bold',
-      marginBottom: '2rem',
-      lineHeight: '1.4'
-    },
-    optionsGrid: {
-      display: 'grid',
-      gap: '1rem',
-      marginBottom: '2rem'
-    },
-    option: {
-      padding: '1.5rem',
-      background: 'rgba(255, 255, 255, 0.05)',
-      border: '2px solid rgba(255, 255, 255, 0.2)',
-      borderRadius: '12px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      fontSize: '1rem',
-      textAlign: 'left'
-    },
-    optionHover: {
-      background: 'rgba(0, 188, 212, 0.1)',
-      borderColor: '#00bcd4',
-      transform: 'translateX(5px)'
-    },
-    optionCorrect: {
-      background: 'rgba(76, 175, 80, 0.2)',
-      borderColor: '#4caf50'
-    },
-    optionWrong: {
-      background: 'rgba(244, 67, 54, 0.2)',
-      borderColor: '#f44336'
-    },
-    explanation: {
-      padding: '1.5rem',
-      background: 'rgba(0, 188, 212, 0.1)',
-      borderRadius: '12px',
-      border: '1px solid rgba(0, 188, 212, 0.3)',
-      marginBottom: '1.5rem',
-      display: 'flex',
-      gap: '1rem',
-      alignItems: 'start'
-    },
-    nextButton: {
-      padding: '1rem 2rem',
-      background: 'linear-gradient(45deg, #00bcd4, #2196f3)',
-      border: 'none',
-      borderRadius: '8px',
-      color: 'white',
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      transition: 'transform 0.3s ease',
-      width: '100%'
-    },
-    completionCard: {
-      textAlign: 'center',
-      padding: '3rem 2rem'
-    },
-    completionEmoji: {
-      fontSize: '5rem',
-      marginBottom: '1rem'
-    },
-    completionTitle: {
-      fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-      fontWeight: 'bold',
-      marginBottom: '1rem'
-    },
-    completionScore: {
-      fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)',
-      color: '#00bcd4',
-      marginBottom: '2rem'
-    },
-    gameSection: {
-      background: 'rgba(255, 255, 255, 0.1)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '20px',
-      border: '1px solid rgba(233, 30, 99, 0.3)',
-      padding: 'clamp(1.5rem, 3vw, 2.5rem)',
-      textAlign: 'center',
-      marginBottom: '2rem'
-    },
-    gameComingSoon: {
-      fontSize: '4rem',
-      marginBottom: '1rem'
-    },
-    gameTitle: {
-      fontSize: 'clamp(1.3rem, 2.5vw, 1.8rem)',
-      fontWeight: 'bold',
-      marginBottom: '1rem'
-    },
-    gameDescription: {
-      fontSize: '1rem',
-      color: '#cccccc',
-      marginBottom: '2rem',
-      maxWidth: '600px',
-      margin: '0 auto 2rem'
-    }
+  const cellStyleBase = {
+    width: '20px',
+    height: '20px',
+    boxSizing: 'border-box'
   };
+
+  const snakeCells = new Set(snake.map((seg) => `${seg.x},${seg.y}`));
+  const head = snake[0];
+
+  const cells = [];
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      const key = `${x}-${y}`;
+      const isHead = head.x === x && head.y === y;
+      const isSnake = snakeCells.has(`${x},${y}`);
+      const isFood = food.x === x && food.y === y;
+
+      let background = '#020617';
+      let border = '1px solid #0f172a';
+
+      if (isSnake) {
+        background = isHead ? '#22c55e' : '#16a34a';
+        border = '1px solid #14532d';
+      } else if (isFood) {
+        background = '#ef4444';
+        border = '1px solid #7f1d1d';
+      }
+
+      cells.push(
+        <div
+          key={key}
+          style={{
+            ...cellStyleBase,
+            background,
+            border
+          }}
+        />
+      );
+    }
+  }
 
   return (
-    <div className="cyber-container bg-gradient-primary" style={styles.container}>
-      {/* Back Button */}
-      <button 
-        className="back-button"
-        onClick={() => navigate('/dashboard')}
-        style={styles.backButton}
+    <div
+      style={{
+        minHeight: '100vh',
+        background:
+          'radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        padding: '1rem',
+        gap: '1rem',
+        position: 'relative'
+      }}
+    >
+      {/* Exit (X) button to go back to dashboard */}
+      <button
+        onClick={handleExit}
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          background: 'rgba(0,0,0,0.6)',
+          borderRadius: '999px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          color: 'white',
+          padding: '0.4rem 0.7rem',
+          cursor: 'pointer',
+          fontSize: '0.85rem'
+        }}
       >
-        <ArrowLeft size={20} />
-        Back to Dashboard
+        ✕ Exit
       </button>
 
-      {/* Header */}
-      <div style={styles.header}>
-        <h1 style={styles.title}>
-          <Shield size={48} color="#00bcd4" />
-          <span className="text-gradient-primary">Password Security Core</span>
-        </h1>
-        <p style={styles.subtitle}>
-          Learn to build super-strong passwords and become a master at protecting your online world! 🚀
-        </p>
+      <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>
+        🐍 Cyber-Snake Arena
+      </h1>
+      <p style={{ opacity: 0.8, marginBottom: '0.5rem' }}>
+        Collect <strong>{WIN_SCORE}</strong> apples to complete your training.<br />
+        Use <strong>Arrow keys</strong> or <strong>W/A/S/D</strong> to move.
+      </p>
+
+      <div style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+        Apples: <strong>{score}</strong> / {WIN_SCORE}
       </div>
 
-      <div style={styles.contentGrid}>
-        {/* Educational Section */}
-        <div style={styles.infoSection}>
-          <h2 style={styles.sectionTitle}>
-            <BookOpen size={28} color="#00bcd4" />
-            Why Passwords Are Like Super Shields! 🛡️
-          </h2>
-          <p style={styles.infoCardText}>
-            Imagine your passwords as magical shields protecting your favorite games, photos with friends, 
-            and secret messages! Bad guys (hackers) try to break through these shields every day. 
-            The stronger your shield, the safer you are online! Let's learn how to build fortress-level protection! 💪
-          </p>
+      <div style={boardStyle}>{cells}</div>
 
-          <div style={styles.infoGrid}>
-            <div 
-              style={styles.infoCard}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <div style={styles.infoCardIcon}>
-                <Lock size={40} color="#00bcd4" />
-              </div>
-              <h3 style={styles.infoCardTitle}>Lock Down Your Stuff! 🔐</h3>
-              <p style={styles.infoCardText}>
-                Your gaming accounts, Instagram, TikTok, Snapchat - they all need strong passwords! 
-                Think of them as secret codes only YOU should know. Keep the bad guys out!
-              </p>
-            </div>
-
-            <div 
-              style={styles.infoCard}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <div style={styles.infoCardIcon}>
-                <Key size={40} color="#9c27b0" />
-              </div>
-              <h3 style={styles.infoCardTitle}>Your Digital Footprint 👣</h3>
-              <p style={styles.infoCardText}>
-                Every time you go online, you leave footprints behind - like tracks in the snow! 
-                Good passwords help control who can see and follow your tracks online.
-              </p>
-            </div>
-
-            <div 
-              style={styles.infoCard}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <div style={styles.infoCardIcon}>
-                <AlertTriangle size={40} color="#e91e63" />
-              </div>
-              <h3 style={styles.infoCardTitle}>Watch Out for Tricks! 🎣</h3>
-              <p style={styles.infoCardText}>
-                Scammers try to trick you with fake emails and websites that LOOK real but aren't! 
-                They're like digital pickpockets trying to steal your password. Stay alert!
-              </p>
-            </div>
-          </div>
+      {gameOver && score < WIN_SCORE && (
+        <div
+          style={{
+            marginTop: '1rem',
+            padding: '0.75rem 1.25rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(248, 113, 113, 0.8)',
+            borderRadius: '8px',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ marginBottom: '0.5rem' }}>💀 Game Over!</div>
+          <button
+            onClick={handleRestart}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '999px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+              color: 'white',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            Restart
+          </button>
         </div>
+      )}
 
-        {/* Quiz Section */}
-        <div style={styles.quizSection}>
-          <h2 style={styles.sectionTitle}>
-            <Target size={28} color="#9c27b0" />
-            Test Your Password Powers! ⚡
-          </h2>
-
-          {!quizCompleted ? (
-            <>
-              <div style={styles.quizHeader}>
-                <span style={styles.questionNumber}>
-                  Question {currentQuestion + 1} of {quizQuestions.length}
-                </span>
-                <span style={styles.scoreDisplay}>
-                  <Trophy size={16} style={{display: 'inline', marginRight: '0.5rem'}} />
-                  Score: {score}/{quizQuestions.length}
-                </span>
-              </div>
-
-              <div style={styles.question}>
-                {quizQuestions[currentQuestion].question}
-              </div>
-
-              <div style={styles.optionsGrid}>
-                {quizQuestions[currentQuestion].options.map((option, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      ...styles.option,
-                      ...(selectedAnswer === index && index === quizQuestions[currentQuestion].correct ? styles.optionCorrect : {}),
-                      ...(selectedAnswer === index && index !== quizQuestions[currentQuestion].correct ? styles.optionWrong : {}),
-                      ...(showResult && index === quizQuestions[currentQuestion].correct ? styles.optionCorrect : {}),
-                      cursor: showResult ? 'default' : 'pointer'
-                    }}
-                    onClick={() => !showResult && handleAnswerClick(index)}
-                    onMouseEnter={(e) => {
-                      if (!showResult) {
-                        e.currentTarget.style.background = 'rgba(0, 188, 212, 0.1)';
-                        e.currentTarget.style.borderColor = '#00bcd4';
-                        e.currentTarget.style.transform = 'translateX(5px)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!showResult) {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }
-                    }}
-                  >
-                    {option}
-                    {showResult && index === quizQuestions[currentQuestion].correct && (
-                      <CheckCircle size={20} color="#4caf50" style={{float: 'right'}} />
-                    )}
-                    {showResult && selectedAnswer === index && index !== quizQuestions[currentQuestion].correct && (
-                      <XCircle size={20} color="#f44336" style={{float: 'right'}} />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {showResult && (
-                <>
-                  <div style={styles.explanation}>
-                    {selectedAnswer === quizQuestions[currentQuestion].correct ? (
-                      <CheckCircle size={24} color="#4caf50" style={{flexShrink: 0}} />
-                    ) : (
-                      <XCircle size={24} color="#f44336" style={{flexShrink: 0}} />
-                    )}
-                    <div>
-                      <strong style={{display: 'block', marginBottom: '0.5rem', color: selectedAnswer === quizQuestions[currentQuestion].correct ? '#4caf50' : '#f44336'}}>
-                        {selectedAnswer === quizQuestions[currentQuestion].correct ? 'Correct!' : 'Not quite!'}
-                      </strong>
-                      <span style={{color: '#cccccc'}}>
-                        {quizQuestions[currentQuestion].explanation}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    style={styles.nextButton}
-                    onClick={handleNextQuestion}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    {currentQuestion + 1 < quizQuestions.length ? 'Next Question' : 'See Results'} →
-                  </button>
-                </>
-              )}
-            </>
-          ) : (
-            <div style={styles.completionCard}>
-              <div style={styles.completionEmoji}>
-                {score === quizQuestions.length ? '🏆' : score >= quizQuestions.length * 0.7 ? '🌟' : '💪'}
-              </div>
-              <h3 style={styles.completionTitle}>
-                {score === quizQuestions.length ? 'WOW! Perfect Score!' : score >= quizQuestions.length * 0.7 ? 'Awesome Job, Cyber Warrior!' : 'You\'re Getting There!'}
-              </h3>
-              <p style={styles.completionScore}>
-                You scored {score} out of {quizQuestions.length}! 🎯
-              </p>
-              <p style={{...styles.infoCardText, marginBottom: '2rem'}}>
-                {score === quizQuestions.length 
-                  ? "🎉 You're a PASSWORD MASTER! You know exactly how to protect your accounts and stay safe online. Keep being awesome!" 
-                  : score >= quizQuestions.length * 0.7
-                  ? "⭐ You've got some serious password skills! Review the ones you missed and you'll be a pro in no time!"
-                  : "🚀 Great start! Every cyber warrior learns from mistakes. Try again and watch yourself improve!"}
-              </p>
-              <button
-                style={styles.nextButton}
-                onClick={resetQuiz}
-                onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
-                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-              >
-                <Zap size={20} style={{display: 'inline', marginRight: '0.5rem'}} />
-                Take the Challenge Again! 🔄
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Interactive Game Section - Coming Soon */}
-        <div style={styles.gameSection}>
-          <div style={styles.gameComingSoon}>🎮</div>
-          <h2 style={styles.gameTitle}>
-            Password Fortress Battle Game! ⚔️
-          </h2>
-          <p style={styles.gameDescription}>
-            Get ready for an EPIC adventure where you'll become a Password Warrior! Crack weak passwords, 
-            build unbreakable fortress passwords, and battle hackers trying to break into your accounts. 
-            It's gonna be awesome! 🔥
-          </p>
-          <div style={{
-            padding: '2rem',
-            background: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: '12px',
-            border: '2px dashed rgba(233, 30, 99, 0.5)'
-          }}>
-            <Zap size={48} color="#e91e63" style={{marginBottom: '1rem'}} />
-            <h3 style={{fontSize: '1.2rem', color: '#e91e63', marginBottom: '0.5rem'}}>
-              Under Construction! 🚧
-            </h3>
-            <p style={{color: '#999', fontSize: '0.9rem'}}>
-              Our cyber warriors are building this game right now! Come back soon for the action!
-            </p>
-          </div>
-        </div>
-      </div>
+      {!gameOver && score < WIN_SCORE && (
+        <button
+          onClick={handleRestart}
+          style={{
+            marginTop: '0.5rem',
+            padding: '0.35rem 0.9rem',
+            borderRadius: '999px',
+            border: '1px solid rgba(148,163,184,0.6)',
+            background: 'rgba(15,23,42,0.7)',
+            color: 'white',
+            fontSize: '0.85rem',
+            cursor: 'pointer'
+          }}
+        >
+          Reset Game
+        </button>
+      )}
     </div>
   );
 }
-
