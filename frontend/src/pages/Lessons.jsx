@@ -78,7 +78,41 @@ const ModulesPage = () => {
                 'Because posts can be used later for reputation, privacy, or security attacks.'
             }
           ]
-        }
+        },
+        {
+          key: 'm1q5',
+          prompt:
+            'Who might look up your online footprint in the future?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'Only your closest friends — no one else cares what you post.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Schools, employers, and others who want to understand who you are.'
+            }
+          ]
+        },
+        {
+          key: 'm1q6',
+          prompt:
+            'How does your digital footprint affect your reputation?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'Online posts can shape how people see you long before they meet you.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'It doesn’t — people ignore everything said online.'
+            }
+          ]
+        },
       ]
     },
     {
@@ -149,6 +183,36 @@ const ModulesPage = () => {
               value: 'wrong',
               label:
                 'Only look at likes and comments — if it’s popular, it must be real.'
+            }
+          ]
+        },
+        {
+          key: 'm2q5',
+          prompt: 'A deepfake face used by a bot is meant to:',
+          options: [
+            {
+              value: 'correct',
+              label: 'Imitate a real person.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'Improve video quality.'
+            }
+          ]
+        },
+        {
+          key: 'm2q6',
+          prompt: 'A deepfake that appears in a video call is an example of:',
+          options: [
+            {
+              value: 'wrong',
+              label: 'Signal interference.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Real-time impersonation'
             }
           ]
         }
@@ -224,6 +288,37 @@ const ModulesPage = () => {
                 'Reply directly to the message and follow any links it includes right away.'
             }
           ]
+        },
+        {
+          key: 'm3q5',
+          prompt: 'What is a common sign of a phishing scroll that pretends to be from a trusted ally?',
+          options: [
+            {
+              value: 'correct',
+              label: 'The sender’s name looks familiar, but the email address or link is slightly different.'
+            },
+            {
+              value: 'wrong',
+              label:
+                'It includes perfectly spelled words and flawless grammar.'
+            }
+          ]
+        },
+        {
+          key: 'm3q6',
+          prompt: 'If a message promises treasure for clicking a link, what should you do?',
+          options: [
+            {
+              value: 'wrong',
+              label:
+                'Click immediately — free treasure is always trustworthy!'
+            },
+            {
+              value: 'correct',
+              label:
+                'Ignore the bait and check through official channels.'
+            }
+          ]
         }
       ]
     },
@@ -295,6 +390,38 @@ const ModulesPage = () => {
             {
               value: 'wrong',
               label: 'Turning your screen brightness to maximum.'
+            }
+          ]
+        },
+        {
+          key: 'm4q5',
+          prompt:
+            'Which activity is safer to do on a public network?',
+          options: [
+            {
+              value: 'wrong',
+              label: 'Entering passwords and credit cards on random websites.'
+            },
+            {
+              value: 'correct',
+              label:
+                'Browsing general information that doesn’t require login.'
+            }
+          ]
+        },
+        {
+          key: 'm4q6',
+          prompt:
+            'Why might attackers set up a fake public Wi-Fi hotspot?',
+          options: [
+            {
+              value: 'correct',
+              label:
+                'To lure victims into connecting so they can steal information.'
+            },
+            {
+              value: 'wrong',
+              label: 'To make sure travelers have a pleasant browsing experience.'
             }
           ]
         }
