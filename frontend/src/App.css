@@ -865,3 +865,94 @@ body, h1, h2, h3, h4, h5, h6, p {
   margin: 0;
   padding: 0;
 }
+
+
+
+
+/* For Notepad */
+/* Bigger header with animation */
+.cyber-header {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.animate-header {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); color: #00f0ff; }
+  50% { transform: scale(1.1); color: #ff00ff; }
+  100% { transform: scale(1); color: #00f0ff; }
+}
+
+/* Guidelines spacing */
+.guidelines-list li {
+  margin: 12px 0; /* more breathing room */
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* Fade-in effect */
+.animate-fade {
+  animation: fadeIn 1.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide-in form */
+.animate-slide {
+  animation: slideUp 1s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Pop-in notes */
+.animate-pop {
+  animation: popIn 0.5s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Slightly bigger secondary buttons (Delete + Clear All) */
+.small-btn {
+  padding: 6px 12px;       /* increased padding */
+  font-size: 0.85rem;      /* slightly larger text */
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.small-btn:hover {
+  background-color: #ff4d4d;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Exit button */
+.btn-exit {
+  padding: 5px 10px;     
+  font-size: 0.8rem;       
+  border-radius: 6px;
+  font-weight: 600;
+  background-color: #444;
+  color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-exit:hover {
+  background-color: #00c4ff;
+  color: #000;
+  transform: scale(1.05);
+}

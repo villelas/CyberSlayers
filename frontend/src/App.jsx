@@ -11,6 +11,7 @@ import Malware_Analysis_Lab from './pages/malware_analysis_lab.jsx';
 import Network_Command_Center from './pages/network_command_center.jsx';
 import Lessons from './pages/Lessons.jsx';
 import PasswordGame from './pages/PasswordGame.jsx';
+import CommentsPage from './pages/CommentsPage.jsx';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/network-command-center" element={<Network_Command_Center />} />
           <Route path="/lessons" element={<Lessons />} />
           <Route path="/password-maker" element={<PasswordGame />} />
+          <Route path="/commentspage" element={<CommentsPage />} />
         </Routes>
       </div>
     </Router>

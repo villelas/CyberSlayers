@@ -101,7 +101,11 @@ export default function HomePage() {
             <button className="btn-secondary">
               Watch Demo Video
             </button>
+            <button className="btn-secondary" onClick={() => navigate('/commentspage')}>
+               View Notes
+            </button>
           </div>
+          
 
           <div className="stats-container">
             {[
