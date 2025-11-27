@@ -17,102 +17,61 @@ const ModulesPage = () => {
         {
           key: 'm1q1',
           prompt: 'Is online information easily erased once posted?',
+          correctIndex: 1,
           options: [
+            { label: 'Yes, you can always delete it completely' },
             {
-              value: 'wrong',
               label:
-                'Yes — once deleted, it disappears from your permanent digital footprint.'
+                'No — once shared, it becomes part of your permanent digital footprint'
             },
-            {
-              value: 'correct',
-              label:
-                'No — once shared, it becomes part of your permanent digital footprint.'
-            }
+            { label: 'Only if you delete it within 24 hours' },
+            { label: 'Yes, but only with special software' }
           ]
         },
         {
           key: 'm1q2',
           prompt: 'Why does oversharing online put you at risk?',
+          correctIndex: 2,
           options: [
+            { label: 'It makes your device slower' },
+            { label: 'It uses too much data' },
             {
-              value: 'wrong',
               label:
-                'It does not — the internet is already a collection of information.'
+                'Attackers can use your information to track or target you, or pretend to be you and trick others'
             },
-            {
-              value: 'correct',
-              label:
-                'Attackers can use your information to track or target you, or pretend to be you and trick others.'
-            }
+            { label: "It's against the law" }
           ]
         },
         {
           key: 'm1q3',
           prompt:
             'What kind of information should you protect to avoid profiling?',
+          correctIndex: 1,
           options: [
+            { label: 'Only your credit card numbers' },
             {
-              value: 'wrong',
-              label: 'Video game scores.'
-            },
-            {
-              value: 'correct',
               label:
-                'Personal details such as location, habits, or identity clues. Don’t post anything you wouldn’t want a parent or future boss to see.'
-            }
+                'Personal details such as location, habits, or identity clues'
+            },
+            { label: 'Only your password' },
+            { label: 'Your favorite color' }
           ]
         },
         {
           key: 'm1q4',
           prompt:
             'How does guarding your online presence protect your future?',
+          correctIndex: 1,
           options: [
+            { label: 'It makes you more popular' },
             {
-              value: 'wrong',
               label:
-                'It lets you share more information with strangers more easily.'
+                'Because posts can be used later for reputation, privacy, or security attacks'
             },
-            {
-              value: 'correct',
-              label:
-                'Because posts can be used later for reputation, privacy, or security attacks.'
-            }
+            { label: 'It helps you get more followers' },
+            { label: "It doesn't really matter" }
           ]
-        },
-        {
-          key: 'm1q5',
-          prompt:
-            'Who might look up your online footprint in the future?',
-          options: [
-            {
-              value: 'wrong',
-              label:
-                'Only your closest friends — no one else cares what you post.'
-            },
-            {
-              value: 'correct',
-              label:
-                'Schools, employers, and others who want to understand who you are.'
-            }
-          ]
-        },
-        {
-          key: 'm1q6',
-          prompt:
-            'How does your digital footprint affect your reputation?',
-          options: [
-            {
-              value: 'correct',
-              label:
-                'Online posts can shape how people see you long before they meet you.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'It doesn’t — people ignore everything said online.'
-            }
-          ]
-        },
+        }
       ]
     },
     {
@@ -125,95 +84,52 @@ const ModulesPage = () => {
         {
           key: 'm2q1',
           prompt: 'Can a forged image or voice appear convincingly real?',
+          correctIndex: 1,
           options: [
+            { label: 'No, you can always tell' },
             {
-              value: 'correct',
               label:
-                'Yes — deepfakes can imitate trusted people with high accuracy.'
+                'Yes — deepfakes can imitate trusted people with high accuracy'
             },
-            {
-              value: 'wrong',
-              label:
-                'No — fake images and voices are always easy to spot at a glance.'
-            }
+            { label: 'Only in movies' },
+            { label: 'Only for celebrities' }
           ]
         },
         {
           key: 'm2q2',
           prompt:
             'When you recognize a face or voice online, should you automatically trust it?',
+          correctIndex: 1,
           options: [
+            { label: 'Yes, if it looks real it must be real' },
             {
-              value: 'wrong',
               label:
-                'Yes — if you recognize them, it’s always safe to trust the account.'
+                "No — familiarity doesn't prove authenticity, especially celebrities and politicians"
             },
-            {
-              value: 'correct',
-              label:
-                'No — familiarity doesn’t prove authenticity, especially for celebrities or politicians.'
-            }
+            { label: 'Only trust videos, not images' },
+            { label: 'Always trust voices but not faces' }
           ]
         },
         {
           key: 'm2q3',
           prompt: 'What is the best defense against deepfake manipulation?',
+          correctIndex: 2,
           options: [
-            {
-              value: 'correct',
-              label:
-                'Verify the source before believing or acting on the content.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'React quickly and share the content before anyone else does.'
-            }
+            { label: 'Never watch any videos' },
+            { label: 'Only use social media' },
+            { label: 'Verify the source before believing or acting' },
+            { label: 'Share everything you see' }
           ]
         },
         {
           key: 'm2q4',
           prompt: 'How can you expose a deepfake more easily?',
+          correctIndex: 1,
           options: [
-            {
-              value: 'correct',
-              label: 'Compare information across multiple channels.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'Only look at likes and comments — if it’s popular, it must be real.'
-            }
-          ]
-        },
-        {
-          key: 'm2q5',
-          prompt: 'A deepfake face used by a bot is meant to:',
-          options: [
-            {
-              value: 'correct',
-              label: 'Imitate a real person.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'Improve video quality.'
-            }
-          ]
-        },
-        {
-          key: 'm2q6',
-          prompt: 'A deepfake that appears in a video call is an example of:',
-          options: [
-            {
-              value: 'wrong',
-              label: 'Signal interference.'
-            },
-            {
-              value: 'correct',
-              label:
-                'Real-time impersonation'
-            }
+            { label: 'Use special software only' },
+            { label: 'Compare information across multiple channels' },
+            { label: 'Ask your friends' },
+            { label: 'Report it immediately without checking' }
           ]
         }
       ]
@@ -229,95 +145,52 @@ const ModulesPage = () => {
           key: 'm3q1',
           prompt:
             'What tactic do phishing messages use to make you act without thinking?',
+          correctIndex: 0,
           options: [
-            {
-              value: 'correct',
-              label: 'Urgency or pressure.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'Polite greetings and lots of emojis to seem friendly and harmless.'
-            }
+            { label: 'Urgency or pressure' },
+            { label: 'Polite requests' },
+            { label: 'Long explanations' },
+            { label: 'Funny jokes' }
           ]
         },
         {
           key: 'm3q2',
           prompt:
             'Should you ever give passwords, private keys, or money over messages?',
+          correctIndex: 2,
           options: [
+            { label: 'Yes, if they ask nicely' },
+            { label: 'Only to family members' },
             {
-              value: 'correct',
               label:
-                'No — no legitimate organization or ally will request them this way.'
+                'No — no legitimate organization or ally will request them'
             },
-            {
-              value: 'wrong',
-              label:
-                'Yes — as long as the message looks official and has a logo.'
-            }
+            { label: "Yes, if it's urgent" }
           ]
         },
         {
           key: 'm3q3',
           prompt: 'Why are unknown links and attachments risky?',
+          correctIndex: 1,
           options: [
-            {
-              value: 'correct',
-              label: 'They may hide malware or traps.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'They just make the message look more impressive and are always safe to click.'
-            }
+            { label: 'They take too long to load' },
+            { label: 'They may hide malware or traps' },
+            { label: 'They use too much bandwidth' },
+            { label: "They're not risky at all" }
           ]
         },
         {
           key: 'm3q4',
           prompt: 'How do you verify a suspicious message?',
+          correctIndex: 2,
           options: [
+            { label: 'Click the link to check' },
+            { label: 'Reply to the message' },
             {
-              value: 'correct',
               label:
-                'Reach out to the sender through a known, trusted channel and double-check details.'
+                'Reach out to the sender through a known, trusted channel. Double check spelling of everything'
             },
-            {
-              value: 'wrong',
-              label:
-                'Reply directly to the message and follow any links it includes right away.'
-            }
-          ]
-        },
-        {
-          key: 'm3q5',
-          prompt: 'What is a common sign of a phishing scroll that pretends to be from a trusted ally?',
-          options: [
-            {
-              value: 'correct',
-              label: 'The sender’s name looks familiar, but the email address or link is slightly different.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'It includes perfectly spelled words and flawless grammar.'
-            }
-          ]
-        },
-        {
-          key: 'm3q6',
-          prompt: 'If a message promises treasure for clicking a link, what should you do?',
-          options: [
-            {
-              value: 'wrong',
-              label:
-                'Click immediately — free treasure is always trustworthy!'
-            },
-            {
-              value: 'correct',
-              label:
-                'Ignore the bait and check through official channels.'
-            }
+            { label: 'Ignore it completely' }
           ]
         }
       ]
@@ -332,97 +205,51 @@ const ModulesPage = () => {
         {
           key: 'm4q1',
           prompt: 'What risk do public networks pose?',
+          correctIndex: 1,
           options: [
+            { label: "They're slower than home networks" },
             {
-              value: 'correct',
               label:
-                'They allow attackers to intercept data from anyone connected.'
+                'They allow attackers to intercept data from anyone connected'
             },
-            {
-              value: 'wrong',
-              label:
-                'They automatically make your internet faster and safer with no effort.'
-            }
+            { label: 'They cost money to use' },
+            { label: "They don't pose any risks" }
           ]
         },
         {
           key: 'm4q2',
           prompt:
             'Should you access banking or private accounts on public networks?',
+          correctIndex: 2,
           options: [
-            {
-              value: 'correct',
-              label: 'No — it greatly increases your vulnerability.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'Yes — public Wi-Fi is built for handling all sensitive information.'
-            }
+            { label: "Yes, it's always safe" },
+            { label: "Only if you're in a hurry" },
+            { label: 'No, it greatly increases vulnerability' },
+            { label: 'Yes, but only on your phone' }
           ]
         },
         {
           key: 'm4q3',
           prompt:
             'What are some common public networks that might be like this?',
+          correctIndex: 1,
           options: [
-            {
-              value: 'correct',
-              label: 'Airports, coffee shops, and malls.'
-            },
-            {
-              value: 'wrong',
-              label:
-                'Only your bedroom and home router — everywhere else is always safe.'
-            }
+            { label: 'Home WiFi' },
+            { label: 'Airports, coffee shops, and malls' },
+            { label: "Your phone's hotspot" },
+            { label: 'Your work network' }
           ]
         },
         {
           key: 'm4q4',
           prompt:
             'What personal protection helps block spying on public networks?',
+          correctIndex: 2,
           options: [
-            {
-              value: 'correct',
-              label:
-                'Firewalls, shield-like protections, or VPNs that encrypt your traffic.'
-            },
-            {
-              value: 'wrong',
-              label: 'Turning your screen brightness to maximum.'
-            }
-          ]
-        },
-        {
-          key: 'm4q5',
-          prompt:
-            'Which activity is safer to do on a public network?',
-          options: [
-            {
-              value: 'wrong',
-              label: 'Entering passwords and credit cards on random websites.'
-            },
-            {
-              value: 'correct',
-              label:
-                'Browsing general information that doesn’t require login.'
-            }
-          ]
-        },
-        {
-          key: 'm4q6',
-          prompt:
-            'Why might attackers set up a fake public Wi-Fi hotspot?',
-          options: [
-            {
-              value: 'correct',
-              label:
-                'To lure victims into connecting so they can steal information.'
-            },
-            {
-              value: 'wrong',
-              label: 'To make sure travelers have a pleasant browsing experience.'
-            }
+            { label: 'Using incognito mode' },
+            { label: 'Turning off your screen' },
+            { label: 'Firewall or network shield equivalents or VPNs' },
+            { label: 'Using a strong password' }
           ]
         }
       ]
@@ -699,7 +526,7 @@ const ModulesPage = () => {
 
     const blankAnswers = {};
     module.quizQuestions.forEach((q) => {
-      blankAnswers[q.key] = '';
+      blankAnswers[q.key] = null;
     });
 
     setActiveModuleId(moduleId);
@@ -723,7 +550,9 @@ const ModulesPage = () => {
     const questions = activeModule.quizQuestions;
     let s = 0;
     questions.forEach((q) => {
-      if (answers[q.key] === 'correct') s += 1;
+      if (answers[q.key] === q.correctIndex) {
+        s += 1;
+      }
     });
 
     const totalQuestions = questions.length;
@@ -856,11 +685,11 @@ const ModulesPage = () => {
                             id={`${q.key}-${idx}`}
                             type="radio"
                             name={q.key}
-                            value={opt.value}
+                            value={idx}
                             style={styles.radio}
-                            checked={answers[q.key] === opt.value}
+                            checked={answers[q.key] === idx}
                             onChange={() =>
-                              handleAnswerChange(q.key, opt.value)
+                              handleAnswerChange(q.key, idx)
                             }
                           />
                           <span>{opt.label}</span>
