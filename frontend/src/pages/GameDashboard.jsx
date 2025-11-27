@@ -218,6 +218,56 @@ const EDUCATIONAL_MODULES = {
         correctIndex: 2
       }
     ]
+  },
+  5: {
+    title: 'Module 5 — Password Tester',
+    subtitle: '(The Password Forge)',
+    content:
+      'This is an optional game meant to help you with your password skills.',
+    quiz: [
+      {
+        question: 'What makes a password strong?',
+        options: [
+          "Using your name and birthday",
+          'Short and easy to remember',
+          'Long with a mix of symbols, numbers, and letters',
+          "A single common word"
+        ],
+        correctIndex: 2
+      },
+      {
+        question:
+          'Which of the following is the safest password?',
+        options: [
+          "password123",
+          "Summer2024!",
+          'qwerty',
+          'G!7rP#9wL2@'
+        ],
+        correctIndex: 3
+      },
+      {
+        question: 'Why should you avoid using the same password everywhere?',
+        options: [
+          'Its annoying to type different passwords',
+          'Hackers could access multiple accounts if one password is leaked',
+          "Websites dont allow reused passwords",
+          'It makes you forget your email'
+        ],
+        correctIndex: 1
+      },
+      {
+        question:
+          'What is a password manager?',
+        options: [
+          'A program that stores and helps create strong passwords',
+          'A tool that automatically sends your passwords to friends',
+          'A physical book where you write passwords',
+          'A type of computer virus'
+        ],
+        correctIndex: 0
+      }
+    ]
   }
 };
 
@@ -279,7 +329,8 @@ export default function GameDashboard() {
       1: '/password-security-core',
       2: '/phishing-detection-hub',
       3: '/malware-analysis-lab',
-      4: '/network-command-center'
+      4: '/network-command-center',
+      5: '/password-maker'
     };
 
     const route = gameRoutes[gameNum];
@@ -315,7 +366,7 @@ export default function GameDashboard() {
       description: 'Master authentication protocols and secure access systems',
       emoji: '🛡️',
       icon: Shield,
-      position: { top: '65%', left: '8%' },
+      position: { top: '65%', left: '10%' },
       color: '#e91e63',
       terrain: 'security'
     },
@@ -325,7 +376,7 @@ export default function GameDashboard() {
       description: 'Scan and identify malicious network communications',
       emoji: '🔍',
       icon: Eye,
-      position: { top: '45%', left: '38%' },
+      position: { top: '45%', left: '32%' },
       color: '#2196f3',
       terrain: 'detection'
     },
@@ -335,7 +386,7 @@ export default function GameDashboard() {
       description: 'Reverse engineer and neutralize cyber threats',
       emoji: '🔬',
       icon: Sword,
-      position: { top: '20%', left: '62%' },
+      position: { top: '25%', left: '55%' },
       color: '#4caf50',
       terrain: 'analysis'
     },
@@ -345,10 +396,20 @@ export default function GameDashboard() {
       description: 'Monitor and defend the entire cyber infrastructure',
       emoji: '🖥️',
       icon: Target,
-      position: { top: '20%', left: '82%' },
+      position: { top: '20%', left: '75%' },
       color: '#9c27b0',
       terrain: 'command'
-    }
+    },
+    {
+    gameNum: 5,
+    name: 'Password Tester',
+    description: 'Learn how to build strong, secure passwords',
+    emoji: '🔑',
+    icon: Lock,
+    position: { top: '45%', left: '90%' }, // adjust placement to fit your layout
+    color: '#ff9800',
+    terrain: 'security'
+  }
   ];
 
   // All games unlocked, but still show status badges based on score
