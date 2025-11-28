@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Confetti from "react-confetti";
-import { useNavigate } from "react-router-dom"; // import navigation hook
-import "../App.css"; // import your shared styles
+import { useNavigate } from "react-router-dom"; 
+import "../App.css"; 
 
 const PasswordGame = () => {
   const [password, setPassword] = useState("");
@@ -11,7 +11,7 @@ const PasswordGame = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [stats, setStats] = useState({ attempts: 0, passes: 0 });
 
-  const navigate = useNavigate(); // hook for navigation
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const savedStats = JSON.parse(localStorage.getItem("passwordStats"));

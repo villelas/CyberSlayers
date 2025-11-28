@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DailyFactModal from "./DailyFactModal";
+
 import {
   Shield,
   Star,
@@ -282,6 +284,8 @@ export default function GameDashboard() {
   // which game’s full-screen module is open (1–4) or null
   const [learningGameNum, setLearningGameNum] = useState(null);
 
+  const [showDailyFact, setShowDailyFact] = useState(true); 
+
   useEffect(() => {
     const storedUser = localStorage.getItem('cyberslayers_user');
     if (storedUser) {
@@ -561,6 +565,7 @@ export default function GameDashboard() {
     selectedArena && EDUCATIONAL_MODULES[selectedArena.gameNum];
 
   return (
+    
     <div
       className="cyber-container bg-gradient-primary"
       style={{
@@ -721,6 +726,8 @@ export default function GameDashboard() {
           ))}
         </div>
       </div>
+      
+      {showDailyFact && <DailyFactModal onClose={() => setShowDailyFact(false)} />}
 
       {/* Landing Modal: small scroll preview + "Begin Training" */}
       {showModal && selectedArena && (
