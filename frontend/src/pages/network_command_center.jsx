@@ -1,82 +1,496 @@
-// TrickLevelGame.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 
-const DASHBOARD_ROUTE = '/dashboard'; // change if your dashboard route differs
+const DASHBOARD_ROUTE = '/dashboard';
 
-// Simple 2D grid level
-// 0 = empty, 1 = solid ground, 2 = spikes, 3 = goal, 4 = fake ground (collapses)
-const LEVEL_LAYOUT = [
-  // y = 0 (top row)
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 1
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 2
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 3
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 4
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 5
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 6
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 7
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  // y = 8
-  [0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 3], // fake tile at x=3, goal at right side
-  // y = 9 (bottom row with ground, spikes)
-  [1, 1, 1, 1, 1, 2, 1, 1, 4, 1, 1, 1]
+// Level 1: Basic platforming with fake floors - MUST use orange platforms to reach door
+const LEVEL_1 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0],
+  [1, 1, 1, 4, 4, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 
-const GRAVITY = 0.15;
-const MOVE_SPEED = 0.18;
-const JUMP_FORCE = -0.4;
-const TICK_MS = 25;
+// Level 2: Green platforms collapse to reveal chasm - must jump at right time
+const LEVEL_2 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],
+  [1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+];
 
-export default function TrickLevelGame() {
-  const navigate = useNavigate();
+// Level 3: Spikes appear in trigger zones when you jump
+const LEVEL_3 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],
+  [1, 1, 1, 7, 7, 7, 1, 1, 1, 7, 7, 7, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
 
-  // Player physics: x, y in grid space but continuous
-  const [player, setPlayer] = useState({
-    x: 0.5,
-    y: 7.5,
-    vx: 0,
-    vy: 0
-  });
+// Level 4: Door moves away when approached
+const LEVEL_4 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
 
-  const [keys, setKeys] = useState({
-    left: false,
-    right: false,
-    jump: false
-  });
+// Level 5: FINAL CHALLENGE - Combines all mechanics from previous levels
+const LEVEL_5 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 3, 0],
+  [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0],
+  [0, 0, 0, 1, 1, 7, 7, 7, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 4, 4, 0, 0, 0, 0, 0, 6, 6, 6, 0, 0, 0, 0, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1]
+];
 
-  const [level, setLevel] = useState(LEVEL_LAYOUT);
-  const [onGround, setOnGround] = useState(false);
-  const [gameState, setGameState] = useState('playing'); // 'playing' | 'dead' | 'win'
+const LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5];
+
+// 0 = empty, 1 = solid ground, 2 = spikes, 3 = horse/goal, 4 = fake ground, 5 = sword fragment
+// 6 = moving platform (chasm bridge), 7 = spike trigger zone
+
+const GRAVITY = 0.025;
+const MOVE_SPEED = 0.15;
+const JUMP_FORCE = -0.42;
+const MAX_FALL_SPEED = 0.4;
+const TICK_MS = 16; // ~60fps for smooth controls
+const COYOTE_TIME = 120; // ms after leaving ground where jump still works
+const JUMP_BUFFER = 150; // ms to buffer jump input before landing
+const FRICTION = 0.85; // Ground friction for smoother stops
+const AIR_CONTROL = 0.92; // Air control multiplier
+
+const HORSE_PIECES = [
+  { label: "Trust", threshold: 1, level: 1 },
+  { label: "Courage", threshold: 2, level: 2 },
+  { label: "Bond", threshold: 3, level: 3 },
+  { label: "Loyalty", threshold: 4, level: 4 },
+  { label: "Mastery", threshold: 5, level: 5 },
+];
+
+function HorseMeter({ fragments }) {
+  const totalPieces = HORSE_PIECES.length;
+  const forgedPieces = HORSE_PIECES.filter((s) => fragments >= s.threshold).length;
+
+  return (
+    <div
+      style={{
+        minWidth: "200px",
+        padding: "1rem",
+        borderRadius: "12px",
+        border: "1px solid rgba(148,163,184,0.6)",
+        background: "radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(2,6,23,0.95))",
+        boxShadow: "0 0 18px rgba(15,23,42,0.9)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+        <span style={{ fontSize: "1.9rem" }}>🐴</span>
+        <div style={{ fontSize: "0.9rem", lineHeight: 1.2 }}>
+          <div style={{ fontWeight: "600" }}>Tame Wild Horse</div>
+          <div style={{ opacity: 0.75 }}>
+            {forgedPieces}/{totalPieces} bonds formed
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: "4px",
+          borderRadius: "999px",
+          overflow: "hidden",
+          background: "rgba(30,64,175,0.65)",
+          marginBottom: "0.25rem",
+        }}
+      >
+        <div
+          style={{
+            width: `${Math.min(fragments / totalPieces, 1) * 100}%`,
+            height: "100%",
+            background: "linear-gradient(90deg, #3b82f6, #06b6d4)",
+            transition: "width 200ms ease",
+          }}
+        />
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.8rem" }}>
+        {HORSE_PIECES.map((piece, index) => {
+          const filled = fragments >= piece.threshold;
+          return (
+            <div
+              key={piece.label}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                opacity: filled ? 1 : 0.5,
+                transform: filled ? "translateX(2px)" : "none",
+                transition: "opacity 150ms ease, transform 150ms ease",
+              }}
+            >
+              <div
+                style={{
+                  width: "18px",
+                  height: "18px",
+                  borderRadius: "4px",
+                  border: "1px solid rgba(148,163,184,0.85)",
+                  background: filled ? "linear-gradient(135deg,#3b82f6,#06b6d4)" : "transparent",
+                  boxShadow: filled ? "0 0 8px rgba(59,130,246,0.85)" : "none",
+                }}
+              />
+              <span>
+                {index + 1}. {piece.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", opacity: 0.6 }}>
+        Complete levels 🐴 to earn your horse's trust.
+      </div>
+    </div>
+  );
+}
+
+// Particle component for death effects
+function DeathParticles({ x, y, tileSize }) {
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    const newParticles = Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8 - 2,
+      life: 1,
+    }));
+    setParticles(newParticles);
+
+    const interval = setInterval(() => {
+      setParticles(prev => 
+        prev.map(p => ({
+          ...p,
+          x: p.x + p.vx,
+          y: p.y + p.vy,
+          vy: p.vy + 0.3,
+          life: p.life - 0.03,
+        })).filter(p => p.life > 0)
+      );
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [x, y]);
+
+  return (
+    <>
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: p.x,
+            top: p.y,
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: `rgba(239, 68, 68, ${p.life})`,
+            boxShadow: `0 0 ${10 * p.life}px rgba(239, 68, 68, ${p.life})`,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+export default function CyberBladeQuest() {
+  const [player, setPlayer] = useState({ x: 0.5, y: 9, vx: 0, vy: 0 });
+  const [keys, setKeys] = useState({ left: false, right: false, jump: false });
+  const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
+  const [level, setLevel] = useState(LEVELS[0].map(row => [...row]));
+  const [gameState, setGameState] = useState('playing');
   const [message, setMessage] = useState('');
+  const [fragments, setFragments] = useState(0);
+  const [isDying, setIsDying] = useState(false);
+  const [deathAnimation, setDeathAnimation] = useState(0);
+  const [deathPosition, setDeathPosition] = useState({ x: 0, y: 0 });
+  const [screenShake, setScreenShake] = useState(0);
+  
+  // Level 2: Green platform collapse state
+  const [greenPlatformsCollapsed, setGreenPlatformsCollapsed] = useState(false);
+  
+  // Level 3: Spike trigger tracking
+  const triggeredSpikes = useRef(new Set());
+  
+  // Level 4: Door evasion
+  const [doorPosition, setDoorPosition] = useState({ x: 16, y: 9 });
+  const [doorEvadeCount, setDoorEvadeCount] = useState(0);
+  const doorEvadeMax = 3;
+  
+  const lastGroundedTime = useRef(Date.now());
+  const jumpBufferTime = useRef(0);
+  const onGroundRef = useRef(false);
+  const collectedFragments = useRef(new Set());
 
   const width = level[0].length;
   const height = level.length;
+  const tileSize = 40;
 
-  // Input handling (WASD + arrows + Space)
+  const triggerDeath = (msg, x, y) => {
+    setDeathPosition({ x, y });
+    setIsDying(true);
+    setMessage(msg);
+    setGameState('dead');
+  };
+
+  const handleRestart = () => {
+    // Reset to beginning of game
+    setPlayer({ x: 0.5, y: 9, vx: 0, vy: 0 });
+    setCurrentLevelIndex(0);
+    setLevel(LEVELS[0].map((row) => [...row]));
+    setGameState('playing');
+    setMessage('');
+    setFragments(0);
+    setIsDying(false);
+    setDeathAnimation(0);
+    setScreenShake(0);
+    setGreenPlatformsCollapsed(false);
+    triggeredSpikes.current.clear();
+    collectedFragments.current.clear();
+    setDoorPosition({ x: 16, y: 9 });
+    setDoorEvadeCount(0);
+    onGroundRef.current = false;
+    lastGroundedTime.current = Date.now();
+  };
+
+  const restartCurrentLevel = () => {
+    // Restart just the current level
+    setPlayer({ x: 0.5, y: 9, vx: 0, vy: 0 });
+    setLevel(LEVELS[currentLevelIndex].map((row) => [...row]));
+    setGameState('playing');
+    setMessage('');
+    setIsDying(false);
+    setDeathAnimation(0);
+    setScreenShake(0);
+    
+    // Reset level-specific state
+    setGreenPlatformsCollapsed(false);
+    triggeredSpikes.current.clear();
+    
+    // Reset door position for level 4 & 5
+    if (currentLevelIndex === 3 || currentLevelIndex === 4) {
+      setDoorPosition({ x: 16, y: currentLevelIndex === 4 ? 6 : 9 });
+      setDoorEvadeCount(0);
+    }
+    
+    onGroundRef.current = false;
+    lastGroundedTime.current = Date.now();
+  };
+
+  const handleExit = () => {
+    // In production, use: navigate(DASHBOARD_ROUTE);
+    window.location.href = DASHBOARD_ROUTE;
+  };
+
+  // Death animation with particles and screen shake
+  useEffect(() => {
+    if (isDying) {
+      setScreenShake(10);
+      const shakeInterval = setInterval(() => {
+        setScreenShake(prev => Math.max(0, prev - 0.5));
+      }, 50);
+
+      const animInterval = setInterval(() => {
+        setDeathAnimation(prev => {
+          if (prev >= 1) {
+            clearInterval(animInterval);
+            clearInterval(shakeInterval);
+            // Restart current level after animation
+            setTimeout(() => {
+              restartCurrentLevel();
+            }, 100);
+            return 1;
+          }
+          return prev + 0.04;
+        });
+      }, 20);
+      return () => {
+        clearInterval(animInterval);
+        clearInterval(shakeInterval);
+      };
+    }
+  }, [isDying]);
+
+  // Level 2 & 5: Collapse green platforms when stepped on, then move them to the right
+  useEffect(() => {
+    if ((currentLevelIndex === 1 || currentLevelIndex === 4) && !greenPlatformsCollapsed && onGroundRef.current) {
+      const playerX = Math.floor(player.x);
+      const playerY = Math.floor(player.y + 0.45); // Bottom of player
+      
+      // Check if player is standing on a green platform (tile value 6)
+      if (level[playerY] && level[playerY][playerX] === 6) {
+        setGreenPlatformsCollapsed(true);
+        
+        // First, remove the green platforms
+        setTimeout(() => {
+          setLevel(prevLevel => {
+            const newLevel = prevLevel.map(row => [...row]);
+            // Remove green platforms from left side
+            if (currentLevelIndex === 1) {
+              // Level 2: positions 5-7
+              for (let x = 5; x <= 7; x++) {
+                if (newLevel[10][x] === 6) {
+                  newLevel[10][x] = 0;
+                }
+              }
+            } else if (currentLevelIndex === 4) {
+              // Level 5: positions 9-11
+              for (let x = 9; x <= 11; x++) {
+                if (newLevel[10][x] === 6) {
+                  newLevel[10][x] = 0;
+                }
+              }
+            }
+            return newLevel;
+          });
+        }, 150);
+        
+        // Then, make them reappear on the right side
+        setTimeout(() => {
+          setLevel(prevLevel => {
+            const newLevel = prevLevel.map(row => [...row]);
+            if (currentLevelIndex === 1) {
+              // Level 2: Add green platforms to right side (positions 9-11)
+              for (let x = 9; x <= 11; x++) {
+                newLevel[10][x] = 6;
+              }
+            } else if (currentLevelIndex === 4) {
+              // Level 5: Add green platforms to right side (positions 12-14)
+              for (let x = 12; x <= 14; x++) {
+                newLevel[10][x] = 6;
+              }
+            }
+            return newLevel;
+          });
+        }, 800);
+      }
+    }
+  }, [currentLevelIndex, greenPlatformsCollapsed, onGroundRef.current, player.x, player.y, level]);
+
+  // Level 3 & 5: Spike trigger tracking - spikes appear IN the trigger zone
+  useEffect(() => {
+    if ((currentLevelIndex === 2 || currentLevelIndex === 4) && !onGroundRef.current) {
+      const playerX = Math.floor(player.x);
+      const playerY = Math.floor(player.y + 0.45);
+      
+      // Check tiles below player for trigger zones
+      for (let checkX = Math.floor(player.x - 0.35); checkX <= Math.floor(player.x + 0.35); checkX++) {
+        if (level[playerY] && level[playerY][checkX] === 7) {
+          const key = `${checkX},${playerY}`;
+          if (!triggeredSpikes.current.has(key)) {
+            triggeredSpikes.current.add(key);
+            setTimeout(() => {
+              setLevel(prevLevel => {
+                const newLevel = prevLevel.map(row => [...row]);
+                // Replace trigger zone with spike
+                if (newLevel[playerY][checkX] === 7) {
+                  newLevel[playerY][checkX] = 2;
+                }
+                return newLevel;
+              });
+            }, 200);
+          }
+        }
+      }
+    }
+  }, [currentLevelIndex, onGroundRef.current, player.x, player.y, level]);
+
+  // Level 4 & 5: Horse evasion logic - stops running away after 3 evades
+  useEffect(() => {
+    if ((currentLevelIndex === 3 || currentLevelIndex === 4) && gameState === 'playing' && doorEvadeCount < doorEvadeMax) {
+      const playerDist = Math.abs(player.x - doorPosition.x);
+      
+      if (playerDist < 3 && player.y > 8) {
+        setDoorEvadeCount(prev => prev + 1);
+        
+        if (doorEvadeCount + 1 < doorEvadeMax) {
+          // Move horse to random location (still evading)
+          const newX = Math.floor(Math.random() * 10) + 4;
+          const newY = player.y > 8 ? 6 : 9;
+          setDoorPosition({ x: newX, y: newY });
+        } else {
+          // After 3 evades, horse stops and stays in place
+          const finalX = Math.floor(Math.random() * 10) + 4;
+          setDoorPosition({ x: finalX, y: currentLevelIndex === 4 ? 6 : 9 });
+        }
+      }
+    }
+  }, [player.x, player.y, doorPosition, currentLevelIndex, gameState, doorEvadeCount]);
+
   useEffect(() => {
     const down = (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
+      if (gameState !== 'playing') return;
+      
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
         setKeys((k) => ({ ...k, left: true }));
-      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
         setKeys((k) => ({ ...k, right: true }));
-      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') {
+      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+        e.preventDefault();
         setKeys((k) => ({ ...k, jump: true }));
+        jumpBufferTime.current = Date.now();
       }
     };
 
     const up = (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         setKeys((k) => ({ ...k, left: false }));
-      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
         setKeys((k) => ({ ...k, right: false }));
-      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') {
+      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
         setKeys((k) => ({ ...k, jump: false }));
       }
     };
@@ -87,97 +501,224 @@ export default function TrickLevelGame() {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
     };
-  }, []);
+  }, [gameState]);
 
-  // Game loop
+  // Enhanced game loop with better physics
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || isDying) return;
 
     const interval = setInterval(() => {
       setPlayer((prev) => {
         let { x, y, vx, vy } = prev;
 
-        // Horizontal input
-        if (keys.left && !keys.right) {
-          vx = -MOVE_SPEED;
-        } else if (keys.right && !keys.left) {
-          vx = MOVE_SPEED;
+        // Horizontal movement with momentum
+        const targetVx = keys.left && !keys.right ? -MOVE_SPEED : 
+                        keys.right && !keys.left ? MOVE_SPEED : 0;
+        
+        // Apply friction when grounded, air control when airborne
+        if (onGroundRef.current) {
+          vx = vx * FRICTION + targetVx * (1 - FRICTION);
         } else {
-          vx = 0;
+          vx = vx * AIR_CONTROL + targetVx * (1 - AIR_CONTROL);
         }
 
-        // Jump only if on ground
-        if (keys.jump && onGround) {
+        // Stop if velocity is very small
+        if (Math.abs(vx) < 0.001) vx = 0;
+
+        // Coyote time and jump buffering
+        const timeSinceGrounded = Date.now() - lastGroundedTime.current;
+        const timeSinceJumpPress = Date.now() - jumpBufferTime.current;
+        const canCoyoteJump = timeSinceGrounded < COYOTE_TIME;
+        const hasJumpBuffer = timeSinceJumpPress < JUMP_BUFFER;
+
+        if (keys.jump && (onGroundRef.current || canCoyoteJump) && hasJumpBuffer && vy >= 0) {
           vy = JUMP_FORCE;
+          jumpBufferTime.current = 0; // Clear buffer
+          onGroundRef.current = false; // Prevent double jump
+        }
+
+        // Variable jump height (release jump early for shorter jump)
+        if (!keys.jump && vy < 0) {
+          vy *= 0.5;
         }
 
         // Gravity
         vy += GRAVITY;
+        vy = Math.min(vy, MAX_FALL_SPEED); // Terminal velocity
 
         let newX = x + vx;
         let newY = y + vy;
 
-        // Keep inside bounds horizontally
-        if (newX < 0) newX = 0;
-        if (newX > width - 1) newX = width - 1;
+        // Horizontal bounds
+        newX = Math.max(0.3, Math.min(newX, width - 0.3));
 
-        // Collision checks
-        const nextTileX = Math.floor(newX);
-        const nextTileY = Math.floor(newY + 0.4); // slightly below center
-
-        const tileBelow = getTile(level, Math.floor(newX), Math.floor(newY + 0.6));
-        const tileAt = getTile(level, nextTileX, nextTileY);
+        // Collision detection
+        const playerWidth = 0.35;
+        const playerHeight = 0.45;
+        const playerLeft = newX - playerWidth;
+        const playerRight = newX + playerWidth;
+        const playerTop = newY - playerHeight;
+        const playerBottom = newY + playerHeight;
 
         let landed = false;
+        let hitCeiling = false;
+        let hitWall = false;
 
-        // Floor collision (ground or fake ground or goal still acts as floor)
-        if (
-          tileBelow === 1 || // ground
-          tileBelow === 3 || // goal
-          tileBelow === 4    // fake ground (will break)
-        ) {
-          // Snap to top of tile
-          const tileY = Math.floor(newY + 0.6);
-          newY = tileY - 0.5;
-          vy = 0;
-          landed = true;
+        // Check tiles around player
+        const checkLeft = Math.floor(playerLeft);
+        const checkRight = Math.floor(playerRight);
+        const checkTop = Math.floor(playerTop);
+        const checkBottom = Math.floor(playerBottom);
 
-          // If it's fake ground, collapse it after landing
-          if (tileBelow === 4) {
-            setLevel((prevLevel) => {
-              const clone = prevLevel.map((row) => [...row]);
-              clone[tileY][Math.floor(newX)] = 0; // becomes empty
-              return clone;
-            });
+        for (let checkY = checkTop; checkY <= checkBottom; checkY++) {
+          for (let checkX = checkLeft; checkX <= checkRight; checkX++) {
+            const tile = getTile(level, checkX, checkY);
+
+            // SPIKES KILL INSTANTLY - NOW ENABLED!
+            if (tile === 2) {
+              const tileLeft = checkX;
+              const tileRight = checkX + 1;
+              const tileTop = checkY;
+              const tileBottom = checkY + 1;
+
+              if (playerRight > tileLeft && playerLeft < tileRight &&
+                  playerBottom > tileTop && playerTop < tileBottom) {
+                triggerDeath('⚡ The cyber spikes disintegrated you!', x * tileSize, y * tileSize);
+                return prev;
+              }
+            }
+
+            // Goal reached - check if it's the horse in level 4 or 5
+            if (tile === 3 || ((currentLevelIndex === 3 || currentLevelIndex === 4) && 
+                Math.floor(player.x) === doorPosition.x && 
+                Math.floor(player.y) === doorPosition.y)) {
+              const goalX = (currentLevelIndex === 3 || currentLevelIndex === 4) ? doorPosition.x : checkX;
+              const goalY = (currentLevelIndex === 3 || currentLevelIndex === 4) ? doorPosition.y : checkY;
+              const tileLeft = goalX;
+              const tileRight = goalX + 1;
+              const tileTop = goalY;
+              const tileBottom = goalY + 1;
+
+              if (playerRight > tileLeft + 0.2 && playerLeft < tileRight - 0.2 &&
+                  playerBottom > tileTop + 0.2 && playerTop < tileBottom - 0.2) {
+                
+                // Level complete!
+                if (currentLevelIndex < LEVELS.length - 1) {
+                  setFragments(prev => prev + 1);
+                  setCurrentLevelIndex(prev => prev + 1);
+                  setLevel(LEVELS[currentLevelIndex + 1].map(row => [...row]));
+                  setPlayer({ x: 0.5, y: 9, vx: 0, vy: 0 });
+                  setGreenPlatformsCollapsed(false);
+                  triggeredSpikes.current.clear();
+                  setDoorPosition({ x: 16, y: 9 });
+                  setDoorEvadeCount(0);
+                  onGroundRef.current = false;
+                  lastGroundedTime.current = Date.now();
+                } else {
+                  setFragments(5);
+                  setGameState('win');
+                  setMessage('🎉 Your wild horse is fully tamed! You are now bonded forever!');
+                }
+                return { x: newX, y: newY, vx, vy };
+              }
+            }
+
+            // Collect sword fragment
+            if (tile === 5) {
+              const key = `${checkX},${checkY}`;
+              const tileLeft = checkX;
+              const tileRight = checkX + 1;
+              const tileTop = checkY;
+              const tileBottom = checkY + 1;
+
+              if (!collectedFragments.current.has(key) &&
+                  playerRight > tileLeft + 0.2 && playerLeft < tileRight - 0.2 &&
+                  playerBottom > tileTop + 0.2 && playerTop < tileBottom - 0.2) {
+                collectedFragments.current.add(key);
+                setLevel((prevLevel) => {
+                  const clone = prevLevel.map((row) => [...row]);
+                  clone[checkY][checkX] = 0;
+                  return clone;
+                });
+              }
+            }
+
+            // Solid tiles (ground, fake ground, or moving platform)
+            if (tile === 1 || tile === 4 || tile === 6) {
+              const tileLeft = checkX;
+              const tileRight = checkX + 1;
+              const tileTop = checkY;
+              const tileBottom = checkY + 1;
+
+              const prevBottom = prev.y + playerHeight;
+              const prevTop = prev.y - playerHeight;
+              const prevLeft = prev.x - playerWidth;
+              const prevRight = prev.x + playerWidth;
+
+              // Floor collision (falling down onto platform)
+              if (vy > 0 && playerBottom > tileTop && prevBottom <= tileTop + 0.05) {
+                if (playerRight > tileLeft + 0.1 && playerLeft < tileRight - 0.1) {
+                  newY = tileTop - playerHeight;
+                  vy = 0;
+                  landed = true;
+
+                  // Collapse fake ground
+                  if (tile === 4) {
+                    setTimeout(() => {
+                      setLevel((prevLevel) => {
+                        const clone = prevLevel.map((row) => [...row]);
+                        if (clone[checkY][checkX] === 4) {
+                          clone[checkY][checkX] = 0;
+                        }
+                        return clone;
+                      });
+                    }, 300);
+                  }
+                }
+              }
+
+              // Ceiling collision (jumping up into platform)
+              if (vy < 0 && playerTop < tileBottom && prevTop >= tileBottom - 0.05) {
+                if (playerRight > tileLeft + 0.1 && playerLeft < tileRight - 0.1) {
+                  newY = tileBottom + playerHeight;
+                  vy = 0;
+                  hitCeiling = true;
+                }
+              }
+
+              // Left wall collision
+              if (vx < 0 && playerLeft < tileRight && prevLeft >= tileRight - 0.05) {
+                if (playerBottom > tileTop + 0.1 && playerTop < tileBottom - 0.1) {
+                  newX = tileRight + playerWidth;
+                  vx = 0;
+                  hitWall = true;
+                }
+              }
+
+              // Right wall collision
+              if (vx > 0 && playerRight > tileLeft && prevRight <= tileLeft + 0.05) {
+                if (playerBottom > tileTop + 0.1 && playerTop < tileBottom - 0.1) {
+                  newX = tileLeft - playerWidth;
+                  vx = 0;
+                  hitWall = true;
+                }
+              }
+            }
           }
         }
 
-        // Ceil collision (if we jump into a solid tile)
-        const tileAbove = getTile(level, Math.floor(newX), Math.floor(newY - 0.6));
-        if (tileAbove === 1 || tileAbove === 4) {
-          const tileY = Math.floor(newY - 0.6) + 1;
-          newY = tileY - 0.5;
-          vy = 0.05;
+        // Update grounded state
+        if (landed) {
+          lastGroundedTime.current = Date.now();
+          onGroundRef.current = true;
+        } else if (vy >= 0) {
+          // Only update grounded if we're falling
+          onGroundRef.current = false;
         }
 
-        // Spikes kill if we overlap them
-        if (tileAt === 2) {
-          triggerDeath('You trusted the floor... and it bit back. 😈');
-          return prev;
-        }
-
-        // Reaching the goal
-        if (tileAt === 3) {
-          setGameState('win');
-          setMessage('You reached the door! But can you trust the next level? 👀');
-          return { x: newX, y: newY, vx, vy };
-        }
-
-        setOnGround(landed);
-
-        // Out-of-bounds vertically (fell off level)
-        if (newY > height) {
-          triggerDeath('You fell into the void. Classic. 💀');
+        // Fall off map
+        if (newY > height + 2) {
+          triggerDeath('💀 You fell into the cyber void!', x * tileSize, y * tileSize);
           return prev;
         }
 
@@ -186,37 +727,22 @@ export default function TrickLevelGame() {
     }, TICK_MS);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keys, onGround, level, gameState]);
+  }, [keys, gameState, level, isDying, currentLevelIndex, doorPosition, player.x, player.y, tileSize]);
 
-  const triggerDeath = (msg) => {
-    setGameState('dead');
-    setMessage(msg);
-  };
+  // Render
+  const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+  const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
 
-  const handleRestart = () => {
-    setPlayer({ x: 0.5, y: 7.5, vx: 0, vy: 0 });
-    setLevel(LEVEL_LAYOUT.map((row) => [...row])); // reset fake tiles
-    setOnGround(false);
-    setGameState('playing');
-    setMessage('');
-  };
-
-  const handleExit = () => {
-    navigate(DASHBOARD_ROUTE);
-  };
-
-  // RENDER
-  const tileSize = 32;
   const boardStyle = {
     display: 'grid',
     gridTemplateColumns: `repeat(${width}, ${tileSize}px)`,
     gridTemplateRows: `repeat(${height}, ${tileSize}px)`,
     background: '#020617',
     border: '4px solid #4b5563',
-    borderRadius: '8px',
-    boxShadow: '0 0 20px rgba(0,0,0,0.7)',
-    position: 'relative'
+    borderRadius: '12px',
+    boxShadow: '0 0 24px rgba(0,0,0,0.7)',
+    position: 'relative',
+    transform: `translate(${shakeX}px, ${shakeY}px)`,
   };
 
   const tileBase = {
@@ -231,19 +757,48 @@ export default function TrickLevelGame() {
       const val = level[y][x];
       let background = '#020617';
       let border = '1px solid #0f172a';
+      let content = null;
 
       if (val === 1) {
-        background = 'linear-gradient(180deg,#334155,#020617)';
-        border = '1px solid #020617';
+        background = 'linear-gradient(180deg,#334155,#1e293b)';
+        border = '1px solid #0f172a';
       } else if (val === 2) {
-        background = 'radial-gradient(circle,#ef4444,#7f1d1d)';
-        border = '1px solid #b91c1c';
+        background = 'radial-gradient(circle,#ef4444,#991b1b)';
+        border = '1px solid #dc2626';
+        content = <div style={{ fontSize: '20px', lineHeight: `${tileSize}px` }}>▲</div>;
+      /* ========================================
+         STATIC HORSE SPRITE (Levels 1, 2, 3)
+         This renders the horse as a tile goal.
+         Change the emoji below to use a PNG:
+         Replace 'content' with an img tag or background image
+      ========================================= */
       } else if (val === 3) {
-        background = 'linear-gradient(135deg,#22c55e,#a3e635)';
-        border = '1px solid #4ade80';
+        // Don't render static horse in levels 4 & 5 (it's rendered as a moving overlay)
+        if (currentLevelIndex === 3 || currentLevelIndex === 4) {
+          background = '#020617';
+          border = '1px solid #0f172a';
+          content = null;
+        } else {
+          background = 'linear-gradient(135deg,#3b82f6,#06b6d4)';
+          border = '1px solid #0ea5e9';
+          content = <div style={{ fontSize: '24px', lineHeight: `${tileSize}px` }}>🐴</div>;
+        }
+      /* ========================================
+         END STATIC HORSE SPRITE
+      ========================================= */
       } else if (val === 4) {
-        background = 'linear-gradient(180deg,#eab308,#451a03)';
-        border = '1px dashed #facc15';
+        background = 'linear-gradient(180deg,#fbbf24,#92400e)';
+        border = '1px dashed #fcd34d';
+      } else if (val === 5) {
+        background = 'radial-gradient(circle,#8b5cf6,#4c1d95)';
+        border = '1px solid #7c3aed';
+        content = <div style={{ fontSize: '24px', lineHeight: `${tileSize}px` }}>⚡</div>;
+      } else if (val === 6) {
+        background = 'linear-gradient(180deg,#10b981,#047857)';
+        border = '1px solid #059669';
+      } else if (val === 7) {
+        background = 'rgba(251, 191, 36, 0.2)';
+        border = '1px dashed rgba(252, 211, 77, 0.4)';
       }
 
       tiles.push(
@@ -252,9 +807,15 @@ export default function TrickLevelGame() {
           style={{
             ...tileBase,
             background,
-            border
+            border,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff'
           }}
-        />
+        >
+          {content}
+        </div>
       );
     }
   }
@@ -262,25 +823,27 @@ export default function TrickLevelGame() {
   const playerScreenX = player.x * tileSize;
   const playerScreenY = player.y * tileSize;
 
+  // Death animation effect
+  const deathScale = 1 - deathAnimation * 0.8;
+  const deathOpacity = 1 - deathAnimation;
+  const deathRotation = deathAnimation * 720;
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top,#0f172a 0,#020617 50%,#000 100%)',
+        background: 'radial-gradient(circle at top,#0f172a 0,#020617 50%,#000 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         color: 'white',
-        fontFamily:
-          '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
+        fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
         padding: '1rem',
         gap: '1rem',
         position: 'relative'
       }}
     >
-      {/* Exit button to go back to dashboard */}
       <button
         onClick={handleExit}
         style={{
@@ -299,91 +862,181 @@ export default function TrickLevelGame() {
         ✕ Exit
       </button>
 
-      <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>
-        😈 Trick Level Arena
-      </h1>
-      <p style={{ opacity: 0.8, marginBottom: '0.5rem', textAlign: 'center' }}>
-        Reach the <strong>green door</strong>. Beware: some tiles are fake, and
-        spikes love surprises. <br />
-        Move with <strong>← → / A D</strong>, jump with <strong>↑ / W / Space</strong>.
+      <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>🐴 Wild Horse Quest</h1>
+      <p style={{ opacity: 0.8, marginBottom: '0.5rem', textAlign: 'center', maxWidth: '500px' }}>
+        Level {currentLevelIndex + 1} of {LEVELS.length}: Find and tame your wild horse across all levels!<br />
+        Move: <strong>← → / A D</strong> | Jump: <strong>↑ / W / Space</strong>
       </p>
 
-      <div style={boardStyle}>
-        {tiles}
-
-        {/* Player */}
-        <div
-          style={{
-            position: 'absolute',
-            width: tileSize * 0.7,
-            height: tileSize * 0.9,
-            left: playerScreenX + tileSize * 0.15,
-            top: playerScreenY + tileSize * 0.05,
-            background:
-              'linear-gradient(135deg,#38bdf8,#1d4ed8)',
-            borderRadius: '6px',
-            boxShadow: '0 0 10px rgba(56,189,248,0.7)',
-            border: '2px solid #0ea5e9'
-          }}
-        />
-      </div>
-
-      {/* Status + controls */}
-      {gameState !== 'playing' && (
-        <div
-          style={{
-            marginTop: '1rem',
-            padding: '0.9rem 1.3rem',
-            background: 'rgba(15,23,42,0.9)',
-            borderRadius: '10px',
-            border:
-              gameState === 'win'
-                ? '1px solid #4ade80'
-                : '1px solid #f97373',
-            maxWidth: '360px',
-            textAlign: 'center'
-          }}
-        >
-          <div style={{ marginBottom: '0.5rem' }}>{message}</div>
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-            <button
-              onClick={handleRestart}
+      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center', position: 'relative' }}>
+        <div style={boardStyle}>
+          {tiles}
+          
+          {/* Death particles */}
+          {isDying && <DeathParticles x={deathPosition.x} y={deathPosition.y} tileSize={tileSize} />}
+          
+          {/* ========================================
+              MOVING HORSE SPRITE (Levels 4 & 5)
+              Change the emoji below to use a PNG image:
+              Replace the content div with:
+              backgroundImage: 'url(./path/to/your-horse.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              And remove the inner div with the emoji
+          ========================================= */}
+          {(currentLevelIndex === 3 || currentLevelIndex === 4) && (
+            <div
               style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '999px',
-                border: 'none',
-                background:
-                  'linear-gradient(135deg,#22c55e,#16a34a)',
-                color: 'white',
-                fontWeight: 'bold',
-                cursor: 'pointer'
+                position: 'absolute',
+                width: tileSize,
+                height: tileSize,
+                left: doorPosition.x * tileSize,
+                top: doorPosition.y * tileSize,
+                background: 'linear-gradient(135deg,#3b82f6,#06b6d4)',
+                border: '1px solid #0ea5e9',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                transition: 'all 0.3s ease',
+                pointerEvents: 'none',
+                opacity: doorEvadeCount >= doorEvadeMax ? 1 : 1,
               }}
             >
-              Try Again
-            </button>
-            <button
-              onClick={handleExit}
+              🐴
+            </div>
+          )}
+          {/* ========================================
+              END MOVING HORSE SPRITE
+          ========================================= */}
+          
+          {/* ========================================
+              PLAYER CHARACTER SPRITE
+              Change the styling below to use a PNG image:
+              Replace the 'background' property with:
+              backgroundImage: 'url(./path/to/your-character.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+          ========================================= */}
+          {!isDying && (
+            <div
               style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '999px',
-                border: '1px solid rgba(148,163,184,0.6)',
-                background: 'rgba(15,23,42,0.7)',
-                color: 'white',
-                cursor: 'pointer'
+                position: 'absolute',
+                width: tileSize * 0.7,
+                height: tileSize * 0.9,
+                left: playerScreenX - (tileSize * 0.35),
+                top: playerScreenY - (tileSize * 0.45),
+                background: 'linear-gradient(135deg,#38bdf8,#1e40af)',
+                borderRadius: '6px',
+                boxShadow: '0 0 12px rgba(56,189,248,0.8)',
+                border: '2px solid #0ea5e9',
+                pointerEvents: 'none'
+              }}
+            />
+          )}
+          {/* ========================================
+              END PLAYER CHARACTER SPRITE
+          ========================================= */}
+          
+          {isDying && (
+            <div
+              style={{
+                position: 'absolute',
+                width: tileSize * 0.7,
+                height: tileSize * 0.9,
+                left: playerScreenX - (tileSize * 0.35),
+                top: playerScreenY - (tileSize * 0.45),
+                background: 'linear-gradient(135deg,#ef4444,#991b1b)',
+                borderRadius: '6px',
+                boxShadow: `0 0 ${20 * (1 - deathAnimation)}px rgba(239,68,68,${deathOpacity})`,
+                border: '2px solid #dc2626',
+                opacity: deathOpacity,
+                transform: `scale(${deathScale}) rotate(${deathRotation}deg)`,
+                pointerEvents: 'none',
+                transition: 'transform 20ms linear, opacity 20ms linear'
+              }}
+            />
+          )}
+
+          {/* Game completion/death overlay */}
+          {(gameState === 'dead' || gameState === 'win') && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(0, 0, 0, 0.85)',
+                backdropFilter: 'blur(4px)',
+                borderRadius: '12px',
+                zIndex: 10,
               }}
             >
-              Back to Dashboard
-            </button>
-          </div>
+              <div
+                style={{
+                  padding: '2rem 2.5rem',
+                  background: 'rgba(15,23,42,0.95)',
+                  borderRadius: '16px',
+                  border: gameState === 'win' ? '2px solid #4ade80' : '2px solid #f87171',
+                  maxWidth: '400px',
+                  textAlign: 'center',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                }}
+              >
+                <div style={{ marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: '600' }}>{message}</div>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                  <button
+                    onClick={gameState === 'dead' ? restartCurrentLevel : handleRestart}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: '999px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg,#3b82f6,#1e40af)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+                    }}
+                  >
+                    {gameState === 'dead' ? 'Retry Level' : 'Play Again'}
+                  </button>
+                  <button
+                    onClick={handleExit}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(148,163,184,0.6)',
+                      background: 'rgba(15,23,42,0.7)',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                    }}
+                  >
+                    Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        <HorseMeter fragments={fragments} />
+      </div>
 
       {gameState === 'playing' && (
         <button
           onClick={handleRestart}
           style={{
             marginTop: '0.5rem',
-            padding: '0.35rem 0.9rem',
+            padding: '0.4rem 1rem',
             borderRadius: '999px',
             border: '1px solid rgba(148,163,184,0.6)',
             background: 'rgba(15,23,42,0.7)',
@@ -392,21 +1045,15 @@ export default function TrickLevelGame() {
             cursor: 'pointer'
           }}
         >
-          Reset Level
+          Restart Game
         </button>
       )}
     </div>
   );
 }
 
-// helper to safely get tile
 function getTile(level, x, y) {
-  if (
-    y < 0 ||
-    y >= level.length ||
-    x < 0 ||
-    x >= level[0].length
-  ) {
+  if (y < 0 || y >= level.length || x < 0 || x >= level[0].length) {
     return 0;
   }
   return level[y][x];
