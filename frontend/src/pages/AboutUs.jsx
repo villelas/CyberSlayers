@@ -292,6 +292,30 @@ const AboutUs = () => {
               CyberSlayers is our answer — a platform that teaches real-world cybersecurity skills through the power of interactive storytelling.
             </p>
           </section>
+
+          {/* Team */}
+          <section style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardIcon}>
+                <Users size={20} color="#00bcd4" />
+              </div>
+              <h2 style={styles.sectionTitle}>Our Team</h2>
+            </div>
+            <p style={styles.text}>
+              CyberSlayers is created by a dedicated student team passionate about digital literacy and youth education:
+            </p>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>Donato Alvarado</li>
+              <li style={styles.listItem}>Colin Clark</li>
+              <li style={styles.listItem}>Osaruese Okungbowa</li>
+              <li style={styles.listItem}>Stephanie Villela</li>
+            </ul>
+            <div style={styles.teamTags}>
+              <span style={styles.teamTag}>Ideation</span>
+              <span style={styles.teamTag}>Cybersecurity Education</span>
+              <span style={styles.teamTag}>Youth Engagement</span>
+            </div>
+          </section>
         </div>
 
         {/* Right Column */}
@@ -334,30 +358,6 @@ const AboutUs = () => {
               <li style={styles.listItem}>Adventure Game Worlds: A progressively challenging map with different themed levels, each representing a cybersecurity skill.</li>
               <li style={styles.listItem}>Final “Boss” Challenge: A culminating mission requiring players to use everything they’ve learned to defeat a simulated cyber threat.</li>
             </ul>
-          </section>
-
-          {/* Team */}
-          <section style={styles.card}>
-            <div style={styles.cardHeader}>
-              <div style={styles.cardIcon}>
-                <Users size={20} color="#00bcd4" />
-              </div>
-              <h2 style={styles.sectionTitle}>Our Team</h2>
-            </div>
-            <p style={styles.text}>
-              CyberSlayers is created by a dedicated student team passionate about digital literacy and youth education:
-            </p>
-            <ul style={styles.list}>
-              <li style={styles.listItem}>Donato Alvarado</li>
-              <li style={styles.listItem}>Colin Clark</li>
-              <li style={styles.listItem}>Osaruese Okungbowa</li>
-              <li style={styles.listItem}>Stephanie Villela</li>
-            </ul>
-            <div style={styles.teamTags}>
-              <span style={styles.teamTag}>Ideation</span>
-              <span style={styles.teamTag}>Cybersecurity Education</span>
-              <span style={styles.teamTag}>Youth Engagement</span>
-            </div>
           </section>
 
           {/* Future */}

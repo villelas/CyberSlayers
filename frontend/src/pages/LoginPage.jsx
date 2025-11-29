@@ -157,10 +157,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="forgot-password">
-          <a href="#" className="auth-link">Forgot your password?</a>
-        </div>
-
         <div className="auth-link-section">
           <p>New to CyberSlayers?{' '}
             <a 

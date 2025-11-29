@@ -92,7 +92,7 @@ export default function HomePage() {
           </p>
 
           <div style={styles.buttonContainer}>
-            <button className="btn-large">
+            <button className="btn-large" onClick={() => navigate('/dashboard')}>
               <PlayCircle size={24} />
               Start Playing
               <ChevronRight size={20} />
