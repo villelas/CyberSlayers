@@ -154,11 +154,37 @@ export default function SnakeGame() {
   const justAteRef = useRef(false);
 
   // Win condition → show closing module instead of instant redirect
-  useEffect(() => {
-    if (score >= WIN_SCORE && gameState !== "win") {
-      setGameState("win");
+  // Movement controls
+useEffect(() => {
+  if (gameState === "win") return; // pause controls on win
+
+  const handleKeyDown = (e) => {
+    // Stop arrow keys from scrolling the page
+    if (
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight"
+    ) {
+      e.preventDefault();
     }
-  }, [score, gameState]);
+
+    if (gameOver) return;
+
+    if ((e.key === "ArrowUp" || e.key === "w") && direction.y !== 1)
+      setDirection({ x: 0, y: -1 });
+    else if ((e.key === "ArrowDown" || e.key === "s") && direction.y !== -1)
+      setDirection({ x: 0, y: 1 });
+    else if ((e.key === "ArrowLeft" || e.key === "a") && direction.x !== 1)
+      setDirection({ x: -1, y: 0 });
+    else if ((e.key === "ArrowRight" || e.key === "d") && direction.x !== -1)
+      setDirection({ x: 1, y: 0 });
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [direction, gameOver, gameState]);
+
 
   // Movement controls
   useEffect(() => {

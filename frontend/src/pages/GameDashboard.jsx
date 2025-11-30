@@ -518,6 +518,22 @@ export default function GameDashboard() {
       isLocked: false
     };
   });
+    // Build SVG path and node positions from arena card positions
+  const sortedArenas = [...arenasWithData].sort(
+    (a, b) => a.gameNum - b.gameNum
+  );
+
+  const pathD =
+    sortedArenas.length > 0
+      ? sortedArenas
+          .map((arena, index) => {
+            const x = parseFloat(arena.position.left);  // "10%" -> 10
+            const y = parseFloat(arena.position.top);   // "65%" -> 65
+            return `${index === 0 ? 'M' : 'L'} ${x} ${y + 10}`; // line runs under cards
+          })
+          .join(' ')
+      : '';
+
 
   const styles = {
     header: {
@@ -734,7 +750,7 @@ export default function GameDashboard() {
 
         <div style={styles.mapContainer}>
           {/* Network lines */}
-          <svg
+                    <svg
             style={styles.pathSvg}
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
@@ -761,58 +777,56 @@ export default function GameDashboard() {
               </filter>
             </defs>
 
-            <path
-              d="M 8 65 
-                 C 20 55, 28 50, 38 45
-                 C 48 40, 54 30, 62 20
-                 L 82 20"
-              stroke="url(#cyberPath)"
-              strokeWidth="0.4"
-              fill="none"
-              strokeDasharray="1.5,1"
-              strokeLinecap="round"
-              opacity="0.8"
-              filter="url(#glow)"
-              vectorEffect="non-scaling-stroke"
-            />
+            {/* Main path connecting arenas */}
+            {pathD && (
+              <path
+                d={pathD}
+                stroke="url(#cyberPath)"
+                strokeWidth="0.6"
+                fill="none"
+                strokeDasharray="1.5,1"
+                strokeLinecap="round"
+                opacity="0.9"
+                filter="url(#glow)"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
 
-            <circle
-              cx="8"
-              cy="65"
-              r="0.5"
-              fill="#e91e63"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="38"
-              cy="45"
-              r="0.5"
-              fill="#2196f3"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="62"
-              cy="20"
-              r="0.5"
-              fill="#4caf50"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="82"
-              cy="20"
-              r="0.5"
-              fill="#9c27b0"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
+            {/* Progress nodes directly under each game module */}
+            {sortedArenas.map((arena) => {
+              const cx = parseFloat(arena.position.left);
+              const cy = parseFloat(arena.position.top) + 10; // right under the card
+
+              const isUnlocked = !arena.isLocked;
+              const isCompleted = arena.score > 0;
+
+              const radius = isCompleted ? 1.2 : isUnlocked ? 0.9 : 0.7;
+
+              const fillColor = isCompleted
+                ? arena.color
+                : isUnlocked
+                ? 'rgba(15,52,96,0.8)'
+                : 'rgba(15,23,42,0.8)';
+
+              const strokeColor = isUnlocked
+                ? 'rgba(255,255,255,0.9)'
+                : 'rgba(148,163,184,0.8)';
+
+              return (
+                <circle
+                  key={arena.gameNum}
+                  cx={cx}
+                  cy={cy}
+                  r={radius}
+                  fill={fillColor}
+                  opacity="1"
+                  stroke={strokeColor}
+                  strokeWidth="0.2"
+                />
+              );
+            })}
           </svg>
+
 
           {/* Game nodes */}
           {arenasWithData.map((arena) => (
