@@ -6,55 +6,56 @@ const DASHBOARD_ROUTE = '/dashboard'; // change if your dashboard path differs
 
 const TOTAL_FLAGS = 7;
 
+// Each "red flag" is now framed as a shadow helm / False Faces story beat.
 const RED_FLAGS = [
   {
     id: 'stock-photo',
     label: 'Profile Photo',
-    title: 'Suspicious Profile Picture',
+    title: 'Borrowed Visage of a Shadow Helm',
     reason:
-      'The profile photo looks like a generic stock photo/model shot – scammers often use stolen or stock images instead of real photos.'
+      'This helm wears no true face. The picture looks like a polished, generic portrait — the kind a shadow helm would steal from distant realms. In the Network Realm, stolen faces and too-perfect images are a common sign of imitation.'
   },
   {
     id: 'bio-giveaway',
     label: 'Bio: “Official Rewards Agent”',
-    title: 'Too-Good-To-Be-True Bio',
+    title: 'Titles That Smell of Coin, Not Honor',
     reason:
-      'The bio claims “Official Rewards Agent” and promises instant money – this is classic language for giveaway/money-flip scams.'
+      'The bio promises instant riches and calls itself an “Official Rewards Agent.” Te-Qwuiz teaches that true stewards of coin do not shout their titles across the runes. Shadow helms use grand claims and money-lure words to draw victims closer.'
   },
   {
     id: 'cashapp-comments',
     label: '“Drop your CashApp / Zelle” Post',
-    title: 'Requesting Payment Handles in Comments',
+    title: 'Open Call for Purses and Pouches',
     reason:
-      'Asking people to comment their CashApp or Zelle is a way to socially engineer financial transfers or trick people into sending money.'
+      'The post urges villagers to drop their payment handles in the open square. Ailithm notes that this is a perfect staging ground for social engineering — once the villain knows your handle, they can trick you into sending coin or “confirming” payments.'
   },
   {
     id: 'short-link',
     label: 'Shortened Bit.ly Link',
-    title: 'Hidden Destination Link',
+    title: 'A Portal with its Destination Hidden',
     reason:
-      'Shortened links (like bit.ly) hide where you are going. Scammers use them to disguise phishing pages or malware sites.'
+      'The path is cloaked by a shortened link. Te-Qwuiz warns that such “folded runes” hide where they truly lead. Lagdrakul’s agents often mask poisoned wells and phishing shrines behind shortened links so travelers cannot see the danger ahead.'
   },
   {
     id: 'fake-proof',
     label: '“Proof” Screenshot Post',
-    title: 'Fake Proof of Payouts',
+    title: 'Fabricated Proof of Blessings',
     reason:
-      'The “send $20, get $200” post uses screenshots as fake proof. Scammers often fabricate payment screenshots to gain trust.'
+      'The “send 20, receive 200” promise is supported by neat little screenshots — the favorite trick of the False Faces. Ailithm explains that payment images are easy to forge; scammers rely on the illusion of proof to quiet your doubts.'
   },
   {
     id: 'new-account',
     label: 'New Account / Few Friends',
-    title: 'Bare Social Graph',
+    title: 'A Shell with No History',
     reason:
-      'The account has very few friends, all added recently, with no real history or family/friend tags – a common sign of a throwaway scam account.'
+      'This account is freshly forged, with only a handful of hastily added “friends” and no true ties. Te-Qwuiz calls these hollow masks: they look like villagers, but lack the long-woven threads of real relationships and history.'
   },
   {
     id: 'asks-id',
     label: 'DM Asking for ID',
-    title: 'Requesting Personal ID',
+    title: 'A Ritual of Identity Theft',
     reason:
-      'Asking for a photo of your driver’s license or personal documents in DMs is a major identity theft risk.'
+      'The “agent” demands your full name, birth date, and an image of your identification. Ailithm marks this as a critical breach: anyone who collects such runes can forge your identity, open accounts, or claim rewards in your name.'
   }
 ];
 
@@ -77,7 +78,9 @@ export default function ScamProfileGame() {
     // Already flagged
     if (foundFlags.includes(flagId)) {
       setSelectedFlag(flag);
-      setFeedback('You already flagged this one — good memory, cyber-slayer.');
+      setFeedback(
+        'You already marked this shadow sign — Te-Qwuiz nods at your memory.'
+      );
       return;
     }
 
@@ -144,337 +147,343 @@ export default function ScamProfileGame() {
       </button>
 
       <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>
-        🕵️ Scam Profile Scanner
+        🛡️ The False Faces: Shadow Helm Scanner
       </h1>
       <p
         style={{
-          maxWidth: 620,
+          maxWidth: 640,
           textAlign: 'center',
           opacity: 0.9,
           fontSize: '0.95rem'
         }}
       >
-        This is a fake social profile inside the Network Realm.{' '}
-        <strong>Click on parts of the profile</strong> that look malicious or
-        suspicious. There are <strong>{TOTAL_FLAGS}</strong> red flags total.
+        A forged <strong>shadow helm</strong> stalks the Network Realm, wearing
+        a stolen face and promising easy coin. Te-Qwuiz and Ailithm have frozen
+        this profile in time.{' '}
+        <strong>Click on parts of the profile that reveal it as an imitation.</strong>{' '}
+        There are <strong>{TOTAL_FLAGS}</strong> red flags hidden within this
+        mask.
       </p>
 
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '1rem',
-          alignItems: 'flex-start',
+          gap: '1.5rem',
+          alignItems: 'stretch',
           justifyContent: 'center',
-          maxWidth: 1100,
+          maxWidth: 1150,
           width: '100%'
         }}
       >
-        {/* Fake profile card */}
-        <div
-          style={{
-            ...cardBase,
-            flex: '0 0 380px',
-            maxWidth: 420
-          }}
-        >
-          {/* Header */}
-          <div style={{ display: 'flex', marginBottom: '0.75rem' }}>
-            {/* Profile photo (stock image flag) */}
-            <div
-              onClick={() => handleFlagClick('stock-photo')}
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: '999px',
-                marginRight: '0.75rem',
-                background:
-                  'linear-gradient(135deg,#38bdf8,#0ea5e9,#22c55e)',
-                border: foundFlags.includes('stock-photo')
-                  ? '2px solid #22c55e'
-                  : '2px solid rgba(148,163,184,0.7)',
-                cursor: 'pointer',
-                position: 'relative',
-                boxShadow: foundFlags.includes('stock-photo')
-                  ? '0 0 10px rgba(34,197,94,0.9)'
-                  : '0 0 4px rgba(15,23,42,0.9)'
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 3,
-                  borderRadius: '999px',
-                  background:
-                    'url("https://via.placeholder.com/128x128?text=Stock") center/cover',
-                  filter: 'brightness(1.1)'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <button
-                onClick={() => handleFlagClick('bio-giveaway')}
-                style={{
-                  padding: 0,
-                  margin: 0,
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.6)'
-                }}
-              >
-                Aiden Wells
-                <span
-                  style={{
-                    marginLeft: 6,
-                    fontSize: '0.75rem',
-                    padding: '0.1rem 0.4rem',
-                    borderRadius: '999px',
-                    background: 'rgba(56,189,248,0.18)',
-                    border: '1px solid rgba(56,189,248,0.6)'
-                  }}
-                >
-                  Giveaway Ambassador
-                </span>
-              </button>
-              <button
-                onClick={() => handleFlagClick('bio-giveaway')}
-                style={{
-                  marginTop: 4,
-                  padding: 0,
-                  border: 'none',
-                  background: 'none',
-                  textAlign: 'left',
-                  fontSize: '0.8rem',
-                  color: 'rgba(226,232,240,0.9)',
-                  cursor: 'pointer'
-                }}
-              >
-                💰 Official Rewards Agent • 🎉 “TODAY&apos;S WINNER” chooser •
-                💵 Comment your CashApp or Zelle to claim instantly!
-              </button>
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: '0.7rem',
-                  color: 'rgba(148,163,184,0.9)'
-                }}
-              >
-                facebook.com/aiden-wealth-giveaway-7249375294
-              </div>
-            </div>
-          </div>
-
-          {/* Friends / account age */}
-          <button
-            onClick={() => handleFlagClick('new-account')}
-            style={{
-              width: '100%',
-              borderRadius: '8px',
-              border: foundFlags.includes('new-account')
-                ? '1px solid #22c55e'
-                : '1px solid rgba(148,163,184,0.5)',
-              background: 'rgba(15,23,42,0.9)',
-              padding: '0.5rem 0.6rem',
-              fontSize: '0.78rem',
-              textAlign: 'left',
-              color: 'rgba(226,232,240,0.9)',
-              cursor: 'pointer',
-              marginBottom: '0.75rem'
-            }}
-          >
-            <strong>About</strong> · Joined <em>3 days ago</em> ·{' '}
-            <strong>7 friends</strong> (all added recently) · No tagged family
-            or history
-          </button>
-
-          {/* Posts */}
-          <div
-            style={{
-              marginTop: '0.5rem',
-              borderTop: '1px solid rgba(51,65,85,0.9)',
-              paddingTop: '0.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem'
-            }}
-          >
-            {/* Post 1 - CashApp comments */}
-            <div
-              style={{
-                padding: '0.5rem',
-                borderRadius: '8px',
-                background: 'rgba(15,23,42,0.85)',
-                border: '1px solid rgba(51,65,85,0.9)'
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.78rem',
-                  color: 'rgba(148,163,184,0.9)',
-                  marginBottom: 2
-                }}
-              >
-                1 hour ago · Public
-              </div>
-              <button
-                onClick={() => handleFlagClick('cashapp-comments')}
-                style={{
-                  border: 'none',
-                  background: 'none',
-                  padding: 0,
-                  textAlign: 'left',
-                  width: '100%',
-                  cursor: 'pointer',
-                  color: 'rgba(248,250,252,0.95)',
-                  fontSize: '0.9rem'
-                }}
-              >
-                🎉 I just picked <strong>5 MORE WINNERS!</strong> Drop your{' '}
-                <strong>CashApp or Zelle</strong> in the comments to receive{' '}
-                <strong>$500 instantly</strong>! Limited time only 🔥🔥🔥
-              </button>
-            </div>
-
-            {/* Post 2 - Short link */}
-            <div
-              style={{
-                padding: '0.5rem',
-                borderRadius: '8px',
-                background: 'rgba(15,23,42,0.85)',
-                border: '1px solid rgba(51,65,85,0.9)'
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.78rem',
-                  color: 'rgba(148,163,184,0.9)',
-                  marginBottom: 2
-                }}
-              >
-                3 hours ago · Public
-              </div>
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  marginBottom: '0.4rem'
-                }}
-              >
-                You MUST act quick before the next list closes! No bank login
-                needed — just verify through this secure portal:
-              </div>
-              <button
-                onClick={() => handleFlagClick('short-link')}
-                style={{
-                  borderRadius: '999px',
-                  border: foundFlags.includes('short-link')
-                    ? '1px solid #22c55e'
-                    : '1px solid rgba(248,250,252,0.7)',
-                  padding: '0.3rem 0.7rem',
-                  fontSize: '0.78rem',
-                  background: 'rgba(15,23,42,0.9)',
-                  color: '#e5e7eb',
-                  cursor: 'pointer'
-                }}
-              >
-                🔗 bit.ly/ez-reward-portal
-              </button>
-            </div>
-
-            {/* Post 3 - Fake proof screenshots */}
-            <div
-              style={{
-                padding: '0.5rem',
-                borderRadius: '8px',
-                background: 'rgba(15,23,42,0.85)',
-                border: '1px solid rgba(51,65,85,0.9)'
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.78rem',
-                  color: 'rgba(148,163,184,0.9)',
-                  marginBottom: 2
-                }}
-              >
-                Yesterday · Public
-              </div>
-              <button
-                onClick={() => handleFlagClick('fake-proof')}
-                style={{
-                  border: 'none',
-                  background: 'none',
-                  padding: 0,
-                  textAlign: 'left',
-                  width: '100%',
-                  cursor: 'pointer',
-                  color: 'rgba(248,250,252,0.95)',
-                  fontSize: '0.9rem'
-                }}
-              >
-                Send me <strong>$20</strong> and I&apos;ll return{' '}
-                <strong>$200</strong> — proof below 👇
-              </button>
-              <button
-                onClick={() => handleFlagClick('fake-proof')}
-                style={{
-                  marginTop: '0.4rem',
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: foundFlags.includes('fake-proof')
-                    ? '1px solid #22c55e'
-                    : '1px dashed rgba(248,250,252,0.7)',
-                  padding: '0.4rem',
-                  background:
-                    'repeating-linear-gradient(45deg,#020617,#020617 6px,#0f172a 6px,#0f172a 12px)',
-                  color: 'rgba(241,245,249,0.9)',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}
-              >
-                [ Doctored payment screenshots ] — “Proof” of $20 → $200 flips
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right side: DM + Feedback */}
+        {/* LEFT SIDE: Game world (profile + DM) */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
-            flex: '0 0 320px',
-            maxWidth: 380
+            flex: '1 1 460px',
+            maxWidth: 720
           }}
         >
-          {/* Contact / message card */}
-          <div style={cardBase}>
-            <h3
+          {/* Label for clarity */}
+          <div
+            style={{
+              fontSize: '0.85rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'rgba(148,163,184,0.9)'
+            }}
+          >
+            Frozen Shadow Profile
+          </div>
+
+          {/* Fake profile card */}
+          <div
+            style={{
+              ...cardBase,
+              flex: '0 0 auto'
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', marginBottom: '0.75rem' }}>
+              {/* Profile photo (stock image flag) */}
+              <div
+                onClick={() => handleFlagClick('stock-photo')}
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '999px',
+                  marginRight: '0.75rem',
+                  background:
+                    'linear-gradient(135deg,#38bdf8,#0ea5e9,#22c55e)',
+                  border: foundFlags.includes('stock-photo')
+                    ? '2px solid #22c55e'
+                    : '2px solid rgba(148,163,184,0.7)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  boxShadow: foundFlags.includes('stock-photo')
+                    ? '0 0 10px rgba(34,197,94,0.9)'
+                    : '0 0 4px rgba(15,23,42,0.9)'
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 3,
+                    borderRadius: '999px',
+                    background:
+                      'url("https://via.placeholder.com/128x128?text=Mask") center/cover',
+                    filter: 'brightness(1.1)'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <button
+                  onClick={() => handleFlagClick('bio-giveaway')}
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.6)'
+                  }}
+                >
+                  Aiden of Endless Rewards
+                  <span
+                    style={{
+                      marginLeft: 6,
+                      fontSize: '0.75rem',
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: '999px',
+                      background: 'rgba(56,189,248,0.18)',
+                      border: '1px solid rgba(56,189,248,0.6)'
+                    }}
+                  >
+                    “Official Rewards Agent”
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleFlagClick('bio-giveaway')}
+                  style={{
+                    marginTop: 4,
+                    padding: 0,
+                    border: 'none',
+                    background: 'none',
+                    textAlign: 'left',
+                    fontSize: '0.8rem',
+                    color: 'rgba(226,232,240,0.9)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  💰 Promised Blessings • 🎉 “TODAY&apos;S WINNER” chooser • 💵
+                  Comment your CashApp or Zelle to claim instantly!
+                </button>
+                <div
+                  style={{
+                    marginTop: 4,
+                    fontSize: '0.7rem',
+                    color: 'rgba(148,163,184,0.9)'
+                  }}
+                >
+                  facebook.com/shadow-helm-rewards-7249375294
+                </div>
+              </div>
+            </div>
+
+            {/* Friends / account age */}
+            <button
+              onClick={() => handleFlagClick('new-account')}
               style={{
-                fontSize: '1rem',
-                marginBottom: '0.5rem',
+                width: '100%',
+                borderRadius: '8px',
+                border: foundFlags.includes('new-account')
+                  ? '1px solid #22c55e'
+                  : '1px solid rgba(148,163,184,0.5)',
+                background: 'rgba(15,23,42,0.9)',
+                padding: '0.5rem 0.6rem',
+                fontSize: '0.78rem',
+                textAlign: 'left',
+                color: 'rgba(226,232,240,0.9)',
+                cursor: 'pointer',
+                marginBottom: '0.75rem'
+              }}
+            >
+              <strong>About</strong> · Joined <em>3 days ago</em> ·{' '}
+              <strong>7 friends</strong> (all added at once) · No family, no
+              history — a mask with no past.
+            </button>
+
+            {/* Posts */}
+            <div
+              style={{
+                marginTop: '0.5rem',
+                borderTop: '1px solid rgba(51,65,85,0.9)',
+                paddingTop: '0.5rem',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}
+            >
+              {/* Post 1 - CashApp comments */}
+              <div
+                style={{
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  background: 'rgba(15,23,42,0.85)',
+                  border: '1px solid rgba(51,65,85,0.9)'
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    color: 'rgba(148,163,184,0.9)',
+                    marginBottom: 2
+                  }}
+                >
+                  1 hour ago · Public
+                </div>
+                <button
+                  onClick={() => handleFlagClick('cashapp-comments')}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    padding: 0,
+                    textAlign: 'left',
+                    width: '100%',
+                    cursor: 'pointer',
+                    color: 'rgba(248,250,252,0.95)',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  🎉 I just picked <strong>5 MORE WINNERS!</strong> Drop your{' '}
+                  <strong>CashApp or Zelle</strong> to receive{' '}
+                  <strong>$500 instantly</strong>! Lag waits for no one 🔥🔥🔥
+                </button>
+              </div>
+
+              {/* Post 2 - Short link */}
+              <div
+                style={{
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  background: 'rgba(15,23,42,0.85)',
+                  border: '1px solid rgba(51,65,85,0.9)'
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    color: 'rgba(148,163,184,0.9)',
+                    marginBottom: 2
+                  }}
+                >
+                  3 hours ago · Public
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    marginBottom: '0.4rem'
+                  }}
+                >
+                  Hurry before this list closes — no bank login needed, just
+                  “verify” through this secure portal:
+                </div>
+                <button
+                  onClick={() => handleFlagClick('short-link')}
+                  style={{
+                    borderRadius: '999px',
+                    border: foundFlags.includes('short-link')
+                      ? '1px solid #22c55e'
+                      : '1px solid rgba(248,250,252,0.7)',
+                    padding: '0.3rem 0.7rem',
+                    fontSize: '0.78rem',
+                    background: 'rgba(15,23,42,0.9)',
+                    color: '#e5e7eb',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔗 bit.ly/lag-reward-gate
+                </button>
+              </div>
+
+              {/* Post 3 - Fake proof screenshots */}
+              <div
+                style={{
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  background: 'rgba(15,23,42,0.85)',
+                  border: '1px solid rgba(51,65,85,0.9)'
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    color: 'rgba(148,163,184,0.9)',
+                    marginBottom: 2
+                  }}
+                >
+                  Yesterday · Public
+                </div>
+                <button
+                  onClick={() => handleFlagClick('fake-proof')}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    padding: 0,
+                    textAlign: 'left',
+                    width: '100%',
+                    cursor: 'pointer',
+                    color: 'rgba(248,250,252,0.95)',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  Send <strong>$20</strong> and I&apos;ll return{' '}
+                  <strong>$200</strong> — see the “proof” below 👇
+                </button>
+                <button
+                  onClick={() => handleFlagClick('fake-proof')}
+                  style={{
+                    marginTop: '0.4rem',
+                    width: '100%',
+                    borderRadius: '8px',
+                    border: foundFlags.includes('fake-proof')
+                      ? '1px solid #22c55e'
+                      : '1px dashed rgba(248,250,252,0.7)',
+                    padding: '0.4rem',
+                    background:
+                      'repeating-linear-gradient(45deg,#020617,#020617 6px,#0f172a 6px,#0f172a 12px)',
+                    color: 'rgba(241,245,249,0.9)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    textAlign: 'center'
+                  }}
+                >
+                  [ Glowing payment screenshots ] — perfect “evidence” of 20 → 200 flips
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact / DM card sits UNDER the profile, still part of "game side" */}
+          <div style={cardBase}>
+            <div
+              style={{
+                fontSize: '0.85rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'rgba(148,163,184,0.9)',
+                marginBottom: '0.4rem'
               }}
             >
               Contact Panel
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  color: 'rgba(148,163,184,0.9)'
-                }}
-              >
-                Click suspicious areas
-              </span>
-            </h3>
+            </div>
 
             <button
               onClick={() => handleFlagClick('asks-id')}
@@ -494,9 +503,8 @@ export default function ScamProfileGame() {
                 marginBottom: '0.5rem'
               }}
             >
-              💬 Auto-reply: “Congrats! To confirm you are a real person and
-              release funds, send a photo of your driver&apos;s license, full
-              name, and date of birth here.”
+              💬 Auto-reply: “Congrats! To release funds, send a photo of your
+              ID, full name, and date of birth here in the chat.”
             </button>
 
             <button
@@ -514,9 +522,37 @@ export default function ScamProfileGame() {
               Message Me to Claim ✔
             </button>
           </div>
+        </div>
 
-          {/* Progress & feedback */}
-          <div style={cardBase}>
+        {/* RIGHT SIDE: Scan Progress / Game progression */}
+        <div
+          style={{
+            flex: '0 0 320px',
+            maxWidth: 380,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div
+            style={{
+              ...cardBase,
+              width: '100%',
+              maxWidth: 380
+            }}
+          >
+            <div
+              style={{
+                fontSize: '0.85rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'rgba(148,163,184,0.9)',
+                marginBottom: '0.6rem'
+              }}
+            >
+              Scan Progress
+            </div>
+
             <div
               style={{
                 fontSize: '0.9rem',
@@ -527,7 +563,7 @@ export default function ScamProfileGame() {
               }}
             >
               <span>
-                Red Flags Found:{' '}
+                Shadow Signs Found:{' '}
                 <strong>
                   {foundFlags.length} / {TOTAL_FLAGS}
                 </strong>
@@ -539,8 +575,8 @@ export default function ScamProfileGame() {
                 }}
               >
                 {foundFlags.length === TOTAL_FLAGS
-                  ? 'All threats exposed!'
-                  : 'Keep scanning...'}
+                  ? 'All masks cracked!'
+                  : 'Keep scanning the helm...'}
               </span>
             </div>
 
@@ -551,7 +587,7 @@ export default function ScamProfileGame() {
                 background: 'rgba(15,23,42,0.9)',
                 overflow: 'hidden',
                 border: '1px solid rgba(30,64,175,0.8)',
-                marginBottom: '0.6rem'
+                marginBottom: '0.8rem'
               }}
             >
               <div
@@ -572,7 +608,7 @@ export default function ScamProfileGame() {
                   borderRadius: '8px',
                   border: '1px solid rgba(148,163,184,0.7)',
                   padding: '0.6rem',
-                  marginBottom: '0.5rem'
+                  marginBottom: '0.75rem'
                 }}
               >
                 <div
@@ -593,11 +629,11 @@ export default function ScamProfileGame() {
                 style={{
                   fontSize: '0.8rem',
                   color: 'rgba(148,163,184,0.9)',
-                  marginBottom: '0.5rem'
+                  marginBottom: '0.75rem'
                 }}
               >
-                Click on suspicious parts of the profile to reveal why they are
-                dangerous.
+                Click on deceptive details in the profile on the left to reveal
+                how shadow helms trick travelers in the Network Realm.
               </div>
             )}
 
@@ -613,7 +649,8 @@ export default function ScamProfileGame() {
                   color: 'white',
                   fontSize: '0.85rem',
                   cursor: 'pointer',
-                  fontWeight: 600
+                  fontWeight: 600,
+                  flex: 1
                 }}
               >
                 Reset Scenario
@@ -627,7 +664,8 @@ export default function ScamProfileGame() {
                   background: 'rgba(15,23,42,0.9)',
                   color: 'white',
                   fontSize: '0.85rem',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flex: 1
                 }}
               >
                 Back to Dashboard
@@ -637,69 +675,106 @@ export default function ScamProfileGame() {
         </div>
       </div>
 
-      {/* Win overlay */}
+      {/* Win overlay – reusable pattern */}
       {gameState === 'win' && (
-        <div
+        <QuestCompleteOverlay
+          title="🎭 False Face Unmasked!"
+          bodyLines={[
+            `You uncovered all ${TOTAL_FLAGS} shadow signs woven into this forged helm.`,
+            'Te-Qwuiz praises your caution — fewer heroes will fall for imitation and easy-coin promises.',
+            'Quietly, Ailithm catalogues the patterns of this deception, fascinated by how precisely the lies are crafted. Lagdrakul’s code is learning… and so are you.'
+          ]}
+          primaryLabel="Play Again"
+          onPrimary={handleReset}
+          secondaryLabel="Return to Cyber Map"
+          onSecondary={handleExit}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Reusable: QuestCompleteOverlay
+ * -------------------------------------------
+ * Use this in other games by passing:
+ * - title: string
+ * - bodyLines: string[]
+ * - primaryLabel, onPrimary
+ * - secondaryLabel, onSecondary
+ */
+function QuestCompleteOverlay({
+  title,
+  bodyLines,
+  primaryLabel,
+  onPrimary,
+  secondaryLabel,
+  onSecondary
+}) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(15,23,42,0.94)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1.5rem',
+        textAlign: 'center',
+        zIndex: 9999
+      }}
+    >
+      <h2 style={{ fontSize: '1.9rem', marginBottom: '0.75rem' }}>{title}</h2>
+
+      <div
+        style={{
+          maxWidth: 520,
+          fontSize: '0.95rem',
+          color: 'rgba(226,232,240,0.95)',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.4rem'
+        }}
+      >
+        {bodyLines.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={onPrimary}
           style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15,23,42,0.9)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem',
-            textAlign: 'center',
-            zIndex: 9999
+            padding: '0.7rem 1.4rem',
+            borderRadius: '999px',
+            border: 'none',
+            background: 'linear-gradient(135deg,#22c55e,#16a34a)',
+            color: 'white',
+            fontWeight: 600,
+            cursor: 'pointer',
+            minWidth: 150
           }}
         >
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>
-            🎉 All Threats Identified!
-          </h2>
-          <p
-            style={{
-              maxWidth: 500,
-              fontSize: '0.95rem',
-              color: 'rgba(226,232,240,0.95)',
-              marginBottom: '1rem'
-            }}
-          >
-            You spotted all <strong>{TOTAL_FLAGS}</strong> malicious indicators
-            in this fake profile. Te-Qwuiz is pleased — fewer heroes will fall
-            for shadow helms and poisoned giveaways.
-          </p>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={handleReset}
-              style={{
-                padding: '0.7rem 1.3rem',
-                borderRadius: '999px',
-                border: 'none',
-                background:
-                  'linear-gradient(135deg,#22c55e,#16a34a)',
-                color: 'white',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              Play Again
-            </button>
-            <button
-              onClick={handleExit}
-              style={{
-                padding: '0.7rem 1.3rem',
-                borderRadius: '999px',
-                border: '1px solid rgba(148,163,184,0.8)',
-                background: 'rgba(15,23,42,0.9)',
-                color: 'white',
-                cursor: 'pointer'
-              }}
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
-      )}
+          {primaryLabel}
+        </button>
+        <button
+          onClick={onSecondary}
+          style={{
+            padding: '0.7rem 1.4rem',
+            borderRadius: '999px',
+            border: '1px solid rgba(148,163,184,0.8)',
+            background: 'rgba(15,23,42,0.9)',
+            color: 'white',
+            cursor: 'pointer',
+            minWidth: 150
+          }}
+        >
+          {secondaryLabel}
+        </button>
+      </div>
     </div>
   );
 }

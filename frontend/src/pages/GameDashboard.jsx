@@ -20,6 +20,64 @@ import {
 } from 'lucide-react';
 import '../App.css';
 
+/**
+ * Pop-up PNG sequences for each game.
+ * These image paths assume the files live in: public/game_support/Pop-ups
+ * Adjust filenames to match your actual assets.
+ *
+ * Mappin:
+ * - Peasant before first game
+ * - Knight after first / before second
+ * - Sword after second / before third
+ * - Horse after third / before fourth
+ * - Wizard before fourth, Evil Wizard after fourth
+ * - Dragon before fifth
+ */
+const POPUP_IMAGES_BY_GAME = {
+  1: ['../game_support/Pop-ups/Hero1.png'],
+  2: ['/game_support/Pop-ups/Hero2.png'],
+  3: ['../game_support/Pop-ups/Hero3.png'],
+  4: [
+    '../game_support/Pop-ups/Horse.png',
+    '../game_support/Pop-ups/AilithmG.png',
+    '../game_support/Pop-ups/AilithmV.png'
+  ],
+  5: ['/game_support/Pop-ups/Lagdrakul2A.png']
+};
+const STORY_BEATS = [
+  {
+    id: 'act1_intro_trail',
+    act: 1,
+    moduleGameNum: 1,
+    minProgress: 0,
+    maxProgress: 5,
+    trigger: 'enter-dashboard',
+    sprite: '/game_support/Pop-ups/Hero1.png',
+    speaker: 'Te-Qwuiz',
+    lines: [
+      'The realm is whispering, warrior. Strange corruption seeps through the social runes.',
+      'Villagers etch careless glyphs into the network stones… and something watches from the lag between them.',
+      'Walk carefully. Every rune you carve leaves a trail — and Lagdrakul stalks the careless.'
+    ]
+  },
+  {
+    id: 'act1_ailithm_trail',
+    act: 1,
+    moduleGameNum: 1,
+    minProgress: 5,
+    maxProgress: 24,
+    trigger: 'enter-dashboard',
+    sprite: '/game_support/Pop-ups/AilithmG.png',
+    speaker: 'Ailithm',
+    lines: [
+      'Te-Qwuiz, I have catalogued thousands of etched runes.',
+      'The patterns of this corruption are… elegant. Precise. As if the virus itself seeks order.',
+      'If we study its footprint, we might predict every move it makes.'
+    ]
+  },
+];
+
+
 // Single source of truth: each module has title, subtitle, content, quiz
 const EDUCATIONAL_MODULES = {
   1: {
@@ -228,22 +286,16 @@ const EDUCATIONAL_MODULES = {
       {
         question: 'What makes a password strong?',
         options: [
-          "Using your name and birthday",
+          'Using your name and birthday',
           'Short and easy to remember',
           'Long with a mix of symbols, numbers, and letters',
-          "A single common word"
+          'A single common word'
         ],
         correctIndex: 2
       },
       {
-        question:
-          'Which of the following is the safest password?',
-        options: [
-          "password123",
-          "Summer2024!",
-          'qwerty',
-          'G!7rP#9wL2@'
-        ],
+        question: 'Which of the following is the safest password?',
+        options: ['password123', 'Summer2024!', 'qwerty', 'G!7rP#9wL2@'],
         correctIndex: 3
       },
       {
@@ -257,8 +309,7 @@ const EDUCATIONAL_MODULES = {
         correctIndex: 1
       },
       {
-        question:
-          'What is a password manager?',
+        question: 'What is a password manager?',
         options: [
           'A program that stores and helps create strong passwords',
           'A tool that automatically sends your passwords to friends',
@@ -279,18 +330,51 @@ export default function GameDashboard() {
   const [selectedArena, setSelectedArena] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // which game’s full-screen module is open (1–4) or null
+  // which game’s full-screen module is open (1–5) or null
   const [learningGameNum, setLearningGameNum] = useState(null);
+
+  // Pop-up PNG sequence state
+  const [popupQueue, setPopupQueue] = useState([]); // array of src strings
+  const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
+
+  const [storyQueue, setStoryQueue] = useState([]);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem('cyberslayers_user');
+
     if (storedUser) {
-      setUserData(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUserData(parsedUser);
+
+      const progress = parsedUser.overall_game_progress || 0;
+
+      let shownIds = [];
+      try {
+        const raw = localStorage.getItem('cyberslayers_story_shown');
+        if (raw) shownIds = JSON.parse(raw);
+      } catch (e) {}
+
+      const pendingBeats = STORY_BEATS.filter(
+        (beat) =>
+          beat.trigger === 'enter-dashboard' &&
+          progress >= beat.minProgress &&
+          progress <= beat.maxProgress &&
+          !shownIds.includes(beat.id)
+      );
+
+      if (pendingBeats.length > 0) {
+        setStoryQueue(pendingBeats);
+        setCurrentStoryIndex(0);
+      }
     } else {
       navigate('/login');
     }
+
     setLoading(false);
   }, [navigate]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('cyberslayers_user');
@@ -312,8 +396,18 @@ export default function GameDashboard() {
     return { status: 'diamond', color: '#00bcd4', icon: Zap };
   };
 
+  /**
+   * When a node on the map is clicked:
+   * - show the associated PNG pop-up(s) in sequence
+   * - open the training modal as before
+   */
   const handleArenaClick = (arenaData) => {
-    // All arenas unlocked & clickable
+    const queue = POPUP_IMAGES_BY_GAME[arenaData.gameNum] || [];
+    if (queue.length > 0) {
+      setPopupQueue(queue);
+      setCurrentPopupIndex(0);
+    }
+
     setSelectedArena(arenaData);
     setShowModal(true);
   };
@@ -401,15 +495,15 @@ export default function GameDashboard() {
       terrain: 'command'
     },
     {
-    gameNum: 5,
-    name: 'Password Tester',
-    description: 'Learn how to build strong, secure passwords',
-    emoji: '🔑',
-    icon: Lock,
-    position: { top: '45%', left: '90%' }, // adjust placement to fit your layout
-    color: '#ff9800',
-    terrain: 'security'
-  }
+      gameNum: 5,
+      name: 'Password Tester',
+      description: 'Learn how to build strong, secure passwords',
+      emoji: '🔑',
+      icon: Lock,
+      position: { top: '45%', left: '90%' },
+      color: '#ff9800',
+      terrain: 'security'
+    }
   ];
 
   // All games unlocked, but still show status badges based on score
@@ -640,9 +734,19 @@ export default function GameDashboard() {
 
         <div style={styles.mapContainer}>
           {/* Network lines */}
-          <svg style={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg
+            style={styles.pathSvg}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             <defs>
-              <linearGradient id="cyberPath" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="cyberPath"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.8" />
                 <stop offset="33%" stopColor="#16213e" stopOpacity="0.8" />
                 <stop offset="66%" stopColor="#0f3460" stopOpacity="0.8" />
@@ -715,7 +819,7 @@ export default function GameDashboard() {
             <ArenaLocation
               key={arena.gameNum}
               arena={arena}
-              onClick={() => handleArenaClick(arena)}
+              onClick={handleArenaClick}
               styles={styles}
             />
           ))}
@@ -725,20 +829,28 @@ export default function GameDashboard() {
       {/* Landing Modal: small scroll preview + "Begin Training" */}
       {showModal && selectedArena && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => setShowModal(false)}
+            >
               <X size={20} />
             </button>
 
             <div className="modal-header">
               <div className="modal-emoji">{selectedArena.emoji}</div>
               <div className="modal-title">{selectedArena.name}</div>
-              <div className="modal-description">{selectedArena.description}</div>
+              <div className="modal-description">
+                {selectedArena.description}
+              </div>
             </div>
 
             {currentModule && (
               <div className="lesson-scroll">
-                
+                {/* you could add a tiny teaser paragraph here if you want */}
                 <button
                   className="modal-button modal-button-play"
                   onClick={handleBeginTraining}
@@ -820,6 +932,146 @@ export default function GameDashboard() {
           onClose={() => setLearningGameNum(null)}
         />
       )}
+            {storyQueue.length > 0 && (
+        <StoryDialoguePopup
+          beat={storyQueue[currentStoryIndex]}
+          onAdvance={() => {
+            const currentBeat = storyQueue[currentStoryIndex];
+            try {
+              const raw = localStorage.getItem('cyberslayers_story_shown');
+              const shownIds = raw ? JSON.parse(raw) : [];
+              if (!shownIds.includes(currentBeat.id)) {
+                shownIds.push(currentBeat.id);
+                localStorage.setItem('cyberslayers_story_shown', JSON.stringify(shownIds));
+              }
+            } catch (e) {}
+
+            if (currentStoryIndex < storyQueue.length - 1) {
+              setCurrentStoryIndex((i) => i + 1);
+            } else {
+              setStoryQueue([]);
+            }
+          }}
+        />
+      )}
+
+
+      {/* Character PNG pop-ups */}
+      {popupQueue.length > 0 && (
+        <CharacterPopup
+          src={popupQueue[currentPopupIndex]}
+          onFinish={() => {
+            if (currentPopupIndex < popupQueue.length - 1) {
+              setCurrentPopupIndex((i) => i + 1);
+            } else {
+              setPopupQueue([]);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+function StoryDialoguePopup({ beat, onAdvance }) {
+  const { sprite, speaker, lines } = beat;
+  const [lineIndex, setLineIndex] = useState(0);
+
+  const isLastLine = lineIndex === lines.length - 1;
+
+  const handleNext = () => {
+    if (!isLastLine) {
+      setLineIndex((prev) => prev + 1);
+    } else {
+      onAdvance();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9998,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(5, 10, 25, 0.85)',
+        padding: '1.5rem'
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '700px',
+          width: '100%',
+          display: 'flex',
+          gap: '1.25rem',
+          alignItems: 'flex-end',
+          justifyContent: 'center'
+        }}
+      >
+        <div style={{ flexShrink: 0, width: '180px', maxWidth: '35%' }}>
+          <img
+            src={sprite}
+            alt={speaker}
+            style={{
+              width: '100%',
+              height: 'auto',
+              imageRendering: 'pixelated',
+              filter: 'drop-shadow(0 0 15px rgba(0, 188, 212, 0.7))'
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            background:
+              'linear-gradient(135deg, rgba(15,52,96,0.95), rgba(0,188,212,0.25))',
+            borderRadius: '18px',
+            border: '2px solid rgba(0,188,212,0.7)',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
+            padding: '1.5rem',
+            color: 'white',
+            position: 'relative'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '-14px',
+              left: '1.5rem',
+              padding: '0.2rem 0.8rem',
+              borderRadius: '999px',
+              background: 'linear-gradient(135deg, #00bcd4, #9c27b0)',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              textTransform: 'uppercase'
+            }}
+          >
+            {speaker}
+          </div>
+
+          <div style={{ minHeight: '80px', marginBottom: '1rem', fontSize: '1rem', lineHeight: '1.7' }}>
+            {lines[lineIndex]}
+          </div>
+
+          <button
+            onClick={handleNext}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.75rem 1.4rem',
+              background: 'linear-gradient(135deg, #00bcd4, #e91e63)',
+              borderRadius: '999px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              color: 'white'
+            }}
+          >
+            {isLastLine ? 'Continue Mission' : 'Next →'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1511,6 +1763,25 @@ function ResultPanel({
           Review Scroll Again
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Simple animated PNG overlay component.
+ * Shows a PNG for ~2.2 seconds, then calls onFinish to advance the queue.
+ */
+function CharacterPopup({ src, onFinish }) {
+  useEffect(() => {
+    const timer = setTimeout(onFinish, 2200);
+    return () => clearTimeout(timer);
+  }, [onFinish]);
+
+  if (!src) return null;
+
+  return (
+    <div className="character-popup">
+      <img src={src} alt="" className="character-popup-image" />
     </div>
   );
 }

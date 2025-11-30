@@ -148,19 +148,22 @@ export default function SnakeGame() {
   const [food, setFood] = useState(getRandomFood);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const [gameState, setGameState] = useState("playing"); // 'playing' | 'win'
 
   // Guard against double-scoring if two ticks happen on the same food
   const justAteRef = useRef(false);
 
-  // Win condition → return to dashboard
+  // Win condition → show closing module instead of instant redirect
   useEffect(() => {
-    if (score >= WIN_SCORE) {
-      navigate(DASHBOARD_ROUTE);
+    if (score >= WIN_SCORE && gameState !== "win") {
+      setGameState("win");
     }
-  }, [score, navigate]);
+  }, [score, gameState]);
 
   // Movement controls
   useEffect(() => {
+    if (gameState === "win") return; // pause controls on win
+
     const handleKeyDown = (e) => {
       if (gameOver) return;
 
@@ -176,11 +179,11 @@ export default function SnakeGame() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [direction, gameOver]);
+  }, [direction, gameOver, gameState]);
 
   // Game loop
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || gameState === "win") return;
 
     const intervalId = setInterval(() => {
       setSnakeHead((prev) => {
@@ -215,7 +218,7 @@ export default function SnakeGame() {
     }, TICK_SPEED);
 
     return () => clearInterval(intervalId);
-  }, [direction, food, gameOver]);
+  }, [direction, food, gameOver, gameState]);
 
   const handleRestart = () => {
     setSnakeHead(getCenter());
@@ -224,6 +227,7 @@ export default function SnakeGame() {
     setGameOver(false);
     setScore(0);
     justAteRef.current = false;
+    setGameState("playing");
   };
 
   const handleExit = () => navigate(DASHBOARD_ROUTE);
@@ -301,10 +305,13 @@ export default function SnakeGame() {
       </button>
 
       <h1 style={{ fontSize: "2rem" }}>⚒ Cyber Forge Run</h1>
-      <p style={{ opacity: 0.8, textAlign: "center", maxWidth: "420px" }}>
-        Steer your hammer through the forge and collect{" "}
-        <strong>{WIN_SCORE}</strong> ingots to complete your training and fully
-        forge your armor.
+      <p style={{ opacity: 0.8, textAlign: "center", maxWidth: "480px" }}>
+        In a hidden corner of the Network Realm, Te-Qwuiz keeps an ancient
+        forge humming beneath the code. Guide your hammer through the glowing
+        grid, collecting{" "}
+        <strong>{WIN_SCORE}</strong> enchanted ingots{" "}
+        to forge your first full set of armor. Every ingot makes you a little
+        harder for Lagdrakul&apos;s corruption to crack.
       </p>
 
       <div style={{ fontSize: "1.15rem", marginBottom: "0.3rem" }}>
@@ -326,7 +333,7 @@ export default function SnakeGame() {
         <ArmorMeter score={score} />
       </div>
 
-      {gameOver && (
+      {gameOver && gameState !== "win" && (
         <div
           style={{
             marginTop: "1rem",
@@ -356,6 +363,108 @@ export default function SnakeGame() {
           </button>
         </div>
       )}
+
+      {/* Closing module / win overlay */}
+      {gameState === "win" && (
+        <QuestCompleteOverlay
+          title="🛡 Armor Forged to Completion!"
+          bodyLines={[
+            `You gathered all ${WIN_SCORE} ingots and tempered each one in Te-Qwuiz's hidden forge.`,
+            "Your helm, chestplate, gauntlets, and greaves now hum with warding runes — every careless rune and shadow helm will have a harder time cutting through your defenses.",
+            "This was only your first trial, but the Realm already feels a little safer with your armor online."
+          ]}
+          primaryLabel="Run the Forge Again"
+          onPrimary={handleRestart}
+          secondaryLabel="Return to Cyber Map"
+          onSecondary={handleExit}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Reusable: QuestCompleteOverlay
+ * -------------------------------------------
+ * Same pattern as the Shadow Helms game.
+ * Use for other minigames by passing:
+ * - title: string
+ * - bodyLines: string[]
+ * - primaryLabel, onPrimary
+ * - secondaryLabel, onSecondary
+ */
+function QuestCompleteOverlay({
+  title,
+  bodyLines,
+  primaryLabel,
+  onPrimary,
+  secondaryLabel,
+  onSecondary,
+}) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(15,23,42,0.94)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1.5rem",
+        textAlign: "center",
+        zIndex: 9999,
+      }}
+    >
+      <h2 style={{ fontSize: "1.9rem", marginBottom: "0.75rem" }}>{title}</h2>
+
+      <div
+        style={{
+          maxWidth: 520,
+          fontSize: "0.95rem",
+          color: "rgba(226,232,240,0.95)",
+          marginBottom: "1.25rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.4rem",
+        }}
+      >
+        {bodyLines.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+        <button
+          onClick={onPrimary}
+          style={{
+            padding: "0.7rem 1.4rem",
+            borderRadius: "999px",
+            border: "none",
+            background: "linear-gradient(135deg,#22c55e,#16a34a)",
+            color: "white",
+            fontWeight: 600,
+            cursor: "pointer",
+            minWidth: 150,
+          }}
+        >
+          {primaryLabel}
+        </button>
+        <button
+          onClick={onSecondary}
+          style={{
+            padding: "0.7rem 1.4rem",
+            borderRadius: "999px",
+            border: "1px solid rgba(148,163,184,0.8)",
+            background: "rgba(15,23,42,0.9)",
+            color: "white",
+            cursor: "pointer",
+            minWidth: 150,
+          }}
+        >
+          {secondaryLabel}
+        </button>
+      </div>
     </div>
   );
 }
