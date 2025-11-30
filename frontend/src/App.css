@@ -440,6 +440,40 @@
   animation: glow 2s infinite;
 }
 
+/* === Character pop-up animation for game PNGs === */
+.character-popup {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 11000;
+  pointer-events: none;
+  animation: popupFloat 2.2s ease-out forwards;
+}
+
+.character-popup-image {
+  max-height: 260px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.7));
+}
+
+@keyframes popupFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .cyber-nav {
@@ -866,9 +900,6 @@ body, h1, h2, h3, h4, h5, h6, p {
   padding: 0;
 }
 
-
-
-
 /* For Notepad */
 /* Bigger header with animation */
 .cyber-header {
@@ -879,10 +910,11 @@ body, h1, h2, h3, h4, h5, h6, p {
 }
 
 .animate-header {
-  animation: pulse 2s infinite;
+  animation: headerPulse 2s infinite;
 }
 
-@keyframes pulse {
+/* renamed from `pulse` to avoid conflict */
+@keyframes headerPulse {
   0% { transform: scale(1); color: #00f0ff; }
   50% { transform: scale(1.1); color: #ff00ff; }
   100% { transform: scale(1); color: #00f0ff; }

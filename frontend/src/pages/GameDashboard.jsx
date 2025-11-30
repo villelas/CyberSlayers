@@ -22,6 +22,127 @@ import {
 } from 'lucide-react';
 import '../App.css';
 
+/**
+ * Pop-up PNG sequences for each game.
+ * These image paths assume the files live in: public/game_support/Pop-ups
+ * Adjust filenames to match your actual assets.
+ *
+ * Mapping:
+ * - Peasant before first game
+ * - Knight after first / before second
+ * - Sword after second / before third
+ * - Horse after third / before fourth
+ * - Wizard before fourth, Evil Wizard after fourth
+ * - Dragon before fifth
+ */
+const POPUP_IMAGES_BY_GAME = {
+  1: ['/game_support/Pop-ups/Hero1.png'],
+  2: ['/game_support/Pop-ups/Hero2.png'],
+  3: ['/game_support/Pop-ups/Hero3.png'],
+  4: [
+    '/game_support/Pop-ups/Horse.png',
+    '/game_support/Pop-ups/AilithmG.png',
+    '/game_support/Pop-ups/AilithmV.png'
+  ],
+  5: ['/game_support/Pop-ups/Lagdrakul2A.png']
+};
+
+
+const STORY_BEATS = [
+  {
+    id: 'act1_intro_trail',
+    act: 1,
+    moduleGameNum: 1,
+    minProgress: 0,
+    maxProgress: 5,
+    trigger: 'enter-dashboard',
+    sprite: '/game_support/Pop-ups/Hero1.png',
+    speaker: 'Te-Qwuiz',
+    lines: [
+      'The realm is whispering, warrior. Strange corruption seeps through the social runes.',
+      'Villagers etch careless glyphs into the network stones… and something watches from the lag between them.',
+      'Walk carefully. Every rune you carve leaves a trail — and Lagdrakul stalks the careless.'
+    ]
+  },
+  {
+    id: 'act1_ailithm_trail',
+    act: 1,
+    moduleGameNum: 1,
+    minProgress: 5,
+    maxProgress: 24,
+    trigger: 'enter-dashboard',
+    sprite: '/game_support/Pop-ups/AilithmG.png',
+    speaker: 'Ailithm',
+    lines: [
+      'Te-Qwuiz, I have catalogued thousands of etched runes.',
+      'The patterns of this corruption are… elegant. Precise. As if the virus itself seeks order.',
+      'If we study its footprint, we might predict every move it makes.'
+    ]
+  }
+];
+const POST_GAME_DIALOGUE = {
+  1: {
+    id: 'post_game_1_snake_intro',
+    gameNum: 1,
+    sprite: '/game_support/Pop-ups/AilithmG.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: Hi there, I’ve heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?',
+      'Ailithm: Why of course! He’s planning to steal information about influential people like myself to impersonate them and then corrupt everything.',
+      'Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.',
+      'Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted.'
+    ]
+  },
+  2: {
+    id: 'post_game_2_to_deepfakes',
+    gameNum: 2,
+    sprite: '/game_support/Pop-ups/Hero2.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: Those etched runes told us a lot… too much, maybe.',
+      'Ailithm: Lagdrakul will not just steal faces from the crowd, Te-Qwuiz. He will forge them — shadow helms, mimicking trusted figures.',
+      'Ailithm: When a face or voice feels familiar, that is when you must doubt it the most. Familiarity is his favorite disguise.',
+      'Te-Qwuiz: Then our next trial is clear — we learn to split truth from forged faces before his illusions reach the throne.'
+    ]
+  },
+  3: {
+    id: 'post_game_3_to_phishing',
+    gameNum: 3,
+    sprite: '/game_support/Pop-ups/Hero3.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Ailithm: The shadow helms were only the opening move. Now come the scrollstorms.',
+      'Te-Qwuiz: Scrolls that scream “urgent,” seals that look royal, coins promised for a single click… it feels like a net tightening.',
+      'Ailithm: That is exactly what it is — the Phishers’ Net. Lagdrakul’s agents cast enchanted messages to hook the panicked and the greedy.',
+      'Te-Qwuiz: Then we learn to spot the hooks inside the scrolls before they pierce anyone in the realm.'
+    ]
+  },
+  4: {
+    id: 'post_game_4_to_public_networks',
+    gameNum: 4,
+    sprite: '/game_support/Pop-ups/Horse.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: The Phishers’ Net is torn, but the air still feels… fouled.',
+      'Ailithm: Lagdrakul has moved on to poisoning the shared wells — the public networks where travelers drink data without shields.',
+      'Ailithm: One careless login at those wells, and spies can skim every secret poured into the stream.',
+      'Te-Qwuiz: Then we ride to the polluted wells and learn to guard ourselves whenever we must drink from them.'
+    ]
+  },
+  5: {
+    id: 'post_game_5_to_password_forge',
+    gameNum: 5,
+    sprite: '/game_support/Pop-ups/Lagdrakul2A.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Ailithm: You have seen Lagdrakul’s code up close now… very few return from that gaze unchanged.',
+      'Te-Qwuiz: His power drips through weak locks and lazy runes. Doors meant for one soul are flung open to an army.',
+      'Ailithm: Then we step into the Password Forge — where keys are tempered, lengthened, and made unreadable to his claws.',
+      'Te-Qwuiz: If our keys hold, the dragon’s talons will find only cold iron and closed gates.'
+    ]
+  }
+};
+
 // Single source of truth: each module has title, subtitle, content, quiz
 const EDUCATIONAL_MODULES = {
   1: {
@@ -76,7 +197,7 @@ const EDUCATIONAL_MODULES = {
     title: 'Module 2 — Deepfakes',
     subtitle: '(False Faces)',
     content:
-      'As the investigation deepens, Te-Qwuiz discovers "shadow helms" — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn\'t guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.',
+      "As the investigation deepens, Te-Qwuiz discovers \"shadow helms\" — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn't guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.",
     quiz: [
       {
         question: 'Can a forged image or voice appear convincingly real?',
@@ -224,28 +345,21 @@ const EDUCATIONAL_MODULES = {
   5: {
     title: 'Module 5 — Password Tester',
     subtitle: '(The Password Forge)',
-    content:
-      'This is an optional game meant to help you with your password skills.',
+    content: 'This is an optional game meant to help you with your password skills.',
     quiz: [
       {
         question: 'What makes a password strong?',
         options: [
-          "Using your name and birthday",
+          'Using your name and birthday',
           'Short and easy to remember',
           'Long with a mix of symbols, numbers, and letters',
-          "A single common word"
+          'A single common word'
         ],
         correctIndex: 2
       },
       {
-        question:
-          'Which of the following is the safest password?',
-        options: [
-          "password123",
-          "Summer2024!",
-          'qwerty',
-          'G!7rP#9wL2@'
-        ],
+        question: 'Which of the following is the safest password?',
+        options: ['password123', 'Summer2024!', 'qwerty', 'G!7rP#9wL2@'],
         correctIndex: 3
       },
       {
@@ -259,8 +373,7 @@ const EDUCATIONAL_MODULES = {
         correctIndex: 1
       },
       {
-        question:
-          'What is a password manager?',
+        question: 'What is a password manager?',
         options: [
           'A program that stores and helps create strong passwords',
           'A tool that automatically sends your passwords to friends',
@@ -281,20 +394,94 @@ export default function GameDashboard() {
   const [selectedArena, setSelectedArena] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // which game’s full-screen module is open (1–4) or null
+  // which game’s full-screen module is open (1–5) or null
   const [learningGameNum, setLearningGameNum] = useState(null);
 
   const [showDailyFact, setShowDailyFact] = useState(true); 
 
+
+  // Pop-up PNG sequence state (small flashes when clicking nodes)
+  const [popupQueue, setPopupQueue] = useState([]); // array of src strings
+  const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
+
+  const [storyQueue, setStoryQueue] = useState([]);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+
+  // "between levels" hero PNG overlay
+  const [heroPopupVisible, setHeroPopupVisible] = useState(false);
+  const [heroPopupConfig, setHeroPopupConfig] = useState(null);
+  const [lastCompletedGame, setLastCompletedGame] = useState(null);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('cyberslayers_user');
-    if (storedUser) {
-      setUserData(JSON.parse(storedUser));
-    } else {
-      navigate('/login');
+  const storedUser = localStorage.getItem('cyberslayers_user');
+
+  let combinedBeats = [];
+
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    setUserData(parsedUser);
+
+    const progress = parsedUser.overall_game_progress || 0;
+
+    let shownIds = [];
+    try {
+      const raw = localStorage.getItem('cyberslayers_story_shown');
+      if (raw) shownIds = JSON.parse(raw);
+    } catch (e) {
+      // ignore
     }
+
+    const pendingBeats = STORY_BEATS.filter(
+      (beat) =>
+        beat.trigger === 'enter-dashboard' &&
+        progress >= beat.minProgress &&
+        progress <= beat.maxProgress &&
+        !shownIds.includes(beat.id)
+    );
+
+    combinedBeats = pendingBeats;
+  } else {
+    navigate('/login');
     setLoading(false);
-  }, [navigate]);
+    return;
+  }
+
+  // ───────── Dashboard hero PNG + dialogue when returning from a game ─────────
+  try {
+    const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
+    const rawStatus = localStorage.getItem(
+      'cyberslayers_last_completion_status'
+    );
+
+    if (rawGame !== null && rawStatus === 'success') {
+      const gameIndex = parseInt(rawGame, 10);
+
+      if (!Number.isNaN(gameIndex)) {
+        // 1) Queue post-game dialogue beat (if defined)
+        const postBeat = POST_GAME_DIALOGUE[gameIndex];
+        if (postBeat) {
+          combinedBeats = [...combinedBeats, postBeat];
+        }
+
+        
+      }
+
+      // Clear so this only triggers once per completion
+      localStorage.removeItem('cyberslayers_last_completed_game');
+      localStorage.removeItem('cyberslayers_last_completion_status');
+    }
+  } catch (e) {
+    // ignore localStorage errors
+  }
+
+  // If there are any dashboard intro beats OR post-game beats, start the queue
+  if (combinedBeats.length > 0) {
+    setStoryQueue(combinedBeats);
+    setCurrentStoryIndex(0);
+  }
+
+  setLoading(false);
+}, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('cyberslayers_user');
@@ -316,8 +503,18 @@ export default function GameDashboard() {
     return { status: 'diamond', color: '#00bcd4', icon: Zap };
   };
 
+  /**
+   * When a node on the map is clicked:
+   * - show the associated PNG pop-up(s) in sequence
+   * - open the training modal as before
+   */
   const handleArenaClick = (arenaData) => {
-    // All arenas unlocked & clickable
+    const queue = POPUP_IMAGES_BY_GAME[arenaData.gameNum] || [];
+    if (queue.length > 0) {
+      setPopupQueue(queue);
+      setCurrentPopupIndex(0);
+    }
+
     setSelectedArena(arenaData);
     setShowModal(true);
   };
@@ -405,15 +602,15 @@ export default function GameDashboard() {
       terrain: 'command'
     },
     {
-    gameNum: 5,
-    name: 'Password Tester',
-    description: 'Learn how to build strong, secure passwords',
-    emoji: '🔑',
-    icon: Lock,
-    position: { top: '45%', left: '90%' }, // adjust placement to fit your layout
-    color: '#ff9800',
-    terrain: 'security'
-  }
+      gameNum: 5,
+      name: 'Password Tester',
+      description: 'Learn how to build strong, secure passwords',
+      emoji: '🔑',
+      icon: Lock,
+      position: { top: '45%', left: '90%' },
+      color: '#ff9800',
+      terrain: 'security'
+    }
   ];
 
   // All games unlocked, but still show status badges based on score
@@ -428,6 +625,22 @@ export default function GameDashboard() {
       isLocked: false
     };
   });
+
+  // Build SVG path and node positions from arena card positions
+  const sortedArenas = [...arenasWithData].sort(
+    (a, b) => a.gameNum - b.gameNum
+  );
+
+  const pathD =
+    sortedArenas.length > 0
+      ? sortedArenas
+          .map((arena, index) => {
+            const x = parseFloat(arena.position.left); // "10%" -> 10
+            const y = parseFloat(arena.position.top); // "65%" -> 65
+            return `${index === 0 ? 'M' : 'L'} ${x} ${y + 10}`; // line runs under cards
+          })
+          .join(' ')
+      : '';
 
   const styles = {
     header: {
@@ -645,9 +858,19 @@ export default function GameDashboard() {
 
         <div style={styles.mapContainer}>
           {/* Network lines */}
-          <svg style={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg
+            style={styles.pathSvg}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             <defs>
-              <linearGradient id="cyberPath" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="cyberPath"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.8" />
                 <stop offset="33%" stopColor="#16213e" stopOpacity="0.8" />
                 <stop offset="66%" stopColor="#0f3460" stopOpacity="0.8" />
@@ -662,57 +885,54 @@ export default function GameDashboard() {
               </filter>
             </defs>
 
-            <path
-              d="M 8 65 
-                 C 20 55, 28 50, 38 45
-                 C 48 40, 54 30, 62 20
-                 L 82 20"
-              stroke="url(#cyberPath)"
-              strokeWidth="0.4"
-              fill="none"
-              strokeDasharray="1.5,1"
-              strokeLinecap="round"
-              opacity="0.8"
-              filter="url(#glow)"
-              vectorEffect="non-scaling-stroke"
-            />
+            {/* Main path connecting arenas */}
+            {pathD && (
+              <path
+                d={pathD}
+                stroke="url(#cyberPath)"
+                strokeWidth="0.6"
+                fill="none"
+                strokeDasharray="1.5,1"
+                strokeLinecap="round"
+                opacity="0.9"
+                filter="url(#glow)"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
 
-            <circle
-              cx="8"
-              cy="65"
-              r="0.5"
-              fill="#e91e63"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="38"
-              cy="45"
-              r="0.5"
-              fill="#2196f3"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="62"
-              cy="20"
-              r="0.5"
-              fill="#4caf50"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="82"
-              cy="20"
-              r="0.5"
-              fill="#9c27b0"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
+            {/* Progress nodes directly under each game module */}
+            {sortedArenas.map((arena) => {
+              const cx = parseFloat(arena.position.left);
+              const cy = parseFloat(arena.position.top) + 10; // right under the card
+
+              const isUnlocked = !arena.isLocked;
+              const isCompleted = arena.score > 0;
+
+              const radius = isCompleted ? 1.2 : isUnlocked ? 0.9 : 0.7;
+
+              const fillColor = isCompleted
+                ? arena.color
+                : isUnlocked
+                ? 'rgba(15,52,96,0.8)'
+                : 'rgba(15,23,42,0.8)';
+
+              const strokeColor = isUnlocked
+                ? 'rgba(255,255,255,0.9)'
+                : 'rgba(148,163,184,0.8)';
+
+              return (
+                <circle
+                  key={arena.gameNum}
+                  cx={cx}
+                  cy={cy}
+                  r={radius}
+                  fill={fillColor}
+                  opacity="1"
+                  stroke={strokeColor}
+                  strokeWidth="0.2"
+                />
+              );
+            })}
           </svg>
 
           {/* Game nodes */}
@@ -720,7 +940,7 @@ export default function GameDashboard() {
             <ArenaLocation
               key={arena.gameNum}
               arena={arena}
-              onClick={() => handleArenaClick(arena)}
+              onClick={handleArenaClick}
               styles={styles}
             />
           ))}
@@ -733,19 +953,23 @@ export default function GameDashboard() {
       {showModal && selectedArena && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>
+            <button
+              className="modal-close"
+              onClick={() => setShowModal(false)}
+            >
               <X size={20} />
             </button>
 
             <div className="modal-header">
               <div className="modal-emoji">{selectedArena.emoji}</div>
               <div className="modal-title">{selectedArena.name}</div>
-              <div className="modal-description">{selectedArena.description}</div>
+              <div className="modal-description">
+                {selectedArena.description}
+              </div>
             </div>
 
             {currentModule && (
               <div className="lesson-scroll">
-                
                 <button
                   className="modal-button modal-button-play"
                   onClick={handleBeginTraining}
@@ -827,6 +1051,256 @@ export default function GameDashboard() {
           onClose={() => setLearningGameNum(null)}
         />
       )}
+
+      {/* Story dialogue popups on entering dashboard */}
+      {storyQueue.length > 0 && (
+        <StoryDialoguePopup
+          beat={storyQueue[currentStoryIndex]}
+          onAdvance={() => {
+            const currentBeat = storyQueue[currentStoryIndex];
+            try {
+              const raw = localStorage.getItem('cyberslayers_story_shown');
+              const shownIds = raw ? JSON.parse(raw) : [];
+              if (!shownIds.includes(currentBeat.id)) {
+                shownIds.push(currentBeat.id);
+                localStorage.setItem(
+                  'cyberslayers_story_shown',
+                  JSON.stringify(shownIds)
+                );
+              }
+            } catch (e) {
+              // ignore
+            }
+
+            if (currentStoryIndex < storyQueue.length - 1) {
+              setCurrentStoryIndex((i) => i + 1);
+            } else {
+              setStoryQueue([]);
+            }
+          }}
+        />
+      )}
+
+      {/* Hero PNG overlay after completing a game */}
+      {heroPopupVisible && heroPopupConfig && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15,23,42,0.92)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 480,
+              borderRadius: '20px',
+              border: '1px solid rgba(148,163,184,0.7)',
+              background:
+                'radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,0.96))',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.75)',
+              padding: '1.25rem 1.5rem 1.4rem',
+              textAlign: 'center',
+              position: 'relative'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                marginBottom: '0.85rem',
+                background: '#020617',
+                border: '1px solid rgba(30,64,175,0.8)'
+              }}
+            >
+              <img
+                src={heroPopupConfig.image}
+                alt={heroPopupConfig.title}
+                style={{ display: 'block', width: '100%', height: 'auto' }}
+              />
+            </div>
+
+            <h2
+              style={{
+                fontSize: '1.3rem',
+                marginBottom: '0.5rem'
+              }}
+            >
+              {heroPopupConfig.title}
+            </h2>
+
+            <div
+              style={{
+                fontSize: '0.9rem',
+                color: 'rgba(226,232,240,0.95)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.35rem',
+                marginBottom: '1.1rem',
+                textAlign: 'left'
+              }}
+            >
+              {heroPopupConfig.bodyLines.map((line, idx) => (
+                <p key={idx} style={{ margin: 0 }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setHeroPopupVisible(false)}
+              style={{
+                padding: '0.6rem 1.4rem',
+                borderRadius: '999px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              <Play size={16} />
+              Continue the Protocol
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Character PNG pop-ups (small, quick flashes when clicking nodes) */}
+      {popupQueue.length > 0 && (
+        <CharacterPopup
+          src={popupQueue[currentPopupIndex]}
+          onFinish={() => {
+            if (currentPopupIndex < popupQueue.length - 1) {
+              setCurrentPopupIndex((i) => i + 1);
+            } else {
+              setPopupQueue([]);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StoryDialoguePopup({ beat, onAdvance }) {
+  const { sprite, speaker, lines } = beat;
+  const [lineIndex, setLineIndex] = useState(0);
+
+  const isLastLine = lineIndex === lines.length - 1;
+
+  const handleNext = () => {
+    if (!isLastLine) {
+      setLineIndex((prev) => prev + 1);
+    } else {
+      onAdvance();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9998,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(5, 10, 25, 0.85)',
+        padding: '1.5rem'
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '700px',
+          width: '100%',
+          display: 'flex',
+          gap: '1.25rem',
+          alignItems: 'flex-end',
+          justifyContent: 'center'
+        }}
+      >
+        <div style={{ flexShrink: 0, width: '180px', maxWidth: '35%' }}>
+          <img
+            src={sprite}
+            alt={speaker}
+            style={{
+              width: '100%',
+              height: 'auto',
+              imageRendering: 'pixelated',
+              filter: 'drop-shadow(0 0 15px rgba(0, 188, 212, 0.7))'
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            background:
+              'linear-gradient(135deg, rgba(15,52,96,0.95), rgba(0,188,212,0.25))',
+            borderRadius: '18px',
+            border: '2px solid rgba(0,188,212,0.7)',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
+            padding: '1.5rem',
+            color: 'white',
+            position: 'relative'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '-14px',
+              left: '1.5rem',
+              padding: '0.2rem 0.8rem',
+              borderRadius: '999px',
+              background: 'linear-gradient(135deg, #00bcd4, #9c27b0)',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              textTransform: 'uppercase'
+            }}
+          >
+            {speaker}
+          </div>
+
+          <div
+            style={{
+              minHeight: '80px',
+              marginBottom: '1rem',
+              fontSize: '1rem',
+              lineHeight: '1.7'
+            }}
+          >
+            {lines[lineIndex]}
+          </div>
+
+          <button
+            onClick={handleNext}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.75rem 1.4rem',
+              background: 'linear-gradient(135deg, #00bcd4, #e91e63)',
+              borderRadius: '999px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              color: 'white'
+            }}
+          >
+            {isLastLine ? 'Continue Mission' : 'Next →'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1518,6 +1992,25 @@ function ResultPanel({
           Review Scroll Again
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Simple animated PNG overlay component.
+ * Shows a PNG for ~2.2 seconds, then calls onFinish to advance the queue.
+ */
+function CharacterPopup({ src, onFinish }) {
+  useEffect(() => {
+    const timer = setTimeout(onFinish, 2200);
+    return () => clearTimeout(timer);
+  }, [onFinish]);
+
+  if (!src) return null;
+
+  return (
+    <div className="character-popup">
+      <img src={src} alt="" className="character-popup-image" />
     </div>
   );
 }
