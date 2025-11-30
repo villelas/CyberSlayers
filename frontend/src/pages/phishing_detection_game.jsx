@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 
 const DASHBOARD_ROUTE = '/dashboard'; // change if your dashboard path differs
 
+// This game is the "False Faces" / Deepfakes module in your map (Module 2)
+const GAME_NUM_FOR_STORY = 2;
+
 const TOTAL_FLAGS = 7;
 
 // Each "red flag" is now framed as a shadow helm / False Faces story beat.
@@ -67,7 +70,23 @@ export default function ScamProfileGame() {
   const [feedback, setFeedback] = useState('');
   const [gameState, setGameState] = useState('playing'); // 'playing' | 'win'
 
-  const handleExit = () => {
+  // UPDATED: exit can optionally mark a successful completion for the dashboard story system
+  const handleExit = (isSuccessful = false) => {
+    if (isSuccessful) {
+      try {
+        localStorage.setItem(
+          'cyberslayers_last_completed_game',
+          String(GAME_NUM_FOR_STORY)
+        );
+        localStorage.setItem(
+          'cyberslayers_last_completion_status',
+          'success'
+        );
+      } catch (e) {
+        // fail silently; navigation still happens
+      }
+    }
+
     navigate(DASHBOARD_ROUTE);
   };
 
@@ -127,9 +146,9 @@ export default function ScamProfileGame() {
         gap: '1rem'
       }}
     >
-      {/* Exit back to dashboard */}
+      {/* Exit back to dashboard (normal exit, NOT counted as a successful completion) */}
       <button
-        onClick={handleExit}
+        onClick={() => handleExit(false)}
         style={{
           position: 'absolute',
           top: '1rem',
@@ -471,7 +490,7 @@ export default function ScamProfileGame() {
             </div>
           </div>
 
-          {/* Contact / DM card sits UNDER the profile, still part of "game side" */}
+          {/* Contact / DM card */}
           <div style={cardBase}>
             <div
               style={{
@@ -656,7 +675,7 @@ export default function ScamProfileGame() {
                 Reset Scenario
               </button>
               <button
-                onClick={handleExit}
+                onClick={() => handleExit(false)}
                 style={{
                   padding: '0.5rem 0.8rem',
                   borderRadius: '999px',
@@ -687,7 +706,8 @@ export default function ScamProfileGame() {
           primaryLabel="Play Again"
           onPrimary={handleReset}
           secondaryLabel="Return to Cyber Map"
-          onSecondary={handleExit}
+          // SUCCESS exit: mark completion so the dashboard shows story + PNGs
+          onSecondary={() => handleExit(true)}
         />
       )}
     </div>

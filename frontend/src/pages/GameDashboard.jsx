@@ -25,7 +25,7 @@ import '../App.css';
  * These image paths assume the files live in: public/game_support/Pop-ups
  * Adjust filenames to match your actual assets.
  *
- * Mappin:
+ * Mapping:
  * - Peasant before first game
  * - Knight after first / before second
  * - Sword after second / before third
@@ -34,16 +34,18 @@ import '../App.css';
  * - Dragon before fifth
  */
 const POPUP_IMAGES_BY_GAME = {
-  1: ['../game_support/Pop-ups/Hero1.png'],
+  1: ['/game_support/Pop-ups/Hero1.png'],
   2: ['/game_support/Pop-ups/Hero2.png'],
-  3: ['../game_support/Pop-ups/Hero3.png'],
+  3: ['/game_support/Pop-ups/Hero3.png'],
   4: [
-    '../game_support/Pop-ups/Horse.png',
-    '../game_support/Pop-ups/AilithmG.png',
-    '../game_support/Pop-ups/AilithmV.png'
+    '/game_support/Pop-ups/Horse.png',
+    '/game_support/Pop-ups/AilithmG.png',
+    '/game_support/Pop-ups/AilithmV.png'
   ],
   5: ['/game_support/Pop-ups/Lagdrakul2A.png']
 };
+
+
 const STORY_BEATS = [
   {
     id: 'act1_intro_trail',
@@ -74,9 +76,70 @@ const STORY_BEATS = [
       'The patterns of this corruption are… elegant. Precise. As if the virus itself seeks order.',
       'If we study its footprint, we might predict every move it makes.'
     ]
-  },
+  }
 ];
-
+const POST_GAME_DIALOGUE = {
+  1: {
+    id: 'post_game_1_snake_intro',
+    gameNum: 1,
+    sprite: '/game_support/Pop-ups/AilithmG.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: Hi there, I’ve heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?',
+      'Ailithm: Why of course! He’s planning to steal information about influential people like myself to impersonate them and then corrupt everything.',
+      'Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.',
+      'Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted.'
+    ]
+  },
+  2: {
+    id: 'post_game_2_to_deepfakes',
+    gameNum: 2,
+    sprite: '/game_support/Pop-ups/Hero2.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: Those etched runes told us a lot… too much, maybe.',
+      'Ailithm: Lagdrakul will not just steal faces from the crowd, Te-Qwuiz. He will forge them — shadow helms, mimicking trusted figures.',
+      'Ailithm: When a face or voice feels familiar, that is when you must doubt it the most. Familiarity is his favorite disguise.',
+      'Te-Qwuiz: Then our next trial is clear — we learn to split truth from forged faces before his illusions reach the throne.'
+    ]
+  },
+  3: {
+    id: 'post_game_3_to_phishing',
+    gameNum: 3,
+    sprite: '/game_support/Pop-ups/Hero3.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Ailithm: The shadow helms were only the opening move. Now come the scrollstorms.',
+      'Te-Qwuiz: Scrolls that scream “urgent,” seals that look royal, coins promised for a single click… it feels like a net tightening.',
+      'Ailithm: That is exactly what it is — the Phishers’ Net. Lagdrakul’s agents cast enchanted messages to hook the panicked and the greedy.',
+      'Te-Qwuiz: Then we learn to spot the hooks inside the scrolls before they pierce anyone in the realm.'
+    ]
+  },
+  4: {
+    id: 'post_game_4_to_public_networks',
+    gameNum: 4,
+    sprite: '/game_support/Pop-ups/Horse.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: The Phishers’ Net is torn, but the air still feels… fouled.',
+      'Ailithm: Lagdrakul has moved on to poisoning the shared wells — the public networks where travelers drink data without shields.',
+      'Ailithm: One careless login at those wells, and spies can skim every secret poured into the stream.',
+      'Te-Qwuiz: Then we ride to the polluted wells and learn to guard ourselves whenever we must drink from them.'
+    ]
+  },
+  5: {
+    id: 'post_game_5_to_password_forge',
+    gameNum: 5,
+    sprite: '/game_support/Pop-ups/Lagdrakul2A.png',
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Ailithm: You have seen Lagdrakul’s code up close now… very few return from that gaze unchanged.',
+      'Te-Qwuiz: His power drips through weak locks and lazy runes. Doors meant for one soul are flung open to an army.',
+      'Ailithm: Then we step into the Password Forge — where keys are tempered, lengthened, and made unreadable to his claws.',
+      'Te-Qwuiz: If our keys hold, the dragon’s talons will find only cold iron and closed gates.'
+    ]
+  }
+};
 
 // Single source of truth: each module has title, subtitle, content, quiz
 const EDUCATIONAL_MODULES = {
@@ -132,7 +195,7 @@ const EDUCATIONAL_MODULES = {
     title: 'Module 2 — Deepfakes',
     subtitle: '(False Faces)',
     content:
-      'As the investigation deepens, Te-Qwuiz discovers "shadow helms" — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn\'t guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.',
+      "As the investigation deepens, Te-Qwuiz discovers \"shadow helms\" — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn't guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.",
     quiz: [
       {
         question: 'Can a forged image or voice appear convincingly real?',
@@ -280,8 +343,7 @@ const EDUCATIONAL_MODULES = {
   5: {
     title: 'Module 5 — Password Tester',
     subtitle: '(The Password Forge)',
-    content:
-      'This is an optional game meant to help you with your password skills.',
+    content: 'This is an optional game meant to help you with your password skills.',
     quiz: [
       {
         question: 'What makes a password strong?',
@@ -333,48 +395,88 @@ export default function GameDashboard() {
   // which game’s full-screen module is open (1–5) or null
   const [learningGameNum, setLearningGameNum] = useState(null);
 
-  // Pop-up PNG sequence state
+  // Pop-up PNG sequence state (small flashes when clicking nodes)
   const [popupQueue, setPopupQueue] = useState([]); // array of src strings
   const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
 
   const [storyQueue, setStoryQueue] = useState([]);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 
+  // "between levels" hero PNG overlay
+  const [heroPopupVisible, setHeroPopupVisible] = useState(false);
+  const [heroPopupConfig, setHeroPopupConfig] = useState(null);
+  const [lastCompletedGame, setLastCompletedGame] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('cyberslayers_user');
+  const storedUser = localStorage.getItem('cyberslayers_user');
 
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUserData(parsedUser);
+  let combinedBeats = [];
 
-      const progress = parsedUser.overall_game_progress || 0;
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    setUserData(parsedUser);
 
-      let shownIds = [];
-      try {
-        const raw = localStorage.getItem('cyberslayers_story_shown');
-        if (raw) shownIds = JSON.parse(raw);
-      } catch (e) {}
+    const progress = parsedUser.overall_game_progress || 0;
 
-      const pendingBeats = STORY_BEATS.filter(
-        (beat) =>
-          beat.trigger === 'enter-dashboard' &&
-          progress >= beat.minProgress &&
-          progress <= beat.maxProgress &&
-          !shownIds.includes(beat.id)
-      );
-
-      if (pendingBeats.length > 0) {
-        setStoryQueue(pendingBeats);
-        setCurrentStoryIndex(0);
-      }
-    } else {
-      navigate('/login');
+    let shownIds = [];
+    try {
+      const raw = localStorage.getItem('cyberslayers_story_shown');
+      if (raw) shownIds = JSON.parse(raw);
+    } catch (e) {
+      // ignore
     }
 
-    setLoading(false);
-  }, [navigate]);
+    const pendingBeats = STORY_BEATS.filter(
+      (beat) =>
+        beat.trigger === 'enter-dashboard' &&
+        progress >= beat.minProgress &&
+        progress <= beat.maxProgress &&
+        !shownIds.includes(beat.id)
+    );
 
+    combinedBeats = pendingBeats;
+  } else {
+    navigate('/login');
+    setLoading(false);
+    return;
+  }
+
+  // ───────── Dashboard hero PNG + dialogue when returning from a game ─────────
+  try {
+    const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
+    const rawStatus = localStorage.getItem(
+      'cyberslayers_last_completion_status'
+    );
+
+    if (rawGame !== null && rawStatus === 'success') {
+      const gameIndex = parseInt(rawGame, 10);
+
+      if (!Number.isNaN(gameIndex)) {
+        // 1) Queue post-game dialogue beat (if defined)
+        const postBeat = POST_GAME_DIALOGUE[gameIndex];
+        if (postBeat) {
+          combinedBeats = [...combinedBeats, postBeat];
+        }
+
+        
+      }
+
+      // Clear so this only triggers once per completion
+      localStorage.removeItem('cyberslayers_last_completed_game');
+      localStorage.removeItem('cyberslayers_last_completion_status');
+    }
+  } catch (e) {
+    // ignore localStorage errors
+  }
+
+  // If there are any dashboard intro beats OR post-game beats, start the queue
+  if (combinedBeats.length > 0) {
+    setStoryQueue(combinedBeats);
+    setCurrentStoryIndex(0);
+  }
+
+  setLoading(false);
+}, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('cyberslayers_user');
@@ -518,7 +620,8 @@ export default function GameDashboard() {
       isLocked: false
     };
   });
-    // Build SVG path and node positions from arena card positions
+
+  // Build SVG path and node positions from arena card positions
   const sortedArenas = [...arenasWithData].sort(
     (a, b) => a.gameNum - b.gameNum
   );
@@ -527,13 +630,12 @@ export default function GameDashboard() {
     sortedArenas.length > 0
       ? sortedArenas
           .map((arena, index) => {
-            const x = parseFloat(arena.position.left);  // "10%" -> 10
-            const y = parseFloat(arena.position.top);   // "65%" -> 65
+            const x = parseFloat(arena.position.left); // "10%" -> 10
+            const y = parseFloat(arena.position.top); // "65%" -> 65
             return `${index === 0 ? 'M' : 'L'} ${x} ${y + 10}`; // line runs under cards
           })
           .join(' ')
       : '';
-
 
   const styles = {
     header: {
@@ -750,7 +852,7 @@ export default function GameDashboard() {
 
         <div style={styles.mapContainer}>
           {/* Network lines */}
-                    <svg
+          <svg
             style={styles.pathSvg}
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
@@ -827,7 +929,6 @@ export default function GameDashboard() {
             })}
           </svg>
 
-
           {/* Game nodes */}
           {arenasWithData.map((arena) => (
             <ArenaLocation
@@ -843,10 +944,7 @@ export default function GameDashboard() {
       {/* Landing Modal: small scroll preview + "Begin Training" */}
       {showModal && selectedArena && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setShowModal(false)}
@@ -864,7 +962,6 @@ export default function GameDashboard() {
 
             {currentModule && (
               <div className="lesson-scroll">
-                {/* you could add a tiny teaser paragraph here if you want */}
                 <button
                   className="modal-button modal-button-play"
                   onClick={handleBeginTraining}
@@ -946,7 +1043,9 @@ export default function GameDashboard() {
           onClose={() => setLearningGameNum(null)}
         />
       )}
-            {storyQueue.length > 0 && (
+
+      {/* Story dialogue popups on entering dashboard */}
+      {storyQueue.length > 0 && (
         <StoryDialoguePopup
           beat={storyQueue[currentStoryIndex]}
           onAdvance={() => {
@@ -956,9 +1055,14 @@ export default function GameDashboard() {
               const shownIds = raw ? JSON.parse(raw) : [];
               if (!shownIds.includes(currentBeat.id)) {
                 shownIds.push(currentBeat.id);
-                localStorage.setItem('cyberslayers_story_shown', JSON.stringify(shownIds));
+                localStorage.setItem(
+                  'cyberslayers_story_shown',
+                  JSON.stringify(shownIds)
+                );
               }
-            } catch (e) {}
+            } catch (e) {
+              // ignore
+            }
 
             if (currentStoryIndex < storyQueue.length - 1) {
               setCurrentStoryIndex((i) => i + 1);
@@ -969,8 +1073,103 @@ export default function GameDashboard() {
         />
       )}
 
+      {/* Hero PNG overlay after completing a game */}
+      {heroPopupVisible && heroPopupConfig && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15,23,42,0.92)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 480,
+              borderRadius: '20px',
+              border: '1px solid rgba(148,163,184,0.7)',
+              background:
+                'radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,0.96))',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.75)',
+              padding: '1.25rem 1.5rem 1.4rem',
+              textAlign: 'center',
+              position: 'relative'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                marginBottom: '0.85rem',
+                background: '#020617',
+                border: '1px solid rgba(30,64,175,0.8)'
+              }}
+            >
+              <img
+                src={heroPopupConfig.image}
+                alt={heroPopupConfig.title}
+                style={{ display: 'block', width: '100%', height: 'auto' }}
+              />
+            </div>
 
-      {/* Character PNG pop-ups */}
+            <h2
+              style={{
+                fontSize: '1.3rem',
+                marginBottom: '0.5rem'
+              }}
+            >
+              {heroPopupConfig.title}
+            </h2>
+
+            <div
+              style={{
+                fontSize: '0.9rem',
+                color: 'rgba(226,232,240,0.95)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.35rem',
+                marginBottom: '1.1rem',
+                textAlign: 'left'
+              }}
+            >
+              {heroPopupConfig.bodyLines.map((line, idx) => (
+                <p key={idx} style={{ margin: 0 }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setHeroPopupVisible(false)}
+              style={{
+                padding: '0.6rem 1.4rem',
+                borderRadius: '999px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              <Play size={16} />
+              Continue the Protocol
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Character PNG pop-ups (small, quick flashes when clicking nodes) */}
       {popupQueue.length > 0 && (
         <CharacterPopup
           src={popupQueue[currentPopupIndex]}
@@ -986,6 +1185,7 @@ export default function GameDashboard() {
     </div>
   );
 }
+
 function StoryDialoguePopup({ beat, onAdvance }) {
   const { sprite, speaker, lines } = beat;
   const [lineIndex, setLineIndex] = useState(0);
@@ -1065,7 +1265,14 @@ function StoryDialoguePopup({ beat, onAdvance }) {
             {speaker}
           </div>
 
-          <div style={{ minHeight: '80px', marginBottom: '1rem', fontSize: '1rem', lineHeight: '1.7' }}>
+          <div
+            style={{
+              minHeight: '80px',
+              marginBottom: '1rem',
+              fontSize: '1rem',
+              lineHeight: '1.7'
+            }}
+          >
             {lines[lineIndex]}
           </div>
 

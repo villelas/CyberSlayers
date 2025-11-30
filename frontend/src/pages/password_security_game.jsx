@@ -7,6 +7,9 @@ const WIN_SCORE = 12;
 const DASHBOARD_ROUTE = "/dashboard";
 const TICK_SPEED = 180; // slower than before
 
+// This forge run is an early-game module; adjust if needed.
+const GAME_NUM_FOR_STORY = 2;
+
 // Armor stages: how many ingots needed to "forge" each piece
 const ARMOR_STAGES = [
   { label: "Helm", threshold: 3 },
@@ -153,44 +156,21 @@ export default function SnakeGame() {
   // Guard against double-scoring if two ticks happen on the same food
   const justAteRef = useRef(false);
 
-  // Win condition → show closing module instead of instant redirect
-  // Movement controls
-useEffect(() => {
-  if (gameState === "win") return; // pause controls on win
-
-  const handleKeyDown = (e) => {
-    // Stop arrow keys from scrolling the page
-    if (
-      e.key === "ArrowUp" ||
-      e.key === "ArrowDown" ||
-      e.key === "ArrowLeft" ||
-      e.key === "ArrowRight"
-    ) {
-      e.preventDefault();
-    }
-
-    if (gameOver) return;
-
-    if ((e.key === "ArrowUp" || e.key === "w") && direction.y !== 1)
-      setDirection({ x: 0, y: -1 });
-    else if ((e.key === "ArrowDown" || e.key === "s") && direction.y !== -1)
-      setDirection({ x: 0, y: 1 });
-    else if ((e.key === "ArrowLeft" || e.key === "a") && direction.x !== 1)
-      setDirection({ x: -1, y: 0 });
-    else if ((e.key === "ArrowRight" || e.key === "d") && direction.x !== -1)
-      setDirection({ x: 1, y: 0 });
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-  return () => window.removeEventListener("keydown", handleKeyDown);
-}, [direction, gameOver, gameState]);
-
-
-  // Movement controls
+  // Unified movement controls (with scroll prevention)
   useEffect(() => {
     if (gameState === "win") return; // pause controls on win
 
     const handleKeyDown = (e) => {
+      // Stop arrow keys from scrolling the page
+      if (
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight"
+      ) {
+        e.preventDefault();
+      }
+
       if (gameOver) return;
 
       if ((e.key === "ArrowUp" || e.key === "w") && direction.y !== 1)
@@ -246,6 +226,13 @@ useEffect(() => {
     return () => clearInterval(intervalId);
   }, [direction, food, gameOver, gameState]);
 
+  // Win condition → trigger overlay when full set is forged
+  useEffect(() => {
+    if (!gameOver && gameState !== "win" && score >= WIN_SCORE) {
+      setGameState("win");
+    }
+  }, [score, gameOver, gameState]);
+
   const handleRestart = () => {
     setSnakeHead(getCenter());
     setDirection({ x: 1, y: 0 });
@@ -256,7 +243,25 @@ useEffect(() => {
     setGameState("playing");
   };
 
-  const handleExit = () => navigate(DASHBOARD_ROUTE);
+  // Exit helper, optionally marking a successful completion for the dashboard
+  const handleExit = (isSuccessful = false) => {
+    if (isSuccessful) {
+      try {
+        localStorage.setItem(
+          "cyberslayers_last_completed_game",
+          String(GAME_NUM_FOR_STORY)
+        );
+        localStorage.setItem(
+          "cyberslayers_last_completion_status",
+          "success"
+        );
+      } catch (e) {
+        // fail silently
+      }
+    }
+
+    navigate(DASHBOARD_ROUTE);
+  };
 
   // Layout
   const boardStyle = {
@@ -314,7 +319,7 @@ useEffect(() => {
     >
       {/* Exit button */}
       <button
-        onClick={handleExit}
+        onClick={() => handleExit(false)}
         style={{
           position: "absolute",
           top: "1rem",
@@ -334,10 +339,9 @@ useEffect(() => {
       <p style={{ opacity: 0.8, textAlign: "center", maxWidth: "480px" }}>
         In a hidden corner of the Network Realm, Te-Qwuiz keeps an ancient
         forge humming beneath the code. Guide your hammer through the glowing
-        grid, collecting{" "}
-        <strong>{WIN_SCORE}</strong> enchanted ingots{" "}
-        to forge your first full set of armor. Every ingot makes you a little
-        harder for Lagdrakul&apos;s corruption to crack.
+        grid, collecting <strong>{WIN_SCORE}</strong> enchanted ingots to forge
+        your first full set of armor. Every ingot makes you a little harder for
+        Lagdrakul&apos;s corruption to crack.
       </p>
 
       <div style={{ fontSize: "1.15rem", marginBottom: "0.3rem" }}>
@@ -397,12 +401,13 @@ useEffect(() => {
           bodyLines={[
             `You gathered all ${WIN_SCORE} ingots and tempered each one in Te-Qwuiz's hidden forge.`,
             "Your helm, chestplate, gauntlets, and greaves now hum with warding runes — every careless rune and shadow helm will have a harder time cutting through your defenses.",
-            "This was only your first trial, but the Realm already feels a little safer with your armor online."
+            "This was only your first trial, but the Realm already feels a little safer with your armor online.",
           ]}
           primaryLabel="Run the Forge Again"
           onPrimary={handleRestart}
           secondaryLabel="Return to Cyber Map"
-          onSecondary={handleExit}
+          // Mark this game as successfully completed for the dashboard story system
+          onSecondary={() => handleExit(true)}
         />
       )}
     </div>

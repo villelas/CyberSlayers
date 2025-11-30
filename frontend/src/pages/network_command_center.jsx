@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 
 const DASHBOARD_ROUTE = '/dashboard';
 
+// This module sits in slot 3 (0-based index).
+const GAME_NUM_FOR_STORY = 3;
+
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 700;
 
@@ -107,57 +110,101 @@ const WAVES = [
 ];
 
 function WaveMeter({ currentWave, totalWaves, lives, maxLives, score }) {
-  const waveProgress = ((currentWave) / totalWaves) * 100;
-  const waveName = currentWave <= totalWaves ? WAVES[currentWave - 1].name : 'Complete';
+  const waveProgress = (currentWave / totalWaves) * 100;
+  const waveName =
+    currentWave <= totalWaves ? WAVES[currentWave - 1].name : 'Complete';
 
   return (
-    <div style={{
-      minWidth: "200px",
-      padding: "0.75rem",
-      borderRadius: "12px",
-      border: "1px solid rgba(148,163,184,0.6)",
-      background: "radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(2,6,23,0.95))",
-      boxShadow: "0 0 18px rgba(15,23,42,0.9)",
-      display: "flex",
-      flexDirection: "column",
-      gap: "0.4rem",
-      fontSize: "0.85rem",
-    }}
+    <div
+      style={{
+        minWidth: '200px',
+        padding: '0.75rem',
+        borderRadius: '12px',
+        border: '1px solid rgba(148,163,184,0.6)',
+        background:
+          'radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(2,6,23,0.95))',
+        boxShadow: '0 0 18px rgba(15,23,42,0.9)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.4rem',
+        fontSize: '0.85rem',
+      }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.15rem" }}>
-        <span style={{ fontSize: "1.5rem" }}>🛡️</span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginBottom: '0.15rem',
+        }}
+      >
+        <span style={{ fontSize: '1.5rem' }}>🛡️</span>
         <div style={{ lineHeight: 1.2 }}>
-          <div style={{ fontWeight: "600" }}>Security Defense</div>
-          <div style={{ opacity: 0.75, fontSize: "0.8rem" }}>Wave {Math.min(currentWave, totalWaves)} / {totalWaves}</div>
+          <div style={{ fontWeight: '600' }}>Security Defense</div>
+          <div style={{ opacity: 0.75, fontSize: '0.8rem' }}>
+            Wave {Math.min(currentWave, totalWaves)} / {totalWaves}
+          </div>
         </div>
       </div>
 
-      <div style={{ height: "5px", borderRadius: "999px", overflow: "hidden", background: "rgba(30,64,175,0.65)" }}>
-        <div style={{ width: `${waveProgress}%`, height: "100%", background: "linear-gradient(90deg, #3b82f6, #06b6d4)", transition: "width 300ms ease" }} />
+      <div
+        style={{
+          height: '5px',
+          borderRadius: '999px',
+          overflow: 'hidden',
+          background: 'rgba(30,64,175,0.65)',
+        }}
+      >
+        <div
+          style={{
+            width: `${waveProgress}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
+            transition: 'width 300ms ease',
+          }}
+        />
       </div>
 
-      <div style={{ fontSize: "0.8rem", fontWeight: "600", opacity: 0.9 }}>
+      <div style={{ fontSize: '0.8rem', fontWeight: '600', opacity: 0.9 }}>
         {waveName}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-        <div style={{ fontSize: "0.75rem", fontWeight: "600", opacity: 0.9 }}>Lives</div>
-        <div style={{ display: "flex", gap: "0.2rem", flexWrap: "wrap" }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        <div
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: '600',
+            opacity: 0.9,
+          }}
+        >
+          Lives
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.2rem',
+            flexWrap: 'wrap',
+          }}
+        >
           {Array.from({ length: maxLives }).map((_, i) => (
             <div
               key={i}
               style={{
-                width: "26px",
-                height: "26px",
-                borderRadius: "5px",
-                border: "2px solid rgba(148,163,184,0.6)",
-                background: i < lives ? "linear-gradient(135deg, #38bdf8, #1e40af)" : "rgba(15,23,42,0.5)",
-                boxShadow: i < lives ? "0 0 8px rgba(56,189,248,0.5)" : "none",
-                transition: "all 200ms ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1rem",
+                width: '26px',
+                height: '26px',
+                borderRadius: '5px',
+                border: '2px solid rgba(148,163,184,0.6)',
+                background:
+                  i < lives
+                    ? 'linear-gradient(135deg, #38bdf8, #1e40af)'
+                    : 'rgba(15,23,42,0.5)',
+                boxShadow:
+                  i < lives ? '0 0 8px rgba(56,189,248,0.5)' : 'none',
+                transition: 'all 200ms ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1rem',
               }}
             >
               {i < lives ? '🚀' : ''}
@@ -166,9 +213,18 @@ function WaveMeter({ currentWave, totalWaves, lives, maxLives, score }) {
         </div>
       </div>
 
-      <div style={{ marginTop: "0.25rem", padding: "0.4rem", background: "rgba(59,130,246,0.1)", borderRadius: "6px" }}>
-        <div style={{ fontWeight: "600" }}>Score: {score}</div>
-        <div style={{ opacity: 0.7, fontSize: "0.7rem" }}>Defend the network!</div>
+      <div
+        style={{
+          marginTop: '0.25rem',
+          padding: '0.4rem',
+          background: 'rgba(59,130,246,0.1)',
+          borderRadius: '6px',
+        }}
+      >
+        <div style={{ fontWeight: '600' }}>Score: {score}</div>
+        <div style={{ opacity: 0.7, fontSize: '0.7rem' }}>
+          Defend the network!
+        </div>
       </div>
     </div>
   );
@@ -177,26 +233,30 @@ function WaveMeter({ currentWave, totalWaves, lives, maxLives, score }) {
 // Explosion particle component
 function Explosion({ x, y, color }) {
   return (
-    <div style={{
-      position: 'absolute',
-      left: x,
-      top: y,
-      width: ENEMY_WIDTH,
-      height: ENEMY_HEIGHT,
-      pointerEvents: 'none',
-    }}>
-      {/* Central flash */}
-      <div style={{
+    <div
+      style={{
         position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '60px',
-        height: '60px',
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
-        animation: 'explosionFlash 300ms ease-out forwards',
-      }} />
+        left: x,
+        top: y,
+        width: ENEMY_WIDTH,
+        height: ENEMY_HEIGHT,
+        pointerEvents: 'none',
+      }}
+    >
+      {/* Central flash */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+          animation: 'explosionFlash 300ms ease-out forwards',
+        }}
+      />
       {/* Particles */}
       {[...Array(8)].map((_, i) => (
         <div
@@ -304,7 +364,13 @@ export default function GalagaGame() {
   const [lasers, setLasers] = useState([]);
   const [enemies, setEnemies] = useState(() => createWaveEnemies(0));
   const [explosions, setExplosions] = useState([]);
-  const [keys, setKeys] = useState({ left: false, right: false, up: false, down: false, shoot: false });
+  const [keys, setKeys] = useState({
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    shoot: false,
+  });
   const [gameState, setGameState] = useState('playing');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(PLAYER_LIVES);
@@ -327,30 +393,40 @@ export default function GalagaGame() {
     const handleKeyDown = (e) => {
       if (gameState !== 'playing') return;
 
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+      const isArrow =
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'ArrowDown';
+
+      if (isArrow || e.key === ' ') {
         e.preventDefault();
+      }
+
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         setKeys((k) => ({ ...k, left: true }));
       } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        e.preventDefault();
         setKeys((k) => ({ ...k, right: true }));
       } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-        e.preventDefault();
         setKeys((k) => ({ ...k, up: true }));
       } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-        e.preventDefault();
         setKeys((k) => ({ ...k, down: true }));
       } else if (e.key === ' ') {
-        e.preventDefault();
         setKeys((k) => ({ ...k, shoot: true }));
       }
     };
 
     const handleKeyUp = (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setKeys((k) => ({ ...k, left: false }));
-      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setKeys((k) => ({ ...k, right: false }));
-      else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') setKeys((k) => ({ ...k, up: false }));
-      else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setKeys((k) => ({ ...k, down: false }));
-      else if (e.key === ' ') setKeys((k) => ({ ...k, shoot: false }));
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A')
+        setKeys((k) => ({ ...k, left: false }));
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D')
+        setKeys((k) => ({ ...k, right: false }));
+      else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W')
+        setKeys((k) => ({ ...k, up: false }));
+      else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S')
+        setKeys((k) => ({ ...k, down: false }));
+      else if (e.key === ' ')
+        setKeys((k) => ({ ...k, shoot: false }));
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -364,10 +440,10 @@ export default function GalagaGame() {
   // Function to add explosion
   const addExplosion = (x, y, color) => {
     const id = explosionIdRef.current++;
-    setExplosions(prev => [...prev, { id, x, y, color }]);
+    setExplosions((prev) => [...prev, { id, x, y, color }]);
     // Remove explosion after animation completes
     setTimeout(() => {
-      setExplosions(prev => prev.filter(e => e.id !== id));
+      setExplosions((prev) => prev.filter((e) => e.id !== id));
     }, 400);
   };
 
@@ -388,7 +464,10 @@ export default function GalagaGame() {
         let y = prevY;
         if (keys.up && !keys.down) y -= PLAYER_SPEED;
         if (keys.down && !keys.up) y += PLAYER_SPEED;
-        return Math.max(GAME_HEIGHT / 2, Math.min(y, GAME_HEIGHT - PLAYER_HEIGHT - 20));
+        return Math.max(
+          GAME_HEIGHT / 2,
+          Math.min(y, GAME_HEIGHT - PLAYER_HEIGHT - 20)
+        );
       });
 
       // Player shooting
@@ -396,22 +475,31 @@ export default function GalagaGame() {
         const now = performance.now();
         if (now - lastShotTimeRef.current > shootCooldown) {
           lastShotTimeRef.current = now;
-          setBullets((prev) => [...prev, {
-            x: playerXRef.current + PLAYER_WIDTH / 2 - BULLET_WIDTH / 2,
-            y: playerYRef.current - 10
-          }]);
+          setBullets((prev) => [
+            ...prev,
+            {
+              x: playerXRef.current + PLAYER_WIDTH / 2 - BULLET_WIDTH / 2,
+              y: playerYRef.current - 10,
+            },
+          ]);
         }
       }
 
       // Move bullets
-      setBullets((prev) => prev.map((b) => ({ ...b, y: b.y - BULLET_SPEED })).filter((b) => b.y > 0));
-      setEnemyBullets((prev) => prev
-        .map((b) => ({
-          ...b,
-          y: b.y + ENEMY_BULLET_SPEED,
-          x: b.x + (b.vx || 0) // Apply horizontal velocity for spread shots
-        }))
-        .filter((b) => b.y < GAME_HEIGHT && b.x > 0 && b.x < GAME_WIDTH));
+      setBullets((prev) =>
+        prev
+          .map((b) => ({ ...b, y: b.y - BULLET_SPEED }))
+          .filter((b) => b.y > 0)
+      );
+      setEnemyBullets((prev) =>
+        prev
+          .map((b) => ({
+            ...b,
+            y: b.y + ENEMY_BULLET_SPEED,
+            x: b.x + (b.vx || 0), // Apply horizontal velocity for spread shots
+          }))
+          .filter((b) => b.y < GAME_HEIGHT && b.x > 0 && b.x < GAME_WIDTH)
+      );
 
       // Move and update enemies
       setEnemies((prevEnemies) => {
@@ -419,7 +507,9 @@ export default function GalagaGame() {
         const formationOffsetX = Math.sin(Date.now() / 1500) * 30;
 
         // Count currently attacking enemies (diving or shooting)
-        const currentlyAttacking = prevEnemies.filter(e => e.alive && (e.isDiving || e.isShooting)).length;
+        const currentlyAttacking = prevEnemies.filter(
+          (e) => e.alive && (e.isDiving || e.isShooting)
+        ).length;
         const maxAttacking = 15;
 
         return prevEnemies.map((enemy) => {
@@ -446,11 +536,14 @@ export default function GalagaGame() {
 
             // Phishing enemies shoot while diving
             if (enemy.typeData.attackType === 'diveShoot' && newShootTimer <= 0) {
-              setEnemyBullets((prev) => [...prev, {
-                x: enemy.x + ENEMY_WIDTH / 2 - BULLET_WIDTH / 2,
-                y: enemy.y + ENEMY_HEIGHT,
-                type: 'normal'
-              }]);
+              setEnemyBullets((prev) => [
+                ...prev,
+                {
+                  x: enemy.x + ENEMY_WIDTH / 2 - BULLET_WIDTH / 2,
+                  y: enemy.y + ENEMY_HEIGHT,
+                  type: 'normal',
+                },
+              ]);
               newShootTimer = 400; // Fast shooting while diving
             }
 
@@ -470,13 +563,22 @@ export default function GalagaGame() {
             const canStartAttack = currentlyAttacking < maxAttacking;
 
             // Chance to start diving (only for dive-capable enemies)
-            if (canStartAttack && enemy.typeData.canDive && newDiveTimer <= 0 && Math.random() < 0.003) {
+            if (
+              canStartAttack &&
+              enemy.typeData.canDive &&
+              newDiveTimer <= 0 &&
+              Math.random() < 0.003
+            ) {
               newIsDiving = true;
               newDiveTimer = 4000;
             }
 
             // Shooting logic for non-diving enemies
-            if (enemy.typeData.canShoot && newShootTimer <= 0 && !newIsDiving) {
+            if (
+              enemy.typeData.canShoot &&
+              newShootTimer <= 0 &&
+              !newIsDiving
+            ) {
               // Only shoot if under the attack limit
               if (canStartAttack || newIsShooting) {
                 const centerX = enemy.x + ENEMY_WIDTH / 2;
@@ -486,28 +588,48 @@ export default function GalagaGame() {
                   // Purple enemies shoot a 3-shot spread
                   setEnemyBullets((prev) => [
                     ...prev,
-                    { x: centerX - BULLET_WIDTH / 2, y: bottomY, type: 'normal', vx: -2 },
-                    { x: centerX - BULLET_WIDTH / 2, y: bottomY, type: 'normal', vx: 0 },
-                    { x: centerX - BULLET_WIDTH / 2, y: bottomY, type: 'normal', vx: 2 },
+                    {
+                      x: centerX - BULLET_WIDTH / 2,
+                      y: bottomY,
+                      type: 'normal',
+                      vx: -2,
+                    },
+                    {
+                      x: centerX - BULLET_WIDTH / 2,
+                      y: bottomY,
+                      type: 'normal',
+                      vx: 0,
+                    },
+                    {
+                      x: centerX - BULLET_WIDTH / 2,
+                      y: bottomY,
+                      type: 'normal',
+                      vx: 2,
+                    },
                   ]);
                   newShootTimer = 2500 + Math.random() * 1500;
                   newIsShooting = false; // Spread is instant
                 } else if (enemy.typeData.attackType === 'laser') {
                   // Money enemies shoot a laser beam
-                  setLasers((prev) => [...prev, {
-                    x: centerX - 4,
-                    y: bottomY,
-                    sourceId: enemy.id,
-                    duration: 1000, // 1 second duration
-                    createdAt: Date.now()
-                  }]);
+                  setLasers((prev) => [
+                    ...prev,
+                    {
+                      x: centerX - 4,
+                      y: bottomY,
+                      sourceId: enemy.id,
+                      duration: 1000, // 1 second duration
+                      createdAt: Date.now(),
+                    },
+                  ]);
                   newShootTimer = 4000 + Math.random() * 2000;
                   newIsShooting = true;
                   // Mark as not shooting after laser ends
                   setTimeout(() => {
-                    setEnemies(prev => prev.map(e =>
-                      e.id === enemy.id ? { ...e, isShooting: false } : e
-                    ));
+                    setEnemies((prev) =>
+                      prev.map((e) =>
+                        e.id === enemy.id ? { ...e, isShooting: false } : e
+                      )
+                    );
                   }, 1000);
                 }
               } else {
@@ -530,7 +652,7 @@ export default function GalagaGame() {
             shootTimer: newShootTimer,
             diveTimer: newDiveTimer,
             isDiving: newIsDiving,
-            isShooting: newIsShooting
+            isShooting: newIsShooting,
           };
         });
       });
@@ -539,14 +661,16 @@ export default function GalagaGame() {
       setLasers((prev) => {
         const now = Date.now();
         return prev
-          .filter(laser => now - laser.createdAt < laser.duration)
-          .map(laser => {
-            const sourceEnemy = enemies.find(e => e.id === laser.sourceId && e.alive);
+          .filter((laser) => now - laser.createdAt < laser.duration)
+          .map((laser) => {
+            const sourceEnemy = enemies.find(
+              (e) => e.id === laser.sourceId && e.alive
+            );
             if (sourceEnemy) {
               return {
                 ...laser,
                 x: sourceEnemy.x + ENEMY_WIDTH / 2 - 4,
-                y: sourceEnemy.y + ENEMY_HEIGHT
+                y: sourceEnemy.y + ENEMY_HEIGHT,
               };
             }
             return laser;
@@ -554,67 +678,56 @@ export default function GalagaGame() {
       });
 
       // Bullet collisions
+            // Bullet collisions
       setBullets((prevBullets) => {
         let updatedEnemies = [...enemies];
         let updatedBullets = [...prevBullets];
-        let hits = false;
         let explosionsToAdd = [];
 
         updatedBullets.forEach((bullet, bulletIndex) => {
           if (!bullet) return;
           updatedEnemies.forEach((enemy, enemyIndex) => {
             if (!enemy.alive) return;
-            if (bullet.x < enemy.x + ENEMY_WIDTH &&
+            if (
+              bullet.x < enemy.x + ENEMY_WIDTH &&
               bullet.x + BULLET_WIDTH > enemy.x &&
               bullet.y < enemy.y + ENEMY_HEIGHT &&
-              bullet.y + BULLET_HEIGHT > enemy.y) {
+              bullet.y + BULLET_HEIGHT > enemy.y
+            ) {
               explosionsToAdd.push({
                 x: enemy.x,
                 y: enemy.y,
-                color: enemy.typeData.border
+                color: enemy.typeData.border,
               });
               updatedEnemies[enemyIndex] = { ...enemy, alive: false };
               updatedBullets[bulletIndex] = null;
               setScore((prev) => prev + enemy.typeData.points);
-              hits = true;
             }
           });
         });
 
-        if (hits) {
+        if (explosionsToAdd.length > 0) {
           setEnemies(updatedEnemies);
-          explosionsToAdd.forEach(exp => addExplosion(exp.x, exp.y, exp.color));
-        }
-
-        // Check wave completion
-        const aliveCount = updatedEnemies.filter((e) => e.alive).length;
-        if (aliveCount === 0 && !waveTransition) {
-          setWaveTransition(true);
-          if (currentWave < WAVES.length) {
-            // Calculate next wave index here, before the timeout
-            const nextWaveIndex = currentWave; // currentWave is 1-indexed, so this gives us the next 0-indexed wave
-            setTimeout(() => {
-              setCurrentWave(currentWave + 1);
-              setEnemies(createWaveEnemies(nextWaveIndex));
-              setWaveTransition(false);
-            }, 1000);
-          } else {
-            setGameState('win');
-          }
+          explosionsToAdd.forEach((exp) =>
+            addExplosion(exp.x, exp.y, exp.color)
+          );
         }
 
         return updatedBullets.filter((b) => b !== null);
       });
+
 
       // Player collision with enemy bullets
       if (!isInvulnerable) {
         setEnemyBullets((prevBullets) => {
           let hit = false;
           const filtered = prevBullets.filter((bullet) => {
-            if (bullet.x < playerXRef.current + PLAYER_WIDTH &&
+            if (
+              bullet.x < playerXRef.current + PLAYER_WIDTH &&
               bullet.x + BULLET_WIDTH > playerXRef.current &&
               bullet.y < playerYRef.current + PLAYER_HEIGHT &&
-              bullet.y + BULLET_HEIGHT > playerYRef.current) {
+              bullet.y + BULLET_HEIGHT > playerYRef.current
+            ) {
               hit = true;
               return false;
             }
@@ -682,7 +795,47 @@ export default function GalagaGame() {
     }, TICK_MS);
 
     return () => clearInterval(interval);
-  }, [keys, gameState, enemies, currentWave, isInvulnerable, waveTransition, lasers]);
+  }, [
+    keys,
+    gameState,
+    enemies,
+    currentWave,
+    isInvulnerable,
+    waveTransition,
+    lasers,
+  ]);
+
+    // Wave progression: advance when all enemies in the current wave are dead
+    // Wave progression: advance when all enemies in the current wave are dead
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    // Don't start a new transition if we're already in one
+    if (waveTransition) return;
+
+    const aliveCount = enemies.filter((e) => e.alive).length;
+    if (aliveCount !== 0) return;
+
+    // All enemies are dead at this point
+    if (currentWave < WAVES.length) {
+      // Start transition and schedule next wave
+      setWaveTransition(true);
+
+      // currentWave is 1-based; createWaveEnemies expects 0-based index
+      const nextWaveIndex = currentWave;
+
+      setTimeout(() => {
+        setCurrentWave((prev) => prev + 1);
+        setEnemies(createWaveEnemies(nextWaveIndex));
+        setWaveTransition(false);
+      }, 1000);
+    } else {
+      // No more waves → win the game
+      setGameState('win');
+    }
+  }, [enemies, currentWave, gameState, waveTransition]);
+
+
 
   const handleRestart = () => {
     setPlayerX(GAME_WIDTH / 2 - PLAYER_WIDTH / 2);
@@ -701,24 +854,45 @@ export default function GalagaGame() {
     lastShotTimeRef.current = 0;
   };
 
-  const handleExit = () => navigate(DASHBOARD_ROUTE);
+  // Exit helper, optionally marking a successful completion for the dashboard
+  const handleExit = (isSuccessful = false) => {
+    if (isSuccessful) {
+      try {
+        localStorage.setItem(
+          'cyberslayers_last_completed_game',
+          String(GAME_NUM_FOR_STORY)
+        );
+        localStorage.setItem(
+          'cyberslayers_last_completion_status',
+          'success'
+        );
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+    navigate(DASHBOARD_ROUTE);
+  };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'white',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '1rem',
-      gap: '0.75rem',
-      position: 'relative'
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        background:
+          'radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        padding: '1rem',
+        gap: '0.75rem',
+        position: 'relative',
+      }}
+    >
       <button
-        onClick={handleExit}
+        onClick={() => handleExit(false)}
         style={{
           position: 'absolute',
           top: '0.75rem',
@@ -730,14 +904,16 @@ export default function GalagaGame() {
           padding: '0.4rem 0.8rem',
           cursor: 'pointer',
           fontSize: '0.85rem',
-          fontWeight: '500'
+          fontWeight: '500',
         }}
       >
         ✕ Exit
       </button>
 
-      {/* NEW: Story-flavored title + description (like Snake / Waldo game) */}
-      <h1 style={{ fontSize: '1.8rem', textAlign: 'center', margin: 0 }}>
+      {/* Story-flavored title + description */}
+      <h1
+        style={{ fontSize: '1.8rem', textAlign: 'center', margin: 0 }}
+      >
         🐉 Lagdrakul Protocol: Skyward Defense
       </h1>
       <p
@@ -746,55 +922,84 @@ export default function GalagaGame() {
           textAlign: 'center',
           maxWidth: 520,
           fontSize: '0.9rem',
-          margin: 0
+          margin: 0,
         }}
       >
-        After tracing Lagdrakul&apos;s corruption through the social runes and shadow helms,
-        Te-Qwuiz and Ailithm follow the code into the open sky above the realm&apos;s public
-        wells. These waves of malware, phishing sigils, and broken connections are the
-        Phishers&apos; Net made visible — if you hold the line here, the poisoned lag never
-        reaches the wells below.
+        After tracing Lagdrakul&apos;s corruption through the social runes and
+        shadow helms, Te-Qwuiz and Ailithm follow the code into the open sky
+        above the realm&apos;s public wells. These waves of malware, phishing
+        sigils, and broken connections are the Phishers&apos; Net made visible
+        — if you hold the line here, the poisoned lag never reaches the wells
+        below.
       </p>
 
-      <p style={{ opacity: 0.8, textAlign: 'center', maxWidth: 500, fontSize: '0.85rem', margin: 0 }}>
-        Move with <strong>WASD / Arrows</strong>, shoot with <strong>Space</strong>.
+      <p
+        style={{
+          opacity: 0.8,
+          textAlign: 'center',
+          maxWidth: 500,
+          fontSize: '0.85rem',
+          margin: 0,
+        }}
+      >
+        Move with <strong>WASD / Arrows</strong>, shoot with{' '}
+        <strong>Space</strong>.
       </p>
 
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <div style={{
-          position: 'relative',
-          width: GAME_WIDTH,
-          height: GAME_HEIGHT,
-          background: 'linear-gradient(180deg, #020617 0%, #020617 60%, #000 100%)',
-          border: '3px solid #4b5563',
-          borderRadius: '10px',
-          overflow: 'hidden',
-          boxShadow: '0 0 24px rgba(0,0,0,0.9)'
-        }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: GAME_WIDTH,
+            height: GAME_HEIGHT,
+            background:
+              'linear-gradient(180deg, #020617 0%, #020617 60%, #000 100%)',
+            border: '3px solid #4b5563',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            boxShadow: '0 0 24px rgba(0,0,0,0.9)',
+          }}
+        >
           {/* Player */}
-          <div style={{
-            position: 'absolute',
-            width: PLAYER_WIDTH,
-            height: PLAYER_HEIGHT,
-            left: playerX,
-            top: playerY,
-            background: 'linear-gradient(135deg, #38bdf8, #1e40af)',
-            borderRadius: '8px',
-            boxShadow: isInvulnerable ? '0 0 30px rgba(239,68,68,0.9)' : '0 0 20px rgba(56,189,248,0.9)',
-            border: '2px solid #0ea5e9',
-            opacity: isInvulnerable && Date.now() % 200 < 100 ? 0.5 : 1,
-            transition: 'opacity 100ms'
-          }}>
-            <div style={{
-              width: 0,
-              height: 0,
-              borderLeft: `${PLAYER_WIDTH / 2}px solid transparent`,
-              borderRight: `${PLAYER_WIDTH / 2}px solid transparent`,
-              borderBottom: '14px solid #bfdbfe',
+          <div
+            style={{
               position: 'absolute',
-              top: -14,
-              left: 0
-            }} />
+              width: PLAYER_WIDTH,
+              height: PLAYER_HEIGHT,
+              left: playerX,
+              top: playerY,
+              background:
+                'linear-gradient(135deg, #38bdf8, #1e40af)',
+              borderRadius: '8px',
+              boxShadow: isInvulnerable
+                ? '0 0 30px rgba(239,68,68,0.9)'
+                : '0 0 20px rgba(56,189,248,0.9)',
+              border: '2px solid #0ea5e9',
+              opacity:
+                isInvulnerable && Date.now() % 200 < 100 ? 0.5 : 1,
+              transition: 'opacity 100ms',
+            }}
+          >
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderLeft: `${PLAYER_WIDTH / 2}px solid transparent`,
+                borderRight: `${PLAYER_WIDTH / 2}px solid transparent`,
+                borderBottom: '14px solid #bfdbfe',
+                position: 'absolute',
+                top: -14,
+                left: 0,
+              }}
+            />
           </div>
 
           {/* Player bullets */}
@@ -807,9 +1012,10 @@ export default function GalagaGame() {
                 height: BULLET_HEIGHT,
                 left: b.x,
                 top: b.y,
-                background: 'linear-gradient(180deg, #facc15, #f97316)',
+                background:
+                  'linear-gradient(180deg, #facc15, #f97316)',
                 boxShadow: '0 0 12px rgba(250,204,21,0.95)',
-                borderRadius: '999px'
+                borderRadius: '999px',
               }}
             />
           ))}
@@ -824,9 +1030,10 @@ export default function GalagaGame() {
                 height: BULLET_HEIGHT,
                 left: b.x,
                 top: b.y,
-                background: 'linear-gradient(180deg, #dc2626, #991b1b)',
+                background:
+                  'linear-gradient(180deg, #dc2626, #991b1b)',
                 boxShadow: '0 0 12px rgba(220,38,38,0.95)',
-                borderRadius: '999px'
+                borderRadius: '999px',
               }}
             />
           ))}
@@ -834,7 +1041,8 @@ export default function GalagaGame() {
           {/* Laser beams */}
           {lasers.map((laser, i) => {
             const age = Date.now() - laser.createdAt;
-            const opacity = Math.min(1, age / 100) * (1 - age / laser.duration * 0.3);
+            const opacity =
+              Math.min(1, age / 100) * (1 - (age / laser.duration) * 0.3);
             const pulseScale = 1 + Math.sin(age / 50) * 0.2;
             return (
               <div
@@ -845,8 +1053,11 @@ export default function GalagaGame() {
                   top: laser.y,
                   width: 8 * pulseScale,
                   height: GAME_HEIGHT - laser.y,
-                  background: `linear-gradient(180deg, #f97316 0%, #dc2626 30%, #991b1b 100%)`,
-                  boxShadow: `0 0 20px rgba(249,115,22,${opacity}), 0 0 40px rgba(220,38,38,${opacity * 0.5})`,
+                  background:
+                    'linear-gradient(180deg, #f97316 0%, #dc2626 30%, #991b1b 100%)',
+                  boxShadow: `0 0 20px rgba(249,115,22,${opacity}), 0 0 40px rgba(220,38,38,${
+                    opacity * 0.5
+                  })`,
                   opacity: opacity,
                   borderRadius: '4px 4px 0 0',
                   transform: `translateX(${(1 - pulseScale) * 4}px)`,
@@ -856,32 +1067,40 @@ export default function GalagaGame() {
           })}
 
           {/* Enemies */}
-          {enemies.map((e) => e.alive && (
-            <div
-              key={e.id}
-              style={{
-                position: 'absolute',
-                width: ENEMY_WIDTH,
-                height: ENEMY_HEIGHT,
-                left: e.x,
-                top: e.y,
-                background: e.typeData.color,
-                borderRadius: '6px',
-                border: `2px solid ${e.typeData.border}`,
-                boxShadow: `0 0 14px ${e.typeData.border}99`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.6rem'
-              }}
-            >
-              {e.typeData.name}
-            </div>
-          ))}
+          {enemies.map(
+            (e) =>
+              e.alive && (
+                <div
+                  key={e.id}
+                  style={{
+                    position: 'absolute',
+                    width: ENEMY_WIDTH,
+                    height: ENEMY_HEIGHT,
+                    left: e.x,
+                    top: e.y,
+                    background: e.typeData.color,
+                    borderRadius: '6px',
+                    border: `2px solid ${e.typeData.border}`,
+                    boxShadow: `0 0 14px ${e.typeData.border}99`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.6rem',
+                  }}
+                >
+                  {e.typeData.name}
+                </div>
+              )
+          )}
 
           {/* Explosions */}
           {explosions.map((exp) => (
-            <Explosion key={exp.id} x={exp.x} y={exp.y} color={exp.color} />
+            <Explosion
+              key={exp.id}
+              x={exp.x}
+              y={exp.y}
+              color={exp.color}
+            />
           ))}
 
           {/* Wave transition overlay */}
@@ -893,16 +1112,22 @@ export default function GalagaGame() {
                 background: 'rgba(0,0,0,0.6)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}
             >
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', animation: 'pulse 0.5s ease-in-out infinite' }}>
+              <div
+                style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  animation: 'pulse 0.5s ease-in-out infinite',
+                }}
+              >
                 Wave {currentWave + 1} incoming...
               </div>
             </div>
           )}
 
-          {/* NEW: Story-style closing module (like Snake QuestCompleteOverlay) */}
+          {/* Story-style closing module */}
           {gameState !== 'playing' && (
             <QuestCompleteOverlay
               title={
@@ -915,20 +1140,22 @@ export default function GalagaGame() {
                   ? [
                       'You held the sky above the wells, burning through each wave of malware bursts and phishing sigils before they could seep into the public networks.',
                       'Ailithm traces the last echoes of Lagdrakul’s code, murmuring about how “elegant” the attack patterns were — a hint that their curiosity is starting to mirror the dragon’s logic.',
-                      'For now, the realm drinks from unpolluted wells… but the corrupted lag is still coiled somewhere deeper in the code, waiting for its next opening.'
+                      'For now, the realm drinks from unpolluted wells… but the corrupted lag is still coiled somewhere deeper in the code, waiting for its next opening.',
                     ]
                   : [
                       'The sky above the wells fills with stalled packets and corrupted glyphs — Lagdrakul’s lagstorm crashes past your defenses and begins to poison the shared networks below.',
                       'Villagers’ armor and tools flicker as the virus rides each delayed connection, and Ailithm goes silent on the comms, still watching the attack patterns with unsettling fascination.',
-                      'This run may be lost, but every failed defense is a map of what Lagdrakul can do. Reset your defenses and try again before the dragon’s code becomes the new normal.'
+                      'This run may be lost, but every failed defense is a map of what Lagdrakul can do. Reset your defenses and try again before the dragon’s code becomes the new normal.',
                     ]
               }
               primaryLabel={
-                gameState === 'win' ? 'Replay Skyward Defense' : 'Try the Defense Again'
+                gameState === 'win'
+                  ? 'Replay Skyward Defense'
+                  : 'Try the Defense Again'
               }
               onPrimary={handleRestart}
               secondaryLabel="Return to Cyber Map"
-              onSecondary={handleExit}
+              onSecondary={() => handleExit(gameState === 'win')}
             />
           )}
         </div>
@@ -952,7 +1179,7 @@ export default function GalagaGame() {
             background: 'rgba(15,23,42,0.7)',
             color: 'white',
             fontSize: '0.85rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           Restart

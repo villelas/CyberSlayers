@@ -20,6 +20,10 @@ const STAGE_TWO_DURATION = 25000; // ms: Stage 2 length
 
 const DASHBOARD_ROUTE = "/dashboard";
 
+// This boss fight is thematically Act IV – The Polluted Well (Module 4).
+// If you hook it to a different node on the map, update this number.
+const GAME_NUM_FOR_STORY = 4;
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
@@ -124,7 +128,25 @@ function BossFight() {
     startFightStage1();
   };
 
-  const handleExit = () => navigate(DASHBOARD_ROUTE);
+  // UPDATED: exit can optionally mark a successful completion for the dashboard story system
+  const handleExit = (isSuccessful = false) => {
+    if (isSuccessful) {
+      try {
+        localStorage.setItem(
+          "cyberslayers_last_completed_game",
+          String(GAME_NUM_FOR_STORY)
+        );
+        localStorage.setItem(
+          "cyberslayers_last_completion_status",
+          "success"
+        );
+      } catch (e) {
+        // fail silently; navigation still happens
+      }
+    }
+
+    navigate(DASHBOARD_ROUTE);
+  };
 
   // Main game loop
   useEffect(() => {
@@ -321,7 +343,7 @@ function BossFight() {
     >
       {/* Exit button */}
       <button
-        onClick={handleExit}
+        onClick={() => handleExit(false)}
         style={{
           position: "absolute",
           top: "1rem",
@@ -680,7 +702,8 @@ function BossFight() {
               primaryLabel="Replay Final Convergence"
               onPrimary={handleReplay}
               secondaryLabel="Return to Cyber Map"
-              onSecondary={handleExit}
+              // SUCCESS exit: mark completion so dashboard can show story + PNGs
+              onSecondary={() => handleExit(true)}
             />
           )}
         </div>
