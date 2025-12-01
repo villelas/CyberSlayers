@@ -1,3 +1,4 @@
+// src/pages/CommentsPage.jsx
 import React, { useState, useEffect } from "react";
 import { Filter } from "bad-words";
 import { useNavigate } from "react-router-dom";

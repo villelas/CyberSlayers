@@ -7,6 +7,9 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [isHovering, setIsHovering] = useState(false);
 
+  // Placeholder demo video URL – replace with your actual YouTube link later
+  const DEMO_VIDEO_URL = 'https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID';
+
   const styles = {
     main: {
       display: 'grid',
@@ -48,6 +51,10 @@ export default function HomePage() {
     }
   };
 
+  const openDemoVideo = () => {
+    window.open(DEMO_VIDEO_URL, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="cyber-container bg-gradient-primary">
       {/* Navigation */}
@@ -58,7 +65,7 @@ export default function HomePage() {
         </div>
         <ul className="nav-links">
           <li><a href="/" className="nav-link">Home</a></li>
-          <li><a href='/aboutus' className="nav-link">About Us</a></li>
+          <li><a href="/aboutus" className="nav-link">About Us</a></li>
           <li><a href="/lessons" className="nav-link">Lessons</a></li>
           <li><a href="/games" className="nav-link">Games</a></li>
         </ul>
@@ -92,20 +99,24 @@ export default function HomePage() {
           </p>
 
           <div style={styles.buttonContainer}>
-            <button className="btn-large" onClick={() => navigate('/dashboard')}>
+            {/* Start Playing -> Games page */}
+            <button 
+              className="btn-large"
+              onClick={() => navigate('/games')}
+            >
               <PlayCircle size={24} />
               Start Playing
               <ChevronRight size={20} />
             </button>
             
-            <button className="btn-secondary">
-              Watch Demo Video
-            </button>
-            <button className="btn-secondary" onClick={() => navigate('/commentspage')}>
-               View Notes
+            {/* View Notes now sits where the demo button used to be */}
+            <button 
+              className="btn-secondary" 
+              onClick={() => navigate('/commentspage')}
+            >
+              View Notes
             </button>
           </div>
-          
 
           <div className="stats-container">
             {[
@@ -152,7 +163,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="card-video">
+          {/* Video card -> same demo video link */}
+          <div 
+            className="card-video"
+            role="button"
+            tabIndex={0}
+            onClick={openDemoVideo}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openDemoVideo();
+              }
+            }}
+          >
             <PlayCircle size={64} color="#9c27b0" style={{marginBottom: '1rem'}} />
             <div style={{fontSize: '1.2rem', fontWeight: 'bold'}}>
               Video of us playing the game

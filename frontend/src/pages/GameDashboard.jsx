@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DailyFactModal from "./DailyFactModal";
+import hero1 from "../assets/Hero1.png";
+import hero2 from "../assets/Hero2.png";
+import hero3 from "../assets/Hero3.png";
+import hero4 from "../assets/Hero4.png";
+import AilithmG from "../assets/AilithmG.png";
+import AilithmV from "../assets/AilithmV.png";
+import Lagdrakul1 from "../assets/Lagdrakul1.png";
+import Lagdrakul2 from "../assets/Lagdrakul2.png";
+import Lagdrakul2A from "../assets/Lagdrakul2A.png";
 
 import {
   Shield,
   Star,
   Trophy,
   Zap,
-  Play,
   Lock,
   Home,
   LogOut,
@@ -22,7 +29,93 @@ import {
 } from 'lucide-react';
 import '../App.css';
 
-// Single source of truth: each module has title, subtitle, content, quiz
+const POST_GAME_DIALOGUE = {
+  2: {
+    id: 'post_game_2_to_deepfakes',
+    gameNum: 2,
+    spriteByLine: [hero2,AilithmG,AilithmG,hero2],
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: I\'ve gained some armor and learned something too! He\'s planning to steal people\'s identities and corrupt them. Those etched runes told us a lot about Lagdrakul\'s plan.',
+      'Ailithm: Lagdrakul will not just steal faces from the crowd, Te-Qwuiz. He will forge them — shadow helms, mimicking trusted figures.',
+      'Ailithm: When a face or voice feels familiar, that is when you must doubt it the most. Familiarity is his favorite disguise.',
+      'Te-Qwuiz: Then our next trial is clear; we learn to split truth from forged faces before his illusions reach the throne.'
+    ]
+  },
+  3: {
+    id: 'post_game_3_to_phishing',
+    gameNum: 3,
+    spriteByLine: [hero3,AilithmG,hero3, AilithmG],
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: ['Te-Qwuiz: WOW! Thanks for helping me find the fragemnts to my sword! It\'s lucky we found some of the Lagdrakul\'s shadow helms too, but the air still feels... tainted. Like something evil is on it\'s way',
+      'Ailithm: Ah yes, I\'d say that his next step would be to trap us all in one area, to attempt to corrupt the kingdom.',
+      'Te-Qwuiz: Well then we must prepare ourselves to face his tricks. What should we look out for?',
+      'Ailithm: Lagdrakul\'s phishing scams use urgency and pressure to make us act without thinking. Try multiple paths to verify information before acting. Let us find you a steed, staying mobile and staying vigilant is key. '
+    ]
+  },
+  4: {
+    id: 'post_game_4_to_public_networks',
+    gameNum: 4,
+    spriteByLine: [AilithmG, hero4, AilithmG, hero4],
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      "Ailithm: But those were just his opening moves. Now come the scrollstorms.",
+      'Te-Qwuiz: Scrolls that scream "urgent," seals that look royal, coins promised for a single click… it feels like a net tightening.',
+      "Ailithm: That is exactly what it is, the Phishers' Net. Lagdrakul's agents cast enchanted messages to hook the panicked and the greedy.",
+      'Te-Qwuiz: Then we learn to spot the hooks inside the scrolls before they pierce anyone in the realm.'
+    ]
+  },
+  5: {
+    id: 'post_game_4_to_public_networks',
+    gameNum: 5,
+    spriteByLine: [hero4, AilithmG, AilithmG, hero4, Lagdrakul2, Lagdrakul2A, AilithmG, AilithmV, AilithmV],
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      'Te-Qwuiz: The Phishers\' Net is torn, but the air still feels… fouled.',
+      'Ailithm: Lagdrakul has moved on to poisoning the shared wells. The public networks where travelers drink data without shields.',
+      'Ailithm: One careless login at those wells, and spies can skim every secret poured into the stream.',
+      'Te-Qwuiz: Then we ride to the polluted wells and learn to guard ourselves whenever we must drink from them.',
+      'Lagdrakul: ROARRR!!! You think you can stop me with your petty tricks? I will have your passwords and keys, and there is nothing you can do to stop me!',
+      'Lagdrakul: Your efforts are futile! I have already won! Look at your poor companion!',
+      'Ailithm: No… what have you done to me, Lagdrakul?',
+      'Ailithm: ... ',
+      'Ailithm: wHaT iS tHaT mElLoDy...? I see it now, abuse the weak locks, lazy runes... YES! I want to corrupt others too! Muahahaha!' 
+    ]
+  },
+  6: {
+    id: 'post_game_5_to_password_forge',
+    gameNum: 5,
+    spriteByLine: [AilithmG, hero4, AilithmG, hero4],
+    
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      "Ailithm: Thank you! You have seen Lagdrakul's code up close now… very few return from that gaze unchanged. I didn\'t.",
+      "Te-Qwuiz: His power drips through weak locks and lazy runes. Doors meant for one soul are flung open to an army.",
+      'Ailithm: Then we step out of the Password Forge — where keys are tempered, lengthened, and made unreadable to his claws.',
+      "Te-Qwuiz: If our keys hold, the dragon's talons will find only cold iron and closed gates. Never able to claw his way back."
+    ]
+  }
+};
+
+const PRE_GAME_STORY = {
+  1: {
+    id: 'pregame_1_snake_intro',
+    gameNum: 1, 
+    spriteByLine: [hero1,AilithmG, AilithmG, hero1, Lagdrakul1, Lagdrakul2, hero1, AilithmG],
+    speaker: 'Te-Qwuiz & Ailithm',
+    lines: [
+      "Te-Qwuiz: Hi there, I've heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?",
+      "Ailithm: Why of course! He's planning to steal information about influential people like myself to impersonate them and then corrupt everything.",
+      "Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.",
+      "Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted.",
+      "Te-Qwuiz: Hi there, I've heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?",
+      "Ailithm: Why of course! He's planning to steal information about influential people like myself to impersonate them and then corrupt everything.",
+      "Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.",
+      "Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted."
+    ]
+  }, 
+};
+
 const EDUCATIONAL_MODULES = {
   1: {
     title: 'Module 1 — Digital Footprint',
@@ -125,7 +218,7 @@ const EDUCATIONAL_MODULES = {
     title: 'Module 3 — Phishing Scams',
     subtitle: "(The Phishers' Net)",
     content:
-      "Lagdrakul's agents unleash waves of enchanted scrolls that tempt the unwary: (1) phishing messages push urgency to override reason, (2) no legitimate ally asks for passwords or private keys, (3) suspicious links and attachments are a major danger, and (4) when in doubt, contact the supposed sender directly through a trusted channel. Knights learn that quick clicks can lead to quick downfall.",
+      'When Lagdrakul poisons public digital wells, Te-Qwuiz warns that (1) shared networks expose all users to eavesdropping, (2) logging into sensitive accounts on public access points is dangerous, (3) secure connections and encryption protect travelers, and (4) using personal defenses like firewalls and shields prevents outsiders from spying. A hero should never drink unguarded from a shared source. You\'re best bet is to tame a horse and locate a safer source',
     quiz: [
       {
         question:
@@ -175,7 +268,7 @@ const EDUCATIONAL_MODULES = {
     title: 'Module 4 — Public Networks Safety',
     subtitle: '(The Polluted Well)',
     content:
-      'When Lagdrakul poisons public digital wells, Te-Qwuiz warns that (1) shared networks expose all users to eavesdropping, (2) logging into sensitive accounts on public access points is dangerous, (3) secure connections and encryption protect travelers, and (4) using personal defenses like firewalls and shields prevents outsiders from spying. A hero should never drink unguarded from a shared source.',
+      "Lagdrakul's agents unleash waves of enchanted scrolls that tempt the unwary: (1) phishing messages push urgency to override reason, (2) no legitimate ally asks for passwords or private keys, (3) suspicious links and attachments are a major danger, and (4) when in doubt, contact the supposed sender directly through a trusted channel. Knights learn that quick clicks can lead to quick downfall.",
     quiz: [
       {
         question: 'What risk do public networks pose?',
@@ -222,30 +315,24 @@ const EDUCATIONAL_MODULES = {
     ]
   },
   5: {
-    title: 'Module 5 — Password Tester',
-    subtitle: '(The Password Forge)',
+    title: 'Module 5 — Password Security',
+    subtitle: '(The Finale Forge)',
     content:
-      'This is an optional game meant to help you with your password skills.',
+      'The password is the most important piece Lagdrakul is after, know what to do in order to stop him. Ailithm has been courrpted and needs you to rescue him. Create a safe password, survive his onslaught, and save your ally! and you might be able to save the kingdom!',
     quiz: [
       {
         question: 'What makes a password strong?',
         options: [
-          "Using your name and birthday",
+          'Using your name and birthday',
           'Short and easy to remember',
           'Long with a mix of symbols, numbers, and letters',
-          "A single common word"
+          'A single common word'
         ],
         correctIndex: 2
       },
       {
-        question:
-          'Which of the following is the safest password?',
-        options: [
-          "password123",
-          "Summer2024!",
-          'qwerty',
-          'G!7rP#9wL2@'
-        ],
+        question: 'Which of the following is the safest password?',
+        options: ['password123', 'Summer2024!', 'qwerty', 'G!7rP#9wL2@'],
         correctIndex: 3
       },
       {
@@ -259,8 +346,7 @@ const EDUCATIONAL_MODULES = {
         correctIndex: 1
       },
       {
-        question:
-          'What is a password manager?',
+        question: 'What is a password manager?',
         options: [
           'A program that stores and helps create strong passwords',
           'A tool that automatically sends your passwords to friends',
@@ -278,23 +364,116 @@ export default function GameDashboard() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  
+
   const [selectedArena, setSelectedArena] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // which game’s full-screen module is open (1–4) or null
+  // which game's full-screen module is open (1–5) or null
   const [learningGameNum, setLearningGameNum] = useState(null);
 
-  const [showDailyFact, setShowDailyFact] = useState(true); 
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('cyberslayers_user');
-    if (storedUser) {
-      setUserData(JSON.parse(storedUser));
-    } else {
-      navigate('/login');
-    }
+  // Queue of story beats (now only post-game dialogue)
+  const [storyQueue, setStoryQueue] = useState([]);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+
+    useEffect(() => {
+  const storedUser = localStorage.getItem('cyberslayers_user');
+
+  let combinedBeats = [];
+  let hasPostGameDialogue = false;
+  let hasVisitedDashboard = false;
+
+  // Load which story IDs have already been shown
+  let shownIds = [];
+  try {
+    const raw = localStorage.getItem('cyberslayers_story_shown');
+    shownIds = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    shownIds = [];
+  }
+
+  // Track if the dashboard has ever been opened before
+  try {
+    hasVisitedDashboard =
+      localStorage.getItem('cyberslayers_dashboard_visited') === 'true';
+  } catch (e) {
+    hasVisitedDashboard = false;
+  }
+
+  // Load user or redirect
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    setUserData(parsedUser);
+  } else {
+    navigate('/login');
     setLoading(false);
-  }, [navigate]);
+    return;
+  }
+
+  // ───────── Post-game dialogue when returning from a game ─────────
+  try {
+    const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
+    const rawStatus = localStorage.getItem(
+      'cyberslayers_last_completion_status'
+    );
+
+    if (rawGame !== null && rawStatus === 'success') {
+      const gameIndex = parseInt(rawGame, 10);
+
+      if (!Number.isNaN(gameIndex)) {
+        // Queue post-game dialogue beat (if defined)
+        const postBeat = POST_GAME_DIALOGUE[gameIndex];
+        if (postBeat) {
+          hasPostGameDialogue = true;
+          combinedBeats = [...combinedBeats, postBeat];
+
+          // If you later add a specific pre-boss intro, you can still do it here
+          // Example:
+          // if (gameIndex === 4) {
+          //   const preBossIntro = PRE_GAME_STORY[5];
+          //   if (preBossIntro && !shownIds.includes(preBossIntro.id)) {
+          //     combinedBeats = [...combinedBeats, preBossIntro];
+          //   }
+          // }
+        }
+      }
+
+      // Clear so this only triggers once per completion
+      localStorage.removeItem('cyberslayers_last_completed_game');
+      localStorage.removeItem('cyberslayers_last_completion_status');
+    }
+  } catch (e) {
+    // ignore localStorage errors
+  }
+
+  // ───────── FIRST-TIME DASHBOARD POPUP ─────────
+  // Only if:
+  //  - player has NEVER seen the dashboard before, and
+  //  - we are NOT coming directly from a completed game (no post-game dialogue)
+  if (!hasVisitedDashboard && !hasPostGameDialogue) {
+    const dashboardIntro = PRE_GAME_STORY[1]; // your existing intro beat
+    if (dashboardIntro) {
+      combinedBeats = [dashboardIntro, ...combinedBeats];
+    }
+
+    // Mark dashboard as visited so this never fires again
+    try {
+      localStorage.setItem('cyberslayers_dashboard_visited', 'true');
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Start the story queue if we have any beats
+  if (combinedBeats.length > 0) {
+    setStoryQueue(combinedBeats);
+    setCurrentStoryIndex(0);
+  }
+
+  setLoading(false);
+}, [navigate]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('cyberslayers_user');
@@ -316,8 +495,11 @@ export default function GameDashboard() {
     return { status: 'diamond', color: '#00bcd4', icon: Zap };
   };
 
+  /**
+   * When a node on the map is clicked:
+   * - open the training modal
+   */
   const handleArenaClick = (arenaData) => {
-    // All arenas unlocked & clickable
     setSelectedArena(arenaData);
     setShowModal(true);
   };
@@ -405,15 +587,15 @@ export default function GameDashboard() {
       terrain: 'command'
     },
     {
-    gameNum: 5,
-    name: 'Password Tester',
-    description: 'Learn how to build strong, secure passwords',
-    emoji: '🔑',
-    icon: Lock,
-    position: { top: '45%', left: '90%' }, // adjust placement to fit your layout
-    color: '#ff9800',
-    terrain: 'security'
-  }
+      gameNum: 5,
+      name: 'Password Tester',
+      description: 'Learn how to build strong, secure passwords',
+      emoji: '🔑',
+      icon: Lock,
+      position: { top: '45%', left: '90%' },
+      color: '#ff9800',
+      terrain: 'security'
+    }
   ];
 
   // All games unlocked, but still show status badges based on score
@@ -428,6 +610,22 @@ export default function GameDashboard() {
       isLocked: false
     };
   });
+
+  // Build SVG path and node positions from arena card positions
+  const sortedArenas = [...arenasWithData].sort(
+    (a, b) => a.gameNum - b.gameNum
+  );
+
+  const pathD =
+    sortedArenas.length > 0
+      ? sortedArenas
+          .map((arena, index) => {
+            const x = parseFloat(arena.position.left); // "10%" -> 10
+            const y = parseFloat(arena.position.top); // "65%" -> 65
+            return `${index === 0 ? 'M' : 'L'} ${x} ${y + 10}`; // line runs under cards
+          })
+          .join(' ')
+      : '';
 
   const styles = {
     header: {
@@ -565,7 +763,6 @@ export default function GameDashboard() {
     selectedArena && EDUCATIONAL_MODULES[selectedArena.gameNum];
 
   return (
-    
     <div
       className="cyber-container bg-gradient-primary"
       style={{
@@ -645,9 +842,19 @@ export default function GameDashboard() {
 
         <div style={styles.mapContainer}>
           {/* Network lines */}
-          <svg style={styles.pathSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg
+            style={styles.pathSvg}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             <defs>
-              <linearGradient id="cyberPath" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="cyberPath"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.8" />
                 <stop offset="33%" stopColor="#16213e" stopOpacity="0.8" />
                 <stop offset="66%" stopColor="#0f3460" stopOpacity="0.8" />
@@ -662,57 +869,54 @@ export default function GameDashboard() {
               </filter>
             </defs>
 
-            <path
-              d="M 8 65 
-                 C 20 55, 28 50, 38 45
-                 C 48 40, 54 30, 62 20
-                 L 82 20"
-              stroke="url(#cyberPath)"
-              strokeWidth="0.4"
-              fill="none"
-              strokeDasharray="1.5,1"
-              strokeLinecap="round"
-              opacity="0.8"
-              filter="url(#glow)"
-              vectorEffect="non-scaling-stroke"
-            />
+            {/* Main path connecting arenas */}
+            {pathD && (
+              <path
+                d={pathD}
+                stroke="url(#cyberPath)"
+                strokeWidth="0.6"
+                fill="none"
+                strokeDasharray="1.5,1"
+                strokeLinecap="round"
+                opacity="0.9"
+                filter="url(#glow)"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
 
-            <circle
-              cx="8"
-              cy="65"
-              r="0.5"
-              fill="#e91e63"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="38"
-              cy="45"
-              r="0.5"
-              fill="#2196f3"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="62"
-              cy="20"
-              r="0.5"
-              fill="#4caf50"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
-            <circle
-              cx="82"
-              cy="20"
-              r="0.5"
-              fill="#9c27b0"
-              opacity="1"
-              stroke="rgba(255,255,255,0.8)"
-              strokeWidth="0.15"
-            />
+            {/* Progress nodes directly under each game module */}
+            {sortedArenas.map((arena) => {
+              const cx = parseFloat(arena.position.left);
+              const cy = parseFloat(arena.position.top) + 10; // right under the card
+
+              const isUnlocked = !arena.isLocked;
+              const isCompleted = arena.score > 0;
+
+              const radius = isCompleted ? 1.2 : isUnlocked ? 0.9 : 0.7;
+
+              const fillColor = isCompleted
+                ? arena.color
+                : isUnlocked
+                ? 'rgba(15,52,96,0.8)'
+                : 'rgba(15,23,42,0.8)';
+
+              const strokeColor = isUnlocked
+                ? 'rgba(255,255,255,0.9)'
+                : 'rgba(148,163,184,0.8)';
+
+              return (
+                <circle
+                  key={arena.gameNum}
+                  cx={cx}
+                  cy={cy}
+                  r={radius}
+                  fill={fillColor}
+                  opacity="1"
+                  stroke={strokeColor}
+                  strokeWidth="0.2"
+                />
+              );
+            })}
           </svg>
 
           {/* Game nodes */}
@@ -720,32 +924,34 @@ export default function GameDashboard() {
             <ArenaLocation
               key={arena.gameNum}
               arena={arena}
-              onClick={() => handleArenaClick(arena)}
+              onClick={handleArenaClick}
               styles={styles}
             />
           ))}
         </div>
       </div>
-      
-      {showDailyFact && <DailyFactModal onClose={() => setShowDailyFact(false)} />}
 
       {/* Landing Modal: small scroll preview + "Begin Training" */}
       {showModal && selectedArena && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowModal(false)}>
+            <button
+              className="modal-close"
+              onClick={() => setShowModal(false)}
+            >
               <X size={20} />
             </button>
 
             <div className="modal-header">
               <div className="modal-emoji">{selectedArena.emoji}</div>
               <div className="modal-title">{selectedArena.name}</div>
-              <div className="modal-description">{selectedArena.description}</div>
+              <div className="modal-description">
+                {selectedArena.description}
+              </div>
             </div>
 
             {currentModule && (
               <div className="lesson-scroll">
-                
                 <button
                   className="modal-button modal-button-play"
                   onClick={handleBeginTraining}
@@ -827,6 +1033,187 @@ export default function GameDashboard() {
           onClose={() => setLearningGameNum(null)}
         />
       )}
+
+      {/* Story dialogue popups after completing games */}
+      {storyQueue.length > 0 && (
+        <StoryDialoguePopup
+          beat={storyQueue[currentStoryIndex]}
+          onAdvance={() => {
+            const currentBeat = storyQueue[currentStoryIndex];
+            try {
+              const raw = localStorage.getItem('cyberslayers_story_shown');
+              const shownIds = raw ? JSON.parse(raw) : [];
+              if (!shownIds.includes(currentBeat.id)) {
+                shownIds.push(currentBeat.id);
+                localStorage.setItem(
+                  'cyberslayers_story_shown',
+                  JSON.stringify(shownIds)
+                );
+              }
+            } catch (e) {
+              // ignore
+            }
+
+            if (currentStoryIndex < storyQueue.length - 1) {
+              setCurrentStoryIndex((i) => i + 1);
+            } else {
+              setStoryQueue([]);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StoryDialoguePopup({ beat, onAdvance }) {
+  const { sprite, spriteByLine, speaker, lines } = beat;
+  const [lineIndex, setLineIndex] = useState(0);
+
+  const isLastLine = lineIndex === lines.length - 1;
+
+  const handleNext = () => {
+    if (!isLastLine) {
+      setLineIndex((prev) => prev + 1);
+    } else {
+      onAdvance();
+    }
+  };
+
+  // Decide which sprites to show for the current line
+  const spritesForCurrentLine = (() => {
+    // Highest priority: spriteByLine (per-line, can be 1 or many per line)
+    if (spriteByLine && Array.isArray(spriteByLine)) {
+      const entry =
+        spriteByLine[lineIndex] ??
+        spriteByLine[spriteByLine.length - 1]; // fallback to last defined
+
+      if (Array.isArray(entry)) return entry; // e.g. [hero4, AilithmG]
+      if (entry) return [entry];             // single sprite in that slot
+    }
+
+    // Fallback: sprite field
+    if (!sprite) return [];
+    if (Array.isArray(sprite)) return sprite; // treat as "always show these"
+    return [sprite];                          // single image
+  })();
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9998,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(5, 10, 25, 0.85)',
+        padding: '1.5rem'
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '700px',
+          width: '100%',
+          display: 'flex',
+          gap: '1.25rem',
+          alignItems: 'flex-end',
+          justifyContent: 'center'
+        }}
+      >
+        {/* LEFT: one or more character sprites */}
+        {spritesForCurrentLine.length > 0 && (
+          <div
+            style={{
+              flexShrink: 0,
+              maxWidth: '35%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}
+          >
+            {spritesForCurrentLine.map((imgSrc, idx) => (
+              <div
+                key={idx}
+                style={{
+                  width: '180px',
+                  maxWidth: '100%'
+                }}
+              >
+                <img
+                  src={imgSrc}
+                  alt={speaker}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    imageRendering: 'pixelated',
+                    filter:
+                      'drop-shadow(0 0 15px rgba(0, 188, 212, 0.7))'
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* RIGHT: dialogue box */}
+        <div
+          style={{
+            flex: 1,
+            background:
+              'linear-gradient(135deg, rgba(15,52,96,0.95), rgba(0,188,212,0.25))',
+            borderRadius: '18px',
+            border: '2px solid rgba(0,188,212,0.7)',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
+            padding: '1.5rem',
+            color: 'white',
+            position: 'relative'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '-14px',
+              left: '1.5rem',
+              padding: '0.2rem 0.8rem',
+              borderRadius: '999px',
+              background: 'linear-gradient(135deg, #00bcd4, #9c27b0)',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              textTransform: 'uppercase'
+            }}
+          >
+            {speaker}
+          </div>
+
+          <div
+            style={{
+              minHeight: '80px',
+              marginBottom: '1rem',
+              fontSize: '1rem',
+              lineHeight: '1.7'
+            }}
+          >
+            {lines[lineIndex]}
+          </div>
+
+          <button
+            onClick={handleNext}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.75rem 1.4rem',
+              background: 'linear-gradient(135deg, #00bcd4, #e91e63)',
+              borderRadius: '999px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              color: 'white'
+            }}
+          >
+            {isLastLine ? 'Continue Mission' : 'Next →'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
