@@ -421,7 +421,7 @@ export default function SnakeGame() {
           title="🛡 Armor Forged to Completion!"
           bodyLines={[
             `You gathered all ${WIN_SCORE} ingots and tempered each one in Te-Qwuiz's hidden forge.`,
-            "Your helm, chestplate, gauntlets, and greaves now hum with warding runes — every careless rune and shadow helm will have a harder time cutting through your defenses.",
+            "Your helm, chestplate, gauntlets, and greaves now hum with warding runes every careless rune and shadow helm will have a harder time cutting through your defenses.",
             "This was only your first trial, but the Realm already feels a little safer with your armor online.",
           ]}
           primaryLabel="Run the Forge Again"

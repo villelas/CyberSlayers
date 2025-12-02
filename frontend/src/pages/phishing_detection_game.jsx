@@ -16,7 +16,7 @@ const RED_FLAGS = [
     label: 'Profile Photo',
     title: 'Borrowed Visage of a Shadow Helm',
     reason:
-      'This helm wears no true face. The picture looks like a polished, generic portrait — the kind a shadow helm would steal from distant realms. In the Network Realm, stolen faces and too-perfect images are a common sign of imitation.'
+      'This helm wears no true face. The picture looks like a polished, generic portrait the kind a shadow helm would steal from distant realms. In the Network Realm, stolen faces and too-perfect images are a common sign of imitation.'
   },
   {
     id: 'bio-giveaway',
@@ -30,7 +30,7 @@ const RED_FLAGS = [
     label: '“Drop your CashApp / Zelle” Post',
     title: 'Open Call for Purses and Pouches',
     reason:
-      'The post urges villagers to drop their payment handles in the open square. Ailithm notes that this is a perfect staging ground for social engineering — once the villain knows your handle, they can trick you into sending coin or “confirming” payments.'
+      'The post urges villagers to drop their payment handles in the open square. Ailithm notes that this is a perfect staging ground for social engineering once the villain knows your handle, they can trick you into sending coin or “confirming” payments.'
   },
   {
     id: 'short-link',
@@ -44,7 +44,7 @@ const RED_FLAGS = [
     label: '“Proof” Screenshot Post',
     title: 'Fabricated Proof of Blessings',
     reason:
-      'The “send 20, receive 200” promise is supported by neat little screenshots — the favorite trick of the False Faces. Ailithm explains that payment images are easy to forge; scammers rely on the illusion of proof to quiet your doubts.'
+      'The “send 20, receive 200” promise is supported by neat little screenshots the favorite trick of the False Faces. Ailithm explains that payment images are easy to forge; scammers rely on the illusion of proof to quiet your doubts.'
   },
   {
     id: 'new-account',
@@ -98,7 +98,7 @@ export default function ScamProfileGame() {
     if (foundFlags.includes(flagId)) {
       setSelectedFlag(flag);
       setFeedback(
-        'You already marked this shadow sign — Te-Qwuiz nods at your memory.'
+        'You already marked this shadow sign Te-Qwuiz nods at your memory.'
       );
       return;
     }
@@ -336,7 +336,7 @@ export default function ScamProfileGame() {
             >
               <strong>About</strong> · Joined <em>3 days ago</em> ·{' '}
               <strong>7 friends</strong> (all added at once) · No family, no
-              history — a mask with no past.
+              history a mask with no past.
             </button>
 
             {/* Posts */}
@@ -411,7 +411,7 @@ export default function ScamProfileGame() {
                     marginBottom: '0.4rem'
                   }}
                 >
-                  Hurry before this list closes — no bank login needed, just
+                  Hurry before this list closes no bank login needed, just
                   “verify” through this secure portal:
                 </div>
                 <button
@@ -464,7 +464,7 @@ export default function ScamProfileGame() {
                   }}
                 >
                   Send <strong>$20</strong> and I&apos;ll return{' '}
-                  <strong>$200</strong> — see the “proof” below 👇
+                  <strong>$200</strong> see the “proof” below 👇
                 </button>
                 <button
                   onClick={() => handleFlagClick('fake-proof')}
@@ -484,7 +484,7 @@ export default function ScamProfileGame() {
                     textAlign: 'center'
                   }}
                 >
-                  [ Glowing payment screenshots ] — perfect “evidence” of 20 → 200 flips
+                  [ Glowing payment screenshots ] perfect “evidence” of 20 → 200 flips
                 </button>
               </div>
             </div>
@@ -700,7 +700,7 @@ export default function ScamProfileGame() {
           title="🎭 False Face Unmasked!"
           bodyLines={[
             `You uncovered all ${TOTAL_FLAGS} shadow signs woven into this forged helm.`,
-            'Te-Qwuiz praises your caution — fewer heroes will fall for imitation and easy-coin promises.',
+            'Te-Qwuiz praises your caution fewer heroes will fall for imitation and easy-coin promises.',
             'Quietly, Ailithm catalogues the patterns of this deception, fascinated by how precisely the lies are crafted. Lagdrakul’s code is learning… and so are you.'
           ]}
           primaryLabel="Play Again"

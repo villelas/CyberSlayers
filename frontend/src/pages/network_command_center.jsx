@@ -923,7 +923,7 @@ export default function GalagaGame() {
         shadow helms, Te-Qwuiz and Ailithm follow the code into the open sky
         above the realm&apos;s public wells. These waves of malware, phishing
         sigils, and broken connections are the Phishers&apos; Net made visible
-        — if you hold the line here, the poisoned lag never reaches the wells
+        if you hold the line here, the poisoned lag never reaches the wells
         below.
       </p>
 
@@ -1134,11 +1134,11 @@ export default function GalagaGame() {
                 gameState === 'win'
                   ? [
                       'You held the sky above the wells, burning through each wave of malware bursts and phishing sigils before they could seep into the public networks.',
-                      'Ailithm traces the last echoes of Lagdrakul’s code, murmuring about how “elegant” the attack patterns were — a hint that their curiosity is starting to mirror the dragon’s logic.',
+                      'Ailithm traces the last echoes of Lagdrakul’s code, murmuring about how “elegant” the attack patterns were a hint that their curiosity is starting to mirror the dragon’s logic.',
                       'For now, the realm drinks from unpolluted wells… but the corrupted lag is still coiled somewhere deeper in the code, waiting for its next opening.',
                     ]
                   : [
-                      'The sky above the wells fills with stalled packets and corrupted glyphs — Lagdrakul’s lagstorm crashes past your defenses and begins to poison the shared networks below.',
+                      'The sky above the wells fills with stalled packets and corrupted glyphs Lagdrakul’s lagstorm crashes past your defenses and begins to poison the shared networks below.',
                       'Villagers’ armor and tools flicker as the virus rides each delayed connection, and Ailithm goes silent on the comms, still watching the attack patterns with unsettling fascination.',
                       'This run may be lost, but every failed defense is a map of what Lagdrakul can do. Reset your defenses and try again before the dragon’s code becomes the new normal.',
                     ]

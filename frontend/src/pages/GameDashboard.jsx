@@ -15,7 +15,7 @@ import {
   Star,
   Trophy,
   Zap,
-  Lock,
+  
   Home,
   LogOut,
   X,
@@ -473,7 +473,6 @@ export default function GameDashboard() {
   };
 
   const getGameStatus = (score) => {
-    if (score === 0) return { status: 'offline', color: '#94a3b8', icon: Lock };
     if (score <= 300) return { status: 'bronze', color: '#cd7f32', icon: Star };
     if (score <= 600) return { status: 'silver', color: '#c0c0c0', icon: Star };
     if (score <= 800) return { status: 'gold', color: '#ffd700', icon: Trophy };
@@ -531,7 +530,7 @@ export default function GameDashboard() {
     {
       gameNum: 1,
       name: 'Digital Footprint Protection',
-      description: 'Master authentication protocols and secure access systems',
+
       emoji: '🛡️',
       icon: Shield,
       position: { top: '65%', left: '10%' },
@@ -541,7 +540,7 @@ export default function GameDashboard() {
     {
       gameNum: 2,
       name: 'Deepfakes/Grooming Detection',
-      description: 'Scan and identify malicious network communications',
+
       emoji: '🔍',
       icon: Eye,
       position: { top: '45%', left: '32%' },
@@ -551,7 +550,7 @@ export default function GameDashboard() {
     {
       gameNum: 3,
       name: 'Scam Detection',
-      description: 'Reverse engineer and neutralize cyber threats',
+    
       emoji: '🔬',
       icon: Sword,
       position: { top: '25%', left: '55%' },
@@ -561,7 +560,7 @@ export default function GameDashboard() {
     {
       gameNum: 4,
       name: 'Public Network Safety',
-      description: 'Monitor and defend the entire cyber infrastructure',
+     
       emoji: '🖥️',
       icon: Target,
       position: { top: '20%', left: '75%' },
@@ -571,9 +570,8 @@ export default function GameDashboard() {
     {
       gameNum: 5,
       name: 'Password Security',
-      description: 'Learn how to build strong, secure passwords',
+     
       emoji: '🔑',
-      icon: Lock,
       position: { top: '45%', left: '90%' },
       color: '#ff9800',
       terrain: 'security'
@@ -898,72 +896,78 @@ export default function GameDashboard() {
               </div>
             </div>
 
-            {currentModule && (
-              <div className="lesson-scroll">
+            {/* Action Buttons - Side by Side */}
+            <div 
+              className="modal-buttons" 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: '1rem',
+                marginTop: '1.5rem'
+              }}
+            >
+              {currentModule && (
                 <button
                   className="modal-button modal-button-play"
                   onClick={handleBeginTraining}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0.9rem 1.8rem',
+                    background: 'linear-gradient(135deg, #00bcd4, #e91e63)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 15px rgba(0, 188, 212, 0.4)',
+                    minWidth: '160px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 188, 212, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 188, 212, 0.4)';
+                  }}
                 >
                   Begin Training
                 </button>
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="modal-stats">
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '0.5rem'
-                }}
-              >
-                <span>Security Score:</span>
-                <span
-                  style={{
-                    fontWeight: 'bold',
-                    color: selectedArena.gameStatus.color
-                  }}
-                >
-                  {selectedArena.score}
-                </span>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '0.5rem'
-                }}
-              >
-                <span>System Status:</span>
-                <span
-                  style={{
-                    fontWeight: 'bold',
-                    color: selectedArena.gameStatus.color
-                  }}
-                >
-                  {selectedArena.gameStatus.status.toUpperCase()}
-                </span>
-              </div>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-              >
-                <span>Security Level:</span>
-                <span style={{ fontWeight: 'bold' }}>
-                  {selectedArena.score > 0
-                    ? `${Math.min(
-                        Math.floor(selectedArena.score / 10),
-                        100
-                      )}%`
-                    : '0%'}
-                </span>
-              </div>
-            </div>
-
-            <div className="modal-buttons">
+              )}
               <button
                 className="modal-button modal-button-cancel"
                 onClick={() => setShowModal(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.9rem 1.8rem',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '2px solid rgba(255, 255, 255, 0.25)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  minWidth: '160px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
                 Stand By
               </button>

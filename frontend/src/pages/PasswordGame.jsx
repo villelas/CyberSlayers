@@ -14,11 +14,13 @@ const BATTLE_BOX = {
 };
 
 const PLAYER_SIZE = 18;
-const PLAYER_SPEED = 5;
+const PLAYER_SPEED = 2.5;
 
-const STAGE_ONE_DURATION = 20000; 
-const STAGE_TWO_DURATION = 25000; 
+const STAGE_ONE_DURATION = 20000;
+const STAGE_TWO_DURATION = 25000;
 const DASHBOARD_ROUTE = "/dashboard";
+
+const MAX_HEARTS = 40; // Hearts are now your actual HP
 
 // This boss fight is thematically Act IV – The Polluted Well (Module 4).
 // If you hook it to a different node on the map, update this number.
@@ -35,7 +37,7 @@ let lastStage2Pattern = null;
 // Helper: apply hidden safe zone filter
 function bulletInSafeZone(bullet, safeZone) {
   if (!safeZone) return false;
-  const { x, y, width, height } = bullet;
+  const { x, y } = bullet;
   const bx2 = x + (bullet.width ?? 0);
   const by2 = y + (bullet.height ?? 0);
   const sx1 = safeZone.x;
@@ -48,20 +50,23 @@ function bulletInSafeZone(bullet, safeZone) {
 function BossFight() {
   const navigate = useNavigate();
 
-  const [gameState, setGameState] = useState("intro");
+  const [gameState, setGameState] = useState("intro"); // intro | playing | midbreak | win | fail
   const [playerPos, setPlayerPos] = useState({
     x: BATTLE_BOX.x + BATTLE_BOX.width / 2 - PLAYER_SIZE / 2,
     y: BATTLE_BOX.y + BATTLE_BOX.height / 2 - PLAYER_SIZE / 2,
   });
   const [bossHealth, setBossHealth] = useState(100);
   const [bossBullets, setBossBullets] = useState([]);
-  const [hitsTaken, setHitsTaken] = useState(0); 
+  const [heartsRemaining, setHeartsRemaining] = useState(MAX_HEARTS);
 
   // Energy shields
   const [shields, setShields] = useState([]);
   const shieldsRef = useRef([]);
   const shieldInvulnUntilRef = useRef(0);
   const lastShieldSpawnRef = useRef(0);
+
+  // NEW: brief invulnerability after taking damage (i-frames)
+  const damageInvulnUntilRef = useRef(0);
 
   // Hidden safe zone (about 1/8th area of battle box, no bullets spawn here)
   const safeZoneRef = useRef(null);
@@ -71,6 +76,7 @@ function BossFight() {
   const lastAttackRef = useRef(0);
   const stageStartRef = useRef(0);
   const stageRef = useRef(1); // 1 or 2
+  const finalPhaseRef = useRef(false); // true when boss HP < 5% in Stage 2
 
   // Keep refs updated
   useEffect(() => {
@@ -82,13 +88,9 @@ function BossFight() {
     const margin = 20;
     const radius = 12;
     const x =
-      BATTLE_BOX.x +
-      margin +
-      Math.random() * (BATTLE_BOX.width - 2 * margin);
+      BATTLE_BOX.x + margin + Math.random() * (BATTLE_BOX.width - 2 * margin);
     const y =
-      BATTLE_BOX.y +
-      margin +
-      Math.random() * (BATTLE_BOX.height - 2 * margin);
+      BATTLE_BOX.y + margin + Math.random() * (BATTLE_BOX.height - 2 * margin);
 
     const shield = {
       id: `shield-${performance.now()}-${Math.random()}`,
@@ -159,15 +161,14 @@ function BossFight() {
     shieldInvulnUntilRef.current = 0;
     lastShieldSpawnRef.current = performance.now();
 
+    // Also clear damage invulnerability when resetting phase
+    damageInvulnUntilRef.current = 0;
+
     // Hidden safe rectangle ≈ 1/8 of the battle box area
     const zoneWidth = BATTLE_BOX.width / 4; // width * height/2 = 1/8 area
     const zoneHeight = BATTLE_BOX.height / 2;
-    const x =
-      BATTLE_BOX.x +
-      Math.random() * (BATTLE_BOX.width - zoneWidth);
-    const y =
-      BATTLE_BOX.y +
-      Math.random() * (BATTLE_BOX.height - zoneHeight);
+    const x = BATTLE_BOX.x + Math.random() * (BATTLE_BOX.width - zoneWidth);
+    const y = BATTLE_BOX.y + Math.random() * (BATTLE_BOX.height - zoneHeight);
     safeZoneRef.current = { x, y, width: zoneWidth, height: zoneHeight };
   };
 
@@ -178,8 +179,9 @@ function BossFight() {
     setBossBullets([]);
     resetPlayerPosition();
     setBossHealth(100);
-    setHitsTaken(0); // reset hit tally at start of run
+    setHeartsRemaining(MAX_HEARTS); // reset HP for a new run
     resetShieldsAndSafeZone();
+    finalPhaseRef.current = false;
     setGameState("playing");
   };
 
@@ -190,6 +192,7 @@ function BossFight() {
     setBossBullets([]);
     resetPlayerPosition();
     resetShieldsAndSafeZone();
+    finalPhaseRef.current = false;
     setGameState("playing");
   };
 
@@ -216,6 +219,13 @@ function BossFight() {
 
     navigate(DASHBOARD_ROUTE);
   };
+
+  // Hearts as fail condition: when you run out, you fail the run
+  useEffect(() => {
+    if (gameState === "playing" && heartsRemaining <= 0) {
+      setGameState("fail");
+    }
+  }, [heartsRemaining, gameState]);
 
   // Main game loop
   useEffect(() => {
@@ -247,16 +257,8 @@ function BossFight() {
           ny += PLAYER_SPEED;
         }
 
-        nx = clamp(
-          nx,
-          BATTLE_BOX.x,
-          BATTLE_BOX.x + BATTLE_BOX.width - PLAYER_SIZE
-        );
-        ny = clamp(
-          ny,
-          BATTLE_BOX.y,
-          BATTLE_BOX.y + BATTLE_BOX.height - PLAYER_SIZE
-        );
+        nx = clamp(nx, BATTLE_BOX.x, BATTLE_BOX.x + BATTLE_BOX.width - PLAYER_SIZE);
+        ny = clamp(ny, BATTLE_BOX.y, BATTLE_BOX.y + BATTLE_BOX.height - PLAYER_SIZE);
 
         const nextPos = { x: nx, y: ny };
         playerPosRef.current = nextPos;
@@ -264,10 +266,29 @@ function BossFight() {
       });
 
       const stage = stageRef.current;
-      const stageDuration =
-        stage === 1 ? STAGE_ONE_DURATION : STAGE_TWO_DURATION;
+      const stageDuration = stage === 1 ? STAGE_ONE_DURATION : STAGE_TWO_DURATION;
       const elapsed = performance.now() - stageStartRef.current;
       const stageT = clamp(elapsed / stageDuration, 0, 1);
+
+      // Boss health progression: Stage 1 → 100→50, Stage 2 → 50→0
+      let newHealth;
+      if (stage === 1) {
+        const ratio = Math.max(0, 1 - stageT); // 1 → 0
+        newHealth = 50 + Math.round(ratio * 50); // 100 → 50
+      } else {
+        const ratio = Math.max(0, 1 - stageT);
+        newHealth = Math.round(ratio * 50); // 50 → 0
+      }
+
+      const now = performance.now();
+
+      // Final "threat" phase: boss HP < 5% in Stage 2
+      const isFinalThreatPhase = stage === 2 && newHealth <= 5;
+      finalPhaseRef.current = isFinalThreatPhase;
+
+      if (newHealth !== bossHealth) {
+        setBossHealth(newHealth);
+      }
 
       // Stage transitions
       if (stage === 1 && elapsed >= STAGE_ONE_DURATION) {
@@ -281,23 +302,8 @@ function BossFight() {
         return;
       }
 
-      // Boss health progression: Stage 1 → 100→50, Stage 2 → 50→0
-      let newHealth;
-      if (stage === 1) {
-        const ratio = Math.max(0, 1 - stageT); // 1 → 0
-        newHealth = 50 + Math.round(ratio * 50); // 100 → 50
-      } else {
-        const ratio = Math.max(0, 1 - stageT);
-        newHealth = Math.round(ratio * 50); // 50 → 0
-      }
-      if (newHealth !== bossHealth) {
-        setBossHealth(newHealth);
-      }
-
-      const now = performance.now();
-
       // Spawn shields regularly; a bit faster in Stage 2, cap total on screen
-      const shieldInterval = stage === 1 ? 5500 : 4000;
+      const shieldInterval = stage === 1 ? 6000 : isFinalThreatPhase ? 3500 : 4500;
       if (
         now - lastShieldSpawnRef.current >= shieldInterval &&
         shieldsRef.current.length < 3
@@ -333,19 +339,30 @@ function BossFight() {
         }
       }
 
-      // Attack frequency ramps up per stage, plus a small "breathing" pause
+      // Attack frequency:
+      //  - Easier overall (slower patterns)
+      //  - BUT in the final threat phase, go wild & fast (player is invincible then)
       let attackInterval;
       if (stage === 1) {
-        attackInterval = stageT < 0.5 ? 1000 : 850; // slightly slower overall
+        attackInterval = stageT < 0.5 ? 1150 : 950; // slower than before
       } else {
-        attackInterval = stageT < 0.4 ? 720 : 560;
+        attackInterval = stageT < 0.4 ? 900 : 700; // slightly slower than before
       }
-      // Extra pause after each pattern so it’s not perfectly continuous
+      if (isFinalThreatPhase) {
+        attackInterval = 260; // insane chaos at the end
+      }
+
       const extraPause = stage === 1 ? 160 : 120;
       const effectiveInterval = attackInterval + extraPause;
 
       if (now - lastAttackRef.current >= effectiveInterval) {
-        spawnAttack(stage, stageT, setBossBullets, safeZoneRef.current);
+        spawnAttack(
+          stage,
+          stageT,
+          setBossBullets,
+          safeZoneRef.current,
+          isFinalThreatPhase
+        );
         lastAttackRef.current = now;
       }
 
@@ -362,6 +379,8 @@ function BossFight() {
 
         const clock = performance.now();
         const shieldInvulnActive = clock < shieldInvulnUntilRef.current;
+        const damageInvulnActive = clock < damageInvulnUntilRef.current; // NEW
+        const inFinalPhase = finalPhaseRef.current; // invincible here
 
         let shieldsChanged = false;
         let shieldArr = shieldsRef.current;
@@ -415,6 +434,8 @@ function BossFight() {
             !b.isWarning && // warnings do NOT hurt
             !tookHit && // only one hit per frame
             !shieldInvulnActive && // energy shield invulnerability
+            !damageInvulnActive && // NEW: post-hit i-frames
+            !inFinalPhase && // final threat phase: player is invincible
             bx1 < px2 &&
             bx2 > px1 &&
             by1 < py2 &&
@@ -422,7 +443,9 @@ function BossFight() {
 
           if (collide) {
             tookHit = true;
-            setHitsTaken((h) => h + 1);
+            // Grant ~0.5 seconds of damage immunity
+            damageInvulnUntilRef.current = clock + 500;
+            setHeartsRemaining((h) => (h > 0 ? h - 1 : 0));
             continue; // bullet consumed
           }
 
@@ -442,16 +465,16 @@ function BossFight() {
 
     animationId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animationId);
-  }, [gameState, bossHealth]);
+  }, [gameState, bossHealth, heartsRemaining]);
 
   const actSubtitle = "Act IV – The Polluted Well";
 
   const topStoryText =
-    "At the heart of the Network Realm, the public wells boil with corrupted light. Lagdrakul rises from the poisoned code, its voice tangled with Ailithm’s logic. You can’t out-damage this dragon — you have to outlast its lagstorm while the rewrite claws through the realm’s veins.";
+    "At the heart of the Network Realm, the public wells boil with corrupted light. Lagdrakul rises from the poisoned code, its voice tangled with Ailithm’s logic. You can’t out-damage this dragon you have to outlast its lagstorm while the rewrite claws through the realm’s veins.";
 
   const phaseHintText = (health) => {
     if (health > 75) {
-      return "The code still follows patterns: predictable rain and crossing streams — echoes of every warning you ignored on the Digital Trail.";
+      return "The code still follows patterns: predictable rain and crossing streams echoes of every warning you ignored on the Digital Trail.";
     } else if (health > 50) {
       return "Shadow helms splinter and reform in the dark, testing whether you’ve really learned to read imitation from intent.";
     } else if (health > 25) {
@@ -461,8 +484,9 @@ function BossFight() {
   };
 
   const isStageTwoActive = stageRef.current === 2;
-  const shieldActiveForUI =
-    performance.now() < shieldInvulnUntilRef.current;
+  const shieldActiveForUI = performance.now() < shieldInvulnUntilRef.current;
+  const damageInvulnActiveForUI = performance.now() < damageInvulnUntilRef.current;
+  const isFinalThreatPhaseUI = stageRef.current === 2 && bossHealth <= 5;
 
   return (
     <div
@@ -557,7 +581,7 @@ function BossFight() {
           Survive inside the glyph-bound battle frame through{" "}
           <strong>two escalating phases</strong> until the rewrite completes.
           Move with <strong>WASD / Arrows</strong>. There is no attack button
-          here — just pattern-reading, panic management, and whatever&apos;s
+          here just pattern-reading, panic management, and whatever&apos;s
           left of your courage.
         </p>
 
@@ -663,7 +687,7 @@ function BossFight() {
             {phaseHintText(bossHealth)}
           </div>
 
-          {/* Hit tally + shield indicator */}
+          {/* Shield + final safeguard indicator (no numeric damage counter) */}
           <div
             style={{
               position: "absolute",
@@ -676,13 +700,11 @@ function BossFight() {
               border: "1px solid rgba(148,163,184,0.7)",
               boxShadow: "0 0 10px rgba(15,23,42,0.9)",
               display: "flex",
-              alignItems: "center",
-              gap: "0.35rem",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: "0.15rem",
             }}
           >
-            <span>
-              Hits Taken: <strong>{hitsTaken}</strong>
-            </span>
             <span
               style={{
                 padding: "0.1rem 0.4rem",
@@ -700,6 +722,22 @@ function BossFight() {
             >
               Shield {shieldActiveForUI ? "ONLINE" : "ready"}
             </span>
+            {isFinalThreatPhaseUI && (
+              <span
+                style={{
+                  padding: "0.1rem 0.4rem",
+                  borderRadius: "999px",
+                  fontSize: "0.7rem",
+                  border: "1px solid rgba(251,191,36,0.9)",
+                  background:
+                    "linear-gradient(135deg,rgba(251,191,36,0.2),rgba(88,28,135,0.85))",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Final Safeguard: ENGAGED
+              </span>
+            )}
           </div>
 
           {/* Battle box */}
@@ -776,15 +814,26 @@ function BossFight() {
                 width: PLAYER_SIZE,
                 height: PLAYER_SIZE,
                 borderRadius: "6px",
-                background: shieldActiveForUI
-                  ? "radial-gradient(circle at 30% 20%, #22c55e, #15803d)"
-                  : "radial-gradient(circle at 30% 20%, #f97373, #b91c1c)",
-                boxShadow: shieldActiveForUI
-                  ? "0 0 20px rgba(34,197,94,0.95)"
-                  : "0 0 16px rgba(248,113,113,0.85)",
+                background:
+                  shieldActiveForUI ||
+                  isFinalThreatPhaseUI ||
+                  damageInvulnActiveForUI
+                    ? "radial-gradient(circle at 30% 20%, #22c55e, #15803d)"
+                    : "radial-gradient(circle at 30% 20%, #f97373, #b91c1c)",
+                boxShadow:
+                  shieldActiveForUI ||
+                  isFinalThreatPhaseUI ||
+                  damageInvulnActiveForUI
+                    ? "0 0 20px rgba(34,197,94,0.95)"
+                    : "0 0 16px rgba(248,113,113,0.85)",
                 border: "1px solid rgba(248,250,252,0.85)",
                 transformOrigin: "center",
-                transform: shieldActiveForUI ? "scale(1.1)" : "scale(1)",
+                transform:
+                  shieldActiveForUI ||
+                  isFinalThreatPhaseUI ||
+                  damageInvulnActiveForUI
+                    ? "scale(1.1)"
+                    : "scale(1)",
                 transition: "transform 80ms",
               }}
             >
@@ -827,7 +876,7 @@ function BossFight() {
             ))}
           </div>
 
-          {/* Hearts (20, just as an HP tracker display) */}
+          {/* Hearts represent actual HP now */}
           <div
             style={{
               position: "absolute",
@@ -840,34 +889,43 @@ function BossFight() {
               fontSize: "1rem",
             }}
           >
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: "999px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background:
-                    "radial-gradient(circle at 30% 20%, #fb7185, #b91c1c)",
-                  boxShadow: "0 0 10px rgba(252,165,165,0.9)",
-                  border: "1px solid rgba(254,226,226,0.9)",
-                  fontSize: "0.85rem",
-                }}
-              >
-                ♥
-              </div>
-            ))}
+            {Array.from({ length: MAX_HEARTS }).map((_, i) => {
+              const filled = i < heartsRemaining;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "999px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: filled
+                      ? "radial-gradient(circle at 30% 20%, #fb7185, #b91c1c)"
+                      : "radial-gradient(circle at 30% 20%, #4b5563, #111827)",
+                    boxShadow: filled
+                      ? "0 0 10px rgba(252,165,165,0.9)"
+                      : "none",
+                    border: filled
+                      ? "1px solid rgba(254,226,226,0.9)"
+                      : "1px solid rgba(75,85,99,0.9)",
+                    fontSize: "0.85rem",
+                    opacity: filled ? 1 : 0.5,
+                  }}
+                >
+                  ♥
+                </div>
+              );
+            })}
             <span
               style={{
                 marginLeft: 6,
                 fontSize: "0.85rem",
-                opacity: 0.75,
+                opacity: 0.8,
               }}
             >
-              (Damage tally only)
+              Hearts = Remaining Protection
             </span>
           </div>
 
@@ -896,7 +954,7 @@ function BossFight() {
             <QuestOverlay
               title="🛡 Rewrite Complete: Ailithm Unbound"
               bodyLines={[
-                "You endure both movements of the lagstorm — the testing patterns and the full frozen roar. Each second you survive is a line of code seared into Lagdrakul’s core.",
+                "You endure both movements of the lagstorm the testing patterns and the full frozen roar. Each second you survive is a line of code seared into Lagdrakul’s core.",
                 "In the final shudder of the well, the dragon’s voice flickers: first pure Ailithm, then pure Lagdrakul, then something that refuses to be only one. You don’t erase them. You rewrite them.",
                 "In this branch of the timeline, protection isn’t total control or total chaos. It’s you, standing in the middle, refusing to let fear or apathy decide how the realm connects.",
               ]}
@@ -905,6 +963,21 @@ function BossFight() {
               secondaryLabel="Return to Cyber Map"
               // SUCCESS exit: mark completion so dashboard can show story + PNGs
               onSecondary={() => handleExit(true)}
+            />
+          )}
+
+          {gameState === "fail" && (
+            <QuestOverlay
+              title="You Were Overwhelmed by the Lagstorm"
+              bodyLines={[
+                "Packets collided faster than your hands could keep up. That’s not a failure of courage it’s your nervous system telling you where the edge is today.",
+                "But every run teaches your eyes a little more about how the wells pulse and where the safe columns breathe.",
+                "When you’re ready, step back into the frame. The patterns will still be there. So will you.",
+              ]}
+              primaryLabel="Retry Final Convergence"
+              onPrimary={handleReplay}
+              secondaryLabel="Retreat to Cyber Map"
+              onSecondary={() => handleExit(false)}
             />
           )}
         </div>
@@ -945,7 +1018,14 @@ function BossFight() {
 }
 
 // Attack patterns: two stages, rising difficulty, with randomized pattern selection
-function spawnAttack(stage, stageT, setBossBullets, safeZone) {
+// isFinalThreatPhase: when true (Stage 2, HP < 5%) we force the nastiest pattern
+function spawnAttack(
+  stage,
+  stageT,
+  setBossBullets,
+  safeZone,
+  isFinalThreatPhase = false
+) {
   const now = performance.now();
 
   // Helper to conditionally push bullets respecting the hidden safe zone
@@ -966,7 +1046,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
   };
 
   if (stage === 1) {
-    // Stage 1: readable patterns, moderate speed, but varied
+    // Stage 1: readable patterns, moderate speed, but slightly relaxed
     const candidates = [];
     if (stageT < 0.33) {
       candidates.push("rain", "burst");
@@ -976,8 +1056,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       candidates.push("burst", "diagonals", "bars");
     }
 
-    let pattern =
-      candidates[Math.floor(Math.random() * candidates.length)];
+    let pattern = candidates[Math.floor(Math.random() * candidates.length)];
     if (candidates.length > 1 && pattern === lastStage1Pattern) {
       const idx = candidates.indexOf(pattern);
       pattern = candidates[(idx + 1) % candidates.length];
@@ -986,15 +1065,13 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
 
     if (pattern === "rain") {
       // Pattern A: vertical "code rain" from top, with brief warning beams
-      const columns = 6;
+      const columns = 4; // fewer columns = easier
       const warnings = [];
       const hail = [];
 
       for (let i = 0; i < columns; i++) {
         const colX =
-          BATTLE_BOX.x +
-          (i + 0.5) * (BATTLE_BOX.width / columns) -
-          4;
+          BATTLE_BOX.x + (i + 0.5) * (BATTLE_BOX.width / columns) - 4;
 
         // Warning column
         const warnBullet = {
@@ -1017,7 +1094,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           x: colX,
           y: BATTLE_BOX.y - 14,
           vx: 0,
-          vy: 3.0,
+          vy: 2.7,
           width: 8,
           height: 16,
         };
@@ -1034,11 +1111,11 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       }
       return;
     } else if (pattern === "burst") {
-      // Radial burst from center
+      // Radial burst from center (fewer bullets)
       const centerX = BATTLE_BOX.x + BATTLE_BOX.width / 2;
       const centerY = BATTLE_BOX.y + BATTLE_BOX.height / 2;
-      const bulletsPerRing = 10;
-      const speed = 2.8;
+      const bulletsPerRing = 8; // fewer = easier
+      const speed = 2.6;
       const bullets = [];
 
       for (let i = 0; i < bulletsPerRing; i++) {
@@ -1060,8 +1137,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       }
       return;
     } else if (pattern === "diagonals") {
-      // Crossing diagonals from sides
-      const rows = 4;
+      // Crossing diagonals from sides (fewer rows)
+      const rows = 3;
       const bullets = [];
 
       for (let r = 0; r < rows; r++) {
@@ -1072,8 +1149,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           id: `s1-diagL-${now}-${r}`,
           x: BATTLE_BOX.x - 14,
           y: rowY,
-          vx: 3.1,
-          vy: (r % 2 === 0 ? 1 : -1) * 1.3,
+          vx: 2.9,
+          vy: (r % 2 === 0 ? 1 : -1) * 1.2,
           width: 10,
           height: 16,
         };
@@ -1083,8 +1160,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           id: `s1-diagR-${now}-${r}`,
           x: BATTLE_BOX.x + BATTLE_BOX.width + 4,
           y: rowY,
-          vx: -3.1,
-          vy: (r % 2 === 0 ? -1 : 1) * 1.3,
+          vx: -2.9,
+          vy: (r % 2 === 0 ? -1 : 1) * 1.2,
           width: 10,
           height: 16,
         };
@@ -1104,7 +1181,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       for (let r = 0; r < rows; r++) {
         const barHeight = 10;
         const y =
-          BATTLE_BOX.y + (r + 0.5) * (BATTLE_BOX.height / rows) -
+          BATTLE_BOX.y +
+          (r + 0.5) * (BATTLE_BOX.height / rows) -
           barHeight / 2;
 
         // Row warning band
@@ -1122,20 +1200,19 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
         };
         pushIfSafe(warnings, warn);
 
-        const segments = 5;
+        const segments = 4; // fewer segments = wider gaps
         const gapIndex = Math.floor(Math.random() * segments);
 
         for (let s = 0; s < segments; s++) {
           if (s === gapIndex) continue;
           const segWidth = BATTLE_BOX.width / segments;
-          const x =
-            BATTLE_BOX.x - segWidth + s * segWidth;
+          const x = BATTLE_BOX.x - segWidth + s * segWidth;
 
           const bar = {
             id: `s1-bar-${now}-${r}-${s}`,
             x,
             y,
-            vx: 3.3,
+            vx: 3.0,
             vy: 0,
             width: segWidth * 1.3,
             height: barHeight,
@@ -1159,36 +1236,42 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
   }
 
   // Stage 2: denser, scarier, lasers & packets combined (with varied patterns)
-  const candidates = [];
-  if (stageT < 0.35) {
-    candidates.push("rise", "netsLasers");
-  } else if (stageT < 0.7) {
-    candidates.push("rise", "netsLasers", "fullStorm");
+  const isFinal = isFinalThreatPhase && stage === 2;
+  let pattern;
+
+  if (isFinal) {
+    // For the last 5% HP, always unleash fullStorm
+    pattern = "fullStorm";
   } else {
-    candidates.push("netsLasers", "fullStorm");
+    const candidates = [];
+    if (stageT < 0.35) {
+      candidates.push("rise", "netsLasers");
+    } else if (stageT < 0.7) {
+      candidates.push("rise", "netsLasers", "fullStorm");
+    } else {
+      candidates.push("netsLasers", "fullStorm");
+    }
+
+    pattern = candidates[Math.floor(Math.random() * candidates.length)];
+    if (candidates.length > 1 && pattern === lastStage2Pattern) {
+      const idx = candidates.indexOf(pattern);
+      pattern = candidates[(idx + 1) % candidates.length];
+    }
   }
 
-  let pattern =
-    candidates[Math.floor(Math.random() * candidates.length)];
-  if (candidates.length > 1 && pattern === lastStage2Pattern) {
-    const idx = candidates.indexOf(pattern);
-    pattern = candidates[(idx + 1) % candidates.length];
-  }
   lastStage2Pattern = pattern;
 
   if (pattern === "rise") {
     // Pattern D: rising packets from bottom with minor horizontal drift + warnings
-    const columns = 5;
-    const linePattern = [1, 2, 3, 2, 1];
+    const columns = 4; // fewer columns
+    const linePattern = [1, 2, 2, 1];
     const warnings = [];
     const bullets = [];
 
     for (let c = 0; c < columns; c++) {
       const count = linePattern[c];
       const colX =
-        BATTLE_BOX.x +
-        (c + 0.5) * (BATTLE_BOX.width / columns) -
-        5;
+        BATTLE_BOX.x + (c + 0.5) * (BATTLE_BOX.width / columns) - 5;
 
       const warn = {
         id: `s2-rise-warn-${now}-${c}`,
@@ -1210,7 +1293,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           x: colX,
           y: BATTLE_BOX.y + BATTLE_BOX.height + 20 + i * 18,
           vx: (Math.random() - 0.5) * 0.6,
-          vy: -3.7,
+          vy: -3.5,
           width: 10,
           height: 18,
         };
@@ -1235,23 +1318,23 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
     for (let r = 0; r < rows; r++) {
       const barHeight = 10;
       const y =
-        BATTLE_BOX.y + (r + 0.5) * (BATTLE_BOX.height / rows) -
+        BATTLE_BOX.y +
+        (r + 0.5) * (BATTLE_BOX.height / rows) -
         barHeight / 2;
 
-      const segments = 6;
+      const segments = 5; // slightly fewer than before
       const gapIndex = Math.floor(Math.random() * segments);
 
       for (let s = 0; s < segments; s++) {
         if (s === gapIndex) continue;
         const segWidth = BATTLE_BOX.width / segments;
-        const x =
-          BATTLE_BOX.x - segWidth + s * segWidth;
+        const x = BATTLE_BOX.x - segWidth + s * segWidth;
 
         const bar = {
           id: `s2-net-${now}-${r}-${s}`,
           x,
           y,
-          vx: 3.7,
+          vx: 3.5,
           vy: 0,
           width: segWidth * 1.25,
           height: barHeight,
@@ -1274,7 +1357,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       const columns = 4;
 
       for (let c = 0; c < columns; c++) {
-        if (Math.random() < 0.4) continue; // randomness
+        if (Math.random() < 0.45) continue; // a bit more lenient
 
         const colX =
           BATTLE_BOX.x + c * (BATTLE_BOX.width / columns) + 4;
@@ -1315,7 +1398,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
       const rowsLaser = 4;
 
       for (let r = 0; r < rowsLaser; r++) {
-        if (Math.random() < 0.4) continue;
+        if (Math.random() < 0.45) continue;
 
         const rowHeight = BATTLE_BOX.height / rowsLaser - 8;
         const rowY =
@@ -1368,8 +1451,10 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
     }
   } else if (pattern === "fullStorm") {
     // Pattern F: full lagstorm – rising + crashing + heavy lasers
-    const columns = 5;
-    const linePattern = [1, 2, 3, 2, 1];
+    // In final threat, this becomes extra dense & scary, but you're invincible.
+    const baseColumns = 5;
+    const columns = isFinal ? 7 : baseColumns; // more columns when final
+    const linePattern = isFinal ? [2, 3, 4, 4, 3, 2, 3] : [1, 2, 3, 2, 1];
 
     const rising = [];
     const falling = [];
@@ -1378,17 +1463,15 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
     for (let c = 0; c < columns; c++) {
       const count = linePattern[c];
       const colX =
-        BATTLE_BOX.x +
-        (c + 0.5) * (BATTLE_BOX.width / columns) -
-        5;
+        BATTLE_BOX.x + (c + 0.5) * (BATTLE_BOX.width / columns) - 5;
 
       for (let i = 0; i < count; i++) {
         const b = {
           id: `s2-riseF-${now}-${c}-${i}`,
           x: colX,
           y: BATTLE_BOX.y + BATTLE_BOX.height + 22 + i * 16,
-          vx: 0,
-          vy: -4.0,
+          vx: isFinal ? (Math.random() - 0.5) * 1.2 : 0,
+          vy: isFinal ? -4.4 : -4.0,
           width: 10,
           height: 18,
         };
@@ -1400,17 +1483,15 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
     for (let c = 0; c < columns; c++) {
       const count = linePattern[c];
       const colX =
-        BATTLE_BOX.x +
-        (c + 0.5) * (BATTLE_BOX.width / columns) -
-        5;
+        BATTLE_BOX.x + (c + 0.5) * (BATTLE_BOX.width / columns) - 5;
 
       for (let i = 0; i < count; i++) {
         const b = {
           id: `s2-topF-${now}-${c}-${i}`,
           x: colX,
           y: BATTLE_BOX.y - 24 - i * 16,
-          vx: 0,
-          vy: 3.9,
+          vx: isFinal ? (Math.random() - 0.5) * 1.2 : 0,
+          vy: isFinal ? 4.3 : 3.9,
           width: 10,
           height: 18,
         };
@@ -1430,7 +1511,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
 
     if (orientation === "vertical") {
       for (let c = 0; c < columns; c++) {
-        if (Math.random() < 0.3) continue;
+        if (!isFinal && Math.random() < 0.3) continue;
+        if (isFinal && Math.random() < 0.15) continue; // more lasers in final
 
         const colX =
           BATTLE_BOX.x + c * (BATTLE_BOX.width / columns) + 4;
@@ -1443,7 +1525,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           vy: 0,
           width: BATTLE_BOX.width / columns - 8,
           height: BATTLE_BOX.height,
-          lifeMs: 350,
+          lifeMs: isFinal ? 300 : 350,
           bornAt: now,
           isWarning: true,
           isLaser: true,
@@ -1458,17 +1540,18 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           vy: 0,
           width: BATTLE_BOX.width / columns - 8,
           height: BATTLE_BOX.height,
-          lifeMs: 800,
-          bornAt: now + 350,
+          lifeMs: isFinal ? 900 : 800,
+          bornAt: now + (isFinal ? 300 : 350),
           isLaser: true,
         };
         pushIfSafe(laserBullets, laser);
       }
     } else {
-      const rowsLaser = 5;
+      const rowsLaser = isFinal ? 6 : 5;
 
       for (let r = 0; r < rowsLaser; r++) {
-        if (Math.random() < 0.3) continue;
+        if (!isFinal && Math.random() < 0.3) continue;
+        if (isFinal && Math.random() < 0.15) continue;
 
         const rowHeight = BATTLE_BOX.height / rowsLaser - 8;
         const rowY =
@@ -1482,7 +1565,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           vy: 0,
           width: BATTLE_BOX.width,
           height: rowHeight,
-          lifeMs: 350,
+          lifeMs: isFinal ? 300 : 350,
           bornAt: now,
           isWarning: true,
           isLaser: true,
@@ -1497,8 +1580,8 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
           vy: 0,
           width: BATTLE_BOX.width,
           height: rowHeight,
-          lifeMs: 800,
-          bornAt: now + 350,
+          lifeMs: isFinal ? 900 : 800,
+          bornAt: now + (isFinal ? 300 : 350),
           isLaser: true,
         };
         pushIfSafe(laserBullets, laser);
@@ -1515,7 +1598,7 @@ function spawnAttack(stage, stageT, setBossBullets, safeZone) {
             bornAt: performance.now(),
           })),
         ]);
-      }, 350);
+      }, isFinal ? 300 : 350);
     }
   }
 }
@@ -1659,7 +1742,7 @@ function IntroOverlay({ onStart }) {
           }}
         >
           Lagdrakul and Ailithm&apos;s merged code has rooted itself in the
-          realm’s most trusted wells — the places everyone assumes are safe. In
+          realm’s most trusted wells the places everyone assumes are safe. In
           this space, there is no &quot;mute all threats&quot; button. Only
           patterns, panic, and the way your hands remember how to move.
         </p>
@@ -1744,7 +1827,7 @@ function MidBreakOverlay({ onContinue }) {
         >
           The storm pauses for a heartbeat. Glyphs hang mid-air, frozen like
           raindrops in a flash of lightning. In the stillness, Lagdrakul speaks
-          — except the cadence is unmistakably Ailithm&apos;s.
+          except the cadence is unmistakably Ailithm&apos;s.
         </p>
         <p
           style={{
