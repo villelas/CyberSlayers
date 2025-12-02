@@ -377,102 +377,102 @@ export default function GameDashboard() {
   const [storyQueue, setStoryQueue] = useState([]);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 
-    useEffect(() => {
-  const storedUser = localStorage.getItem('cyberslayers_user');
+  useEffect(() => {
+    const storedUser = localStorage.getItem('cyberslayers_user');
 
-  let combinedBeats = [];
-  let hasPostGameDialogue = false;
-  let hasVisitedDashboard = false;
+    let combinedBeats = [];
+    let hasPostGameDialogue = false;
+    let hasVisitedDashboard = false;
 
-  // Load which story IDs have already been shown
-  let shownIds = [];
-  try {
-    const raw = localStorage.getItem('cyberslayers_story_shown');
-    shownIds = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    shownIds = [];
-  }
+    // Load which story IDs have already been shown
+    let shownIds = [];
+    try {
+      const raw = localStorage.getItem('cyberslayers_story_shown');
+      shownIds = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      shownIds = [];
+    }
 
-  // Track if the dashboard has ever been opened before
-  try {
-    hasVisitedDashboard =
-      localStorage.getItem('cyberslayers_dashboard_visited') === 'true';
-  } catch (e) {
-    hasVisitedDashboard = false;
-  }
+    // Track if the dashboard has ever been opened before
+    try {
+      hasVisitedDashboard =
+        localStorage.getItem('cyberslayers_dashboard_visited') === 'true';
+    } catch (e) {
+      hasVisitedDashboard = false;
+    }
 
-  // Load user or redirect
-  if (storedUser) {
-    const parsedUser = JSON.parse(storedUser);
-    setUserData(parsedUser);
-  } else {
-    navigate('/login');
-    setLoading(false);
-    return;
-  }
+    // Load user or redirect
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserData(parsedUser);
+    } else {
+      navigate('/login');
+      setLoading(false);
+      return;
+    }
 
-  // ───────── Post-game dialogue when returning from a game ─────────
-  try {
-    const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
-    const rawStatus = localStorage.getItem(
-      'cyberslayers_last_completion_status'
-    );
+    // ───────── Post-game dialogue when returning from a game ─────────
+    try {
+      const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
+      const rawStatus = localStorage.getItem(
+        'cyberslayers_last_completion_status'
+      );
 
-    if (rawGame !== null && rawStatus === 'success') {
-      const gameIndex = parseInt(rawGame, 10);
+      if (rawGame !== null && rawStatus === 'success') {
+        const gameIndex = parseInt(rawGame, 10);
 
-      if (!Number.isNaN(gameIndex)) {
-        // Queue post-game dialogue beat (if defined)
-        const postBeat = POST_GAME_DIALOGUE[gameIndex];
-        if (postBeat) {
-          hasPostGameDialogue = true;
-          combinedBeats = [...combinedBeats, postBeat];
+        if (!Number.isNaN(gameIndex)) {
+          // Queue post-game dialogue beat (if defined)
+          const postBeat = POST_GAME_DIALOGUE[gameIndex];
+          if (postBeat) {
+            hasPostGameDialogue = true;
+            combinedBeats = [...combinedBeats, postBeat];
 
-          // If you later add a specific pre-boss intro, you can still do it here
-          // Example:
-          // if (gameIndex === 4) {
-          //   const preBossIntro = PRE_GAME_STORY[5];
-          //   if (preBossIntro && !shownIds.includes(preBossIntro.id)) {
-          //     combinedBeats = [...combinedBeats, preBossIntro];
-          //   }
-          // }
+            // If you later add a specific pre-boss intro, you can still do it here
+            // Example:
+            // if (gameIndex === 4) {
+            //   const preBossIntro = PRE_GAME_STORY[5];
+            //   if (preBossIntro && !shownIds.includes(preBossIntro.id)) {
+            //     combinedBeats = [...combinedBeats, preBossIntro];
+            //   }
+            // }
+          }
         }
+
+        // Clear so this only triggers once per completion
+        localStorage.removeItem('cyberslayers_last_completed_game');
+        localStorage.removeItem('cyberslayers_last_completion_status');
+      }
+    } catch (e) {
+      // ignore localStorage errors
+    }
+
+    // ───────── FIRST-TIME DASHBOARD POPUP ─────────
+    // Only if:
+    //  - player has NEVER seen the dashboard before, and
+    //  - we are NOT coming directly from a completed game (no post-game dialogue)
+    if (!hasVisitedDashboard && !hasPostGameDialogue) {
+      const dashboardIntro = PRE_GAME_STORY[1]; // your existing intro beat
+      if (dashboardIntro) {
+        combinedBeats = [dashboardIntro, ...combinedBeats];
       }
 
-      // Clear so this only triggers once per completion
-      localStorage.removeItem('cyberslayers_last_completed_game');
-      localStorage.removeItem('cyberslayers_last_completion_status');
-    }
-  } catch (e) {
-    // ignore localStorage errors
-  }
-
-  // ───────── FIRST-TIME DASHBOARD POPUP ─────────
-  // Only if:
-  //  - player has NEVER seen the dashboard before, and
-  //  - we are NOT coming directly from a completed game (no post-game dialogue)
-  if (!hasVisitedDashboard && !hasPostGameDialogue) {
-    const dashboardIntro = PRE_GAME_STORY[1]; // your existing intro beat
-    if (dashboardIntro) {
-      combinedBeats = [dashboardIntro, ...combinedBeats];
+      // Mark dashboard as visited so this never fires again
+      try {
+        localStorage.setItem('cyberslayers_dashboard_visited', 'true');
+      } catch (e) {
+        // ignore
+      }
     }
 
-    // Mark dashboard as visited so this never fires again
-    try {
-      localStorage.setItem('cyberslayers_dashboard_visited', 'true');
-    } catch (e) {
-      // ignore
+    // Start the story queue if we have any beats
+    if (combinedBeats.length > 0) {
+      setStoryQueue(combinedBeats);
+      setCurrentStoryIndex(0);
     }
-  }
 
-  // Start the story queue if we have any beats
-  if (combinedBeats.length > 0) {
-    setStoryQueue(combinedBeats);
-    setCurrentStoryIndex(0);
-  }
-
-  setLoading(false);
-}, [navigate]);
+    setLoading(false);
+  }, [navigate]);
 
 
   const handleLogout = () => {
@@ -799,40 +799,6 @@ export default function GameDashboard() {
             <LogOut size={16} />
             Logout
           </button>
-        </div>
-      </div>
-
-      {/* Progress Section */}
-      <div className="progress-container">
-        <div className="progress-title">
-          🛡️ Cyber Security Mastery Progress 🛡️
-        </div>
-        <div className="progress-bar-wrapper">
-          <div
-            className="progress-bar"
-            style={{
-              width: `${userData.overall_game_progress}%`,
-              background: `linear-gradient(90deg, ${progressColor}, ${progressColor}dd)`
-            }}
-          />
-          <div className="progress-text">
-            {userData.overall_game_progress}% Complete
-          </div>
-        </div>
-        <div className="progress-message">
-          {userData.overall_game_progress < 25 &&
-            '💾 Systems initializing... Building foundation!'}
-          {userData.overall_game_progress >= 25 &&
-            userData.overall_game_progress < 50 &&
-            '🔒 Security protocols active! Excellent progress!'}
-          {userData.overall_game_progress >= 50 &&
-            userData.overall_game_progress < 75 &&
-            '⚡ Advanced systems online! Almost there!'}
-          {userData.overall_game_progress >= 75 &&
-            userData.overall_game_progress < 100 &&
-            '🚀 Elite level detected! Finalizing mastery!'}
-          {userData.overall_game_progress >= 100 &&
-            '👑 Cyber Security Expert! All systems secured!'}
         </div>
       </div>
 

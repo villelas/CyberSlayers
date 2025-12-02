@@ -33,6 +33,19 @@ function clamp(value, min, max) {
 let lastStage1Pattern = null;
 let lastStage2Pattern = null;
 
+// Helper: apply hidden safe zone filter
+function bulletInSafeZone(bullet, safeZone) {
+  if (!safeZone) return false;
+  const { x, y, width, height } = bullet;
+  const bx2 = x + (bullet.width ?? 0);
+  const by2 = y + (bullet.height ?? 0);
+  const sx1 = safeZone.x;
+  const sy1 = safeZone.y;
+  const sx2 = safeZone.x + safeZone.width;
+  const sy2 = safeZone.y + safeZone.height;
+  return !(bx2 < sx1 || x > sx2 || by2 < sy1 || y > sy2);
+}
+
 function BossFight() {
   const navigate = useNavigate();
 
@@ -45,6 +58,15 @@ function BossFight() {
   const [bossBullets, setBossBullets] = useState([]);
   const [hitsTaken, setHitsTaken] = useState(0); // hit tally
 
+  // Energy shields
+  const [shields, setShields] = useState([]);
+  const shieldsRef = useRef([]);
+  const shieldInvulnUntilRef = useRef(0);
+  const lastShieldSpawnRef = useRef(0);
+
+  // Hidden safe zone (about 1/8th area of battle box, no bullets spawn here)
+  const safeZoneRef = useRef(null);
+
   const keysRef = useRef({});
   const playerPosRef = useRef(playerPos);
   const lastAttackRef = useRef(0);
@@ -55,6 +77,30 @@ function BossFight() {
   useEffect(() => {
     playerPosRef.current = playerPos;
   }, [playerPos]);
+
+  // Spawn a shield pickup somewhere inside the battle box
+  const spawnShield = () => {
+    const margin = 20;
+    const radius = 12;
+    const x =
+      BATTLE_BOX.x +
+      margin +
+      Math.random() * (BATTLE_BOX.width - 2 * margin);
+    const y =
+      BATTLE_BOX.y +
+      margin +
+      Math.random() * (BATTLE_BOX.height - 2 * margin);
+
+    const shield = {
+      id: `shield-${performance.now()}-${Math.random()}`,
+      x,
+      y,
+      radius,
+    };
+    const next = [...shieldsRef.current, shield];
+    shieldsRef.current = next;
+    setShields(next);
+  };
 
   // Keyboard handling (prevent scroll + phase transitions)
   useEffect(() => {
@@ -108,6 +154,24 @@ function BossFight() {
     playerPosRef.current = base;
   };
 
+  const resetShieldsAndSafeZone = () => {
+    shieldsRef.current = [];
+    setShields([]);
+    shieldInvulnUntilRef.current = 0;
+    lastShieldSpawnRef.current = performance.now();
+
+    // Hidden safe rectangle ≈ 1/8 of the battle box area
+    const zoneWidth = BATTLE_BOX.width / 4; // width * height/2 = 1/8 area
+    const zoneHeight = BATTLE_BOX.height / 2;
+    const x =
+      BATTLE_BOX.x +
+      Math.random() * (BATTLE_BOX.width - zoneWidth);
+    const y =
+      BATTLE_BOX.y +
+      Math.random() * (BATTLE_BOX.height - zoneHeight);
+    safeZoneRef.current = { x, y, width: zoneWidth, height: zoneHeight };
+  };
+
   const startFightStage1 = () => {
     stageRef.current = 1;
     stageStartRef.current = performance.now();
@@ -116,6 +180,7 @@ function BossFight() {
     resetPlayerPosition();
     setBossHealth(100);
     setHitsTaken(0); // reset hit tally at start of run
+    resetShieldsAndSafeZone();
     setGameState("playing");
   };
 
@@ -125,6 +190,7 @@ function BossFight() {
     lastAttackRef.current = performance.now();
     setBossBullets([]);
     resetPlayerPosition();
+    resetShieldsAndSafeZone();
     setGameState("playing");
   };
 
@@ -199,7 +265,8 @@ function BossFight() {
       });
 
       const stage = stageRef.current;
-      const stageDuration = stage === 1 ? STAGE_ONE_DURATION : STAGE_TWO_DURATION;
+      const stageDuration =
+        stage === 1 ? STAGE_ONE_DURATION : STAGE_TWO_DURATION;
       const elapsed = performance.now() - stageStartRef.current;
       const stageT = clamp(elapsed / stageDuration, 0, 1);
 
@@ -228,17 +295,58 @@ function BossFight() {
         setBossHealth(newHealth);
       }
 
-      // Attack frequency ramps up per stage
-      let attackInterval;
-      if (stage === 1) {
-        attackInterval = stageT < 0.5 ? 900 : 750;
-      } else {
-        attackInterval = stageT < 0.4 ? 620 : 480;
+      const now = performance.now();
+
+      // Spawn shields regularly; a bit faster in Stage 2, cap total on screen
+      const shieldInterval = stage === 1 ? 5500 : 4000;
+      if (
+        now - lastShieldSpawnRef.current >= shieldInterval &&
+        shieldsRef.current.length < 3
+      ) {
+        spawnShield();
+        lastShieldSpawnRef.current = now;
       }
 
-      const now = performance.now();
-      if (now - lastAttackRef.current >= attackInterval) {
-        spawnAttack(stage, stageT, setBossBullets);
+      // Player picking up shields → 1 sec of invulnerability
+      if (shieldsRef.current.length > 0) {
+        const player = playerPosRef.current;
+        const pxCenter = player.x + PLAYER_SIZE / 2;
+        const pyCenter = player.y + PLAYER_SIZE / 2;
+
+        let changed = false;
+        const remaining = [];
+        for (const s of shieldsRef.current) {
+          const dx = pxCenter - s.x;
+          const dy = pyCenter - s.y;
+          const distSq = dx * dx + dy * dy;
+          const r = s.radius + PLAYER_SIZE * 0.4;
+          if (distSq <= r * r) {
+            // picked up
+            shieldInvulnUntilRef.current = now + 1000; // 1 second
+            changed = true;
+          } else {
+            remaining.push(s);
+          }
+        }
+        if (changed) {
+          shieldsRef.current = remaining;
+          setShields(remaining);
+        }
+      }
+
+      // Attack frequency ramps up per stage, plus a small "breathing" pause
+      let attackInterval;
+      if (stage === 1) {
+        attackInterval = stageT < 0.5 ? 1000 : 850; // slightly slower overall
+      } else {
+        attackInterval = stageT < 0.4 ? 720 : 560;
+      }
+      // Extra pause after each pattern so it’s not perfectly continuous
+      const extraPause = stage === 1 ? 160 : 120;
+      const effectiveInterval = attackInterval + extraPause;
+
+      if (now - lastAttackRef.current >= effectiveInterval) {
+        spawnAttack(stage, stageT, setBossBullets, safeZoneRef.current);
         lastAttackRef.current = now;
       }
 
@@ -254,6 +362,10 @@ function BossFight() {
         const py2 = player.y + PLAYER_SIZE;
 
         const clock = performance.now();
+        const shieldInvulnActive = clock < shieldInvulnUntilRef.current;
+
+        let shieldsChanged = false;
+        let shieldArr = shieldsRef.current;
 
         for (const b of prev) {
           const nx = b.x + b.vx;
@@ -279,21 +391,48 @@ function BossFight() {
           const bx2 = nx + b.width;
           const by2 = ny + b.height;
 
+          // Lasers destroy shields (but warnings do not)
+          if (b.isLaser && shieldArr.length > 0 && !b.isWarning) {
+            const remainingShields = [];
+            for (const s of shieldArr) {
+              const sx1 = s.x - s.radius;
+              const sy1 = s.y - s.radius;
+              const sx2 = s.x + s.radius;
+              const sy2 = s.y + s.radius;
+
+              const shieldHit =
+                bx1 < sx2 && bx2 > sx1 && by1 < sy2 && by2 > sy1;
+
+              if (!shieldHit) {
+                remainingShields.push(s);
+              } else {
+                shieldsChanged = true;
+              }
+            }
+            shieldArr = remainingShields;
+          }
+
           const collide =
             !b.isWarning && // warnings do NOT hurt
-            !tookHit &&
+            !tookHit && // only one hit per frame
+            !shieldInvulnActive && // energy shield invulnerability
             bx1 < px2 &&
             bx2 > px1 &&
             by1 < py2 &&
             by2 > py1;
 
           if (collide) {
-            tookHit = true; // single hit per frame, but no invulnerability across frames
+            tookHit = true;
             setHitsTaken((h) => h + 1);
             continue; // bullet consumed
           }
 
           updated.push({ ...b, x: nx, y: ny });
+        }
+
+        if (shieldsChanged) {
+          shieldsRef.current = shieldArr;
+          setShields(shieldArr);
         }
 
         return updated;
@@ -323,6 +462,8 @@ function BossFight() {
   };
 
   const isStageTwoActive = stageRef.current === 2;
+  const shieldActiveForUI =
+    performance.now() < shieldInvulnUntilRef.current;
 
   return (
     <div
@@ -523,7 +664,7 @@ function BossFight() {
             {phaseHintText(bossHealth)}
           </div>
 
-          {/* Hit tally */}
+          {/* Hit tally + shield indicator */}
           <div
             style={{
               position: "absolute",
@@ -535,9 +676,31 @@ function BossFight() {
               background: "rgba(15,23,42,0.85)",
               border: "1px solid rgba(148,163,184,0.7)",
               boxShadow: "0 0 10px rgba(15,23,42,0.9)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.35rem",
             }}
           >
-            Hits Taken: <strong>{hitsTaken}</strong>
+            <span>
+              Hits Taken: <strong>{hitsTaken}</strong>
+            </span>
+            <span
+              style={{
+                padding: "0.1rem 0.4rem",
+                borderRadius: "999px",
+                fontSize: "0.7rem",
+                border: shieldActiveForUI
+                  ? "1px solid rgba(45,212,191,0.9)"
+                  : "1px solid rgba(148,163,184,0.4)",
+                background: shieldActiveForUI
+                  ? "linear-gradient(135deg,rgba(45,212,191,0.25),rgba(8,47,73,0.85))"
+                  : "rgba(15,23,42,0.9)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
+              Shield {shieldActiveForUI ? "ONLINE" : "ready"}
+            </span>
           </div>
 
           {/* Battle box */}
@@ -584,7 +747,28 @@ function BossFight() {
               />
             )}
 
-            {/* Player core (infinite health, no invuln) */}
+            {/* Energy shield pickups */}
+            {shields.map((s) => (
+              <div
+                key={s.id}
+                style={{
+                  position: "absolute",
+                  left: s.x - BATTLE_BOX.x - s.radius,
+                  top: s.y - BATTLE_BOX.y - s.radius,
+                  width: s.radius * 2,
+                  height: s.radius * 2,
+                  borderRadius: "999px",
+                  border: "1px solid rgba(45,212,191,0.9)",
+                  boxShadow:
+                    "0 0 12px rgba(45,212,191,0.9), 0 0 24px rgba(45,212,191,0.6)",
+                  background:
+                    "radial-gradient(circle at 30% 20%, rgba(125,211,252,0.8), rgba(15,23,42,0.95))",
+                  opacity: 0.95,
+                }}
+              />
+            ))}
+
+            {/* Player core */}
             <div
               style={{
                 position: "absolute",
@@ -593,12 +777,15 @@ function BossFight() {
                 width: PLAYER_SIZE,
                 height: PLAYER_SIZE,
                 borderRadius: "6px",
-                background:
-                  "radial-gradient(circle at 30% 20%, #f97373, #b91c1c)",
-                boxShadow: "0 0 16px rgba(248,113,113,0.85)",
+                background: shieldActiveForUI
+                  ? "radial-gradient(circle at 30% 20%, #22c55e, #15803d)"
+                  : "radial-gradient(circle at 30% 20%, #f97373, #b91c1c)",
+                boxShadow: shieldActiveForUI
+                  ? "0 0 20px rgba(34,197,94,0.95)"
+                  : "0 0 16px rgba(248,113,113,0.85)",
                 border: "1px solid rgba(248,250,252,0.85)",
                 transformOrigin: "center",
-                transform: "scale(1)",
+                transform: shieldActiveForUI ? "scale(1.1)" : "scale(1)",
                 transition: "transform 80ms",
               }}
             >
@@ -627,21 +814,21 @@ function BossFight() {
                   borderRadius: b.height > 32 ? 4 : 999,
                   background: b.isWarning
                     ? "linear-gradient(180deg, rgba(56,189,248,0.35), rgba(8,47,73,0.15))"
-                    : b.lifeMs != null
+                    : b.isLaser
                     ? "linear-gradient(180deg,#22d3ee,#0ea5e9)"
                     : "linear-gradient(180deg,#e5e7eb,#9ca3af)",
                   boxShadow: b.isWarning
                     ? "0 0 16px rgba(56,189,248,0.55)"
-                    : b.lifeMs != null
+                    : b.isLaser
                     ? "0 0 22px rgba(56,189,248,0.9)"
                     : "0 0 10px rgba(156,163,175,0.7)",
-                  opacity: b.isWarning ? 0.9 : 1,
+                  opacity: b.isWarning ? 0.88 : 1,
                 }}
               />
             ))}
           </div>
 
-          {/* Hearts (always full / infinite health) */}
+          {/* Hearts (20, just as an HP tracker display) */}
           <div
             style={{
               position: "absolute",
@@ -654,7 +841,7 @@ function BossFight() {
               fontSize: "1rem",
             }}
           >
-            {Array.from({ length: 7 }).map((_, i) => (
+            {Array.from({ length: 20 }).map((_, i) => (
               <div
                 key={i}
                 style={{
@@ -681,7 +868,7 @@ function BossFight() {
                 opacity: 0.75,
               }}
             >
-              (Debug: Infinite)
+              (Damage tally only)
             </span>
           </div>
 
@@ -759,9 +946,25 @@ function BossFight() {
 }
 
 // Attack patterns: two stages, rising difficulty, with randomized pattern selection
-function spawnAttack(stage, stageT, setBossBullets) {
-  const bullets = [];
+function spawnAttack(stage, stageT, setBossBullets, safeZone) {
   const now = performance.now();
+
+  // Helper to conditionally push bullets respecting the hidden safe zone
+  const pushIfSafe = (arr, bullet) => {
+    if (
+      !bulletInSafeZone(
+        {
+          x: bullet.x,
+          y: bullet.y,
+          width: bullet.width,
+          height: bullet.height,
+        },
+        safeZone
+      )
+    ) {
+      arr.push(bullet);
+    }
+  };
 
   if (stage === 1) {
     // Stage 1: readable patterns, moderate speed, but varied
@@ -783,29 +986,65 @@ function spawnAttack(stage, stageT, setBossBullets) {
     lastStage1Pattern = pattern;
 
     if (pattern === "rain") {
-      // Pattern A: vertical "code rain" from top
+      // Pattern A: vertical "code rain" from top, with brief warning beams
       const columns = 6;
+      const warnings = [];
+      const hail = [];
+
       for (let i = 0; i < columns; i++) {
-        bullets.push({
+        const colX =
+          BATTLE_BOX.x +
+          (i + 0.5) * (BATTLE_BOX.width / columns) -
+          4;
+
+        // Warning column
+        const warnBullet = {
+          id: `s1-rain-warn-${now}-${i}`,
+          x: colX,
+          y: BATTLE_BOX.y - 6,
+          vx: 0,
+          vy: 0,
+          width: 8,
+          height: BATTLE_BOX.height + 12,
+          lifeMs: 260,
+          bornAt: now,
+          isWarning: true,
+        };
+        pushIfSafe(warnings, warnBullet);
+
+        // Actual falling packet
+        const hailBullet = {
           id: `s1-rain-${now}-${i}`,
-          x: BATTLE_BOX.x + (i + 0.5) * (BATTLE_BOX.width / columns) - 4,
+          x: colX,
           y: BATTLE_BOX.y - 14,
           vx: 0,
           vy: 3.0,
           width: 8,
           height: 16,
-        });
+        };
+        pushIfSafe(hail, hailBullet);
       }
+
+      if (warnings.length > 0) {
+        setBossBullets((prev) => [...prev, ...warnings]);
+      }
+      if (hail.length > 0) {
+        setTimeout(() => {
+          setBossBullets((prev) => [...prev, ...hail]);
+        }, 260);
+      }
+      return;
     } else if (pattern === "burst") {
-      // NEW Pattern: radial burst from center
+      // Radial burst from center
       const centerX = BATTLE_BOX.x + BATTLE_BOX.width / 2;
       const centerY = BATTLE_BOX.y + BATTLE_BOX.height / 2;
       const bulletsPerRing = 10;
       const speed = 2.8;
+      const bullets = [];
 
       for (let i = 0; i < bulletsPerRing; i++) {
         const angle = ((Math.PI * 2) / bulletsPerRing) * i;
-        bullets.push({
+        const b = {
           id: `s1-burst-${now}-${i}`,
           x: centerX - 5,
           y: centerY - 5,
@@ -813,16 +1052,24 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: Math.sin(angle) * speed,
           width: 10,
           height: 10,
-        });
+        };
+        pushIfSafe(bullets, b);
       }
+
+      if (bullets.length > 0) {
+        setBossBullets((prev) => [...prev, ...bullets]);
+      }
+      return;
     } else if (pattern === "diagonals") {
-      // Pattern B: crossing diagonals from sides
+      // Crossing diagonals from sides
       const rows = 4;
+      const bullets = [];
+
       for (let r = 0; r < rows; r++) {
         const rowY =
           BATTLE_BOX.y + (r + 0.5) * (BATTLE_BOX.height / rows);
 
-        bullets.push({
+        const left = {
           id: `s1-diagL-${now}-${r}`,
           x: BATTLE_BOX.x - 14,
           y: rowY,
@@ -830,9 +1077,10 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: (r % 2 === 0 ? 1 : -1) * 1.3,
           width: 10,
           height: 16,
-        });
+        };
+        pushIfSafe(bullets, left);
 
-        bullets.push({
+        const right = {
           id: `s1-diagR-${now}-${r}`,
           x: BATTLE_BOX.x + BATTLE_BOX.width + 4,
           y: rowY,
@@ -840,16 +1088,40 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: (r % 2 === 0 ? -1 : 1) * 1.3,
           width: 10,
           height: 16,
-        });
+        };
+        pushIfSafe(bullets, right);
       }
+
+      if (bullets.length > 0) {
+        setBossBullets((prev) => [...prev, ...bullets]);
+      }
+      return;
     } else if (pattern === "bars") {
-      // Pattern C: sweeping bars with a clear gap
+      // Sweeping bars with a clear gap and subtle row warnings
       const rows = 3;
+      const warnings = [];
+      const bars = [];
+
       for (let r = 0; r < rows; r++) {
         const barHeight = 10;
         const y =
           BATTLE_BOX.y + (r + 0.5) * (BATTLE_BOX.height / rows) -
           barHeight / 2;
+
+        // Row warning band
+        const warn = {
+          id: `s1-bar-warn-${now}-${r}`,
+          x: BATTLE_BOX.x,
+          y: y - 4,
+          vx: 0,
+          vy: 0,
+          width: BATTLE_BOX.width,
+          height: barHeight + 8,
+          lifeMs: 260,
+          bornAt: now,
+          isWarning: true,
+        };
+        pushIfSafe(warnings, warn);
 
         const segments = 5;
         const gapIndex = Math.floor(Math.random() * segments);
@@ -857,9 +1129,10 @@ function spawnAttack(stage, stageT, setBossBullets) {
         for (let s = 0; s < segments; s++) {
           if (s === gapIndex) continue;
           const segWidth = BATTLE_BOX.width / segments;
-          const x = BATTLE_BOX.x - segWidth + s * segWidth;
+          const x =
+            BATTLE_BOX.x - segWidth + s * segWidth;
 
-          bullets.push({
+          const bar = {
             id: `s1-bar-${now}-${r}-${s}`,
             x,
             y,
@@ -867,14 +1140,22 @@ function spawnAttack(stage, stageT, setBossBullets) {
             vy: 0,
             width: segWidth * 1.3,
             height: barHeight,
-          });
+          };
+          pushIfSafe(bars, bar);
         }
       }
+
+      if (warnings.length > 0) {
+        setBossBullets((prev) => [...prev, ...warnings]);
+      }
+      if (bars.length > 0) {
+        setTimeout(() => {
+          setBossBullets((prev) => [...prev, ...bars]);
+        }, 260);
+      }
+      return;
     }
 
-    if (bullets.length > 0) {
-      setBossBullets((prev) => [...prev, ...bullets]);
-    }
     return;
   }
 
@@ -897,9 +1178,11 @@ function spawnAttack(stage, stageT, setBossBullets) {
   lastStage2Pattern = pattern;
 
   if (pattern === "rise") {
-    // Pattern D: rising packets from bottom with minor horizontal drift
+    // Pattern D: rising packets from bottom with minor horizontal drift + warnings
     const columns = 5;
     const linePattern = [1, 2, 3, 2, 1];
+    const warnings = [];
+    const bullets = [];
 
     for (let c = 0; c < columns; c++) {
       const count = linePattern[c];
@@ -908,8 +1191,22 @@ function spawnAttack(stage, stageT, setBossBullets) {
         (c + 0.5) * (BATTLE_BOX.width / columns) -
         5;
 
+      const warn = {
+        id: `s2-rise-warn-${now}-${c}`,
+        x: colX - 5,
+        y: BATTLE_BOX.y + BATTLE_BOX.height - 4,
+        vx: 0,
+        vy: 0,
+        width: 20,
+        height: 20,
+        lifeMs: 260,
+        bornAt: now,
+        isWarning: true,
+      };
+      pushIfSafe(warnings, warn);
+
       for (let i = 0; i < count; i++) {
-        bullets.push({
+        const b = {
           id: `s2-rise-${now}-${c}-${i}`,
           x: colX,
           y: BATTLE_BOX.y + BATTLE_BOX.height + 20 + i * 18,
@@ -917,17 +1214,25 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: -3.7,
           width: 10,
           height: 18,
-        });
+        };
+        pushIfSafe(bullets, b);
       }
     }
 
+    if (warnings.length > 0) {
+      setBossBullets((prev) => [...prev, ...warnings]);
+    }
     if (bullets.length > 0) {
-      setBossBullets((prev) => [...prev, ...bullets]);
+      setTimeout(() => {
+        setBossBullets((prev) => [...prev, ...bullets]);
+      }, 260);
     }
   } else if (pattern === "netsLasers") {
     // Pattern E: alternating nets + short lasers (with warnings, no forced safe corner)
     const rows = 3;
-    // Nets first
+    const nets = [];
+
+    // Nets first (horizontal bars)
     for (let r = 0; r < rows; r++) {
       const barHeight = 10;
       const y =
@@ -940,9 +1245,10 @@ function spawnAttack(stage, stageT, setBossBullets) {
       for (let s = 0; s < segments; s++) {
         if (s === gapIndex) continue;
         const segWidth = BATTLE_BOX.width / segments;
-        const x = BATTLE_BOX.x - segWidth + s * segWidth;
+        const x =
+          BATTLE_BOX.x - segWidth + s * segWidth;
 
-        bullets.push({
+        const bar = {
           id: `s2-net-${now}-${r}-${s}`,
           x,
           y,
@@ -950,15 +1256,16 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: 0,
           width: segWidth * 1.25,
           height: barHeight,
-        });
+        };
+        pushIfSafe(nets, bar);
       }
     }
 
-    if (bullets.length > 0) {
-      setBossBullets((prev) => [...prev, ...bullets]);
+    if (nets.length > 0) {
+      setBossBullets((prev) => [...prev, ...nets]);
     }
 
-    // Lasers with warnings; randomly vertical OR horizontal (no special safe corner)
+    // Lasers with warnings; randomly vertical OR horizontal
     const warningBullets = [];
     const laserBullets = [];
     const orientation =
@@ -974,7 +1281,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
           BATTLE_BOX.x + c * (BATTLE_BOX.width / columns) + 4;
 
         // Warning indicator (brief teal column)
-        warningBullets.push({
+        const warn = {
           id: `s2-warning-v-${now}-${c}`,
           x: colX,
           y: BATTLE_BOX.y,
@@ -985,10 +1292,12 @@ function spawnAttack(stage, stageT, setBossBullets) {
           lifeMs: 350,
           bornAt: now,
           isWarning: true,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(warningBullets, warn);
 
         // Actual vertical laser
-        laserBullets.push({
+        const laser = {
           id: `s2-laser-v-${now}-${c}`,
           x: colX,
           y: BATTLE_BOX.y,
@@ -998,7 +1307,9 @@ function spawnAttack(stage, stageT, setBossBullets) {
           height: BATTLE_BOX.height,
           lifeMs: 650,
           bornAt: now + 350,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(laserBullets, laser);
       }
     } else {
       // Horizontal lasers across rows
@@ -1012,7 +1323,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
           BATTLE_BOX.y + r * (BATTLE_BOX.height / rowsLaser) + 4;
 
         // Warning indicator (horizontal stripe)
-        warningBullets.push({
+        const warn = {
           id: `s2-warning-h-${now}-${r}`,
           x: BATTLE_BOX.x,
           y: rowY,
@@ -1023,10 +1334,12 @@ function spawnAttack(stage, stageT, setBossBullets) {
           lifeMs: 350,
           bornAt: now,
           isWarning: true,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(warningBullets, warn);
 
         // Actual horizontal laser
-        laserBullets.push({
+        const laser = {
           id: `s2-laser-h-${now}-${r}`,
           x: BATTLE_BOX.x,
           y: rowY,
@@ -1036,7 +1349,9 @@ function spawnAttack(stage, stageT, setBossBullets) {
           height: rowHeight,
           lifeMs: 650,
           bornAt: now + 350,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(laserBullets, laser);
       }
     }
 
@@ -1047,7 +1362,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
           ...prev,
           ...laserBullets.map((b) => ({
             ...b,
-            bornAt: performance.now(), // reset bornAt to current time
+            bornAt: performance.now(),
           })),
         ]);
       }, 350);
@@ -1056,6 +1371,9 @@ function spawnAttack(stage, stageT, setBossBullets) {
     // Pattern F: full lagstorm – rising + crashing + heavy lasers
     const columns = 5;
     const linePattern = [1, 2, 3, 2, 1];
+
+    const rising = [];
+    const falling = [];
 
     // Rising from bottom
     for (let c = 0; c < columns; c++) {
@@ -1066,7 +1384,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
         5;
 
       for (let i = 0; i < count; i++) {
-        bullets.push({
+        const b = {
           id: `s2-riseF-${now}-${c}-${i}`,
           x: colX,
           y: BATTLE_BOX.y + BATTLE_BOX.height + 22 + i * 16,
@@ -1074,7 +1392,8 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: -4.0,
           width: 10,
           height: 18,
-        });
+        };
+        pushIfSafe(rising, b);
       }
     }
 
@@ -1087,7 +1406,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
         5;
 
       for (let i = 0; i < count; i++) {
-        bullets.push({
+        const b = {
           id: `s2-topF-${now}-${c}-${i}`,
           x: colX,
           y: BATTLE_BOX.y - 24 - i * 16,
@@ -1095,12 +1414,13 @@ function spawnAttack(stage, stageT, setBossBullets) {
           vy: 3.9,
           width: 10,
           height: 18,
-        });
+        };
+        pushIfSafe(falling, b);
       }
     }
 
-    if (bullets.length > 0) {
-      setBossBullets((prev) => [...prev, ...bullets]);
+    if (rising.length > 0 || falling.length > 0) {
+      setBossBullets((prev) => [...prev, ...rising, ...falling]);
     }
 
     // Heavy lasers with warnings; vertical OR horizontal, no guaranteed safe corner
@@ -1116,7 +1436,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
         const colX =
           BATTLE_BOX.x + c * (BATTLE_BOX.width / columns) + 4;
 
-        warningBullets.push({
+        const warn = {
           id: `s2-warningF-v-${now}-${c}`,
           x: colX,
           y: BATTLE_BOX.y,
@@ -1127,9 +1447,11 @@ function spawnAttack(stage, stageT, setBossBullets) {
           lifeMs: 350,
           bornAt: now,
           isWarning: true,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(warningBullets, warn);
 
-        laserBullets.push({
+        const laser = {
           id: `s2-laserF-v-${now}-${c}`,
           x: colX,
           y: BATTLE_BOX.y,
@@ -1139,7 +1461,9 @@ function spawnAttack(stage, stageT, setBossBullets) {
           height: BATTLE_BOX.height,
           lifeMs: 800,
           bornAt: now + 350,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(laserBullets, laser);
       }
     } else {
       const rowsLaser = 5;
@@ -1151,7 +1475,7 @@ function spawnAttack(stage, stageT, setBossBullets) {
         const rowY =
           BATTLE_BOX.y + r * (BATTLE_BOX.height / rowsLaser) + 4;
 
-        warningBullets.push({
+        const warn = {
           id: `s2-warningF-h-${now}-${r}`,
           x: BATTLE_BOX.x,
           y: rowY,
@@ -1162,9 +1486,11 @@ function spawnAttack(stage, stageT, setBossBullets) {
           lifeMs: 350,
           bornAt: now,
           isWarning: true,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(warningBullets, warn);
 
-        laserBullets.push({
+        const laser = {
           id: `s2-laserF-h-${now}-${r}`,
           x: BATTLE_BOX.x,
           y: rowY,
@@ -1174,7 +1500,9 @@ function spawnAttack(stage, stageT, setBossBullets) {
           height: rowHeight,
           lifeMs: 800,
           bornAt: now + 350,
-        });
+          isLaser: true,
+        };
+        pushIfSafe(laserBullets, laser);
       }
     }
 

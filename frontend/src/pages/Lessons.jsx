@@ -253,6 +253,67 @@ const ModulesPage = () => {
           ]
         }
       ]
+    },
+    {
+      id: 5,
+      title: 'Module 5 – Password Security (The Finale Forge)',
+      shortTitle: 'Password Security (Finale Forge)',
+      content:
+        'The password is the most important piece Lagdrakul is after. To stop him, Te-Qwuiz must rescue a corrupted Ailithm and forge unbreakable passphrases: (1) strong passwords are long and complex, (2) unique passwords stop one breach from becoming many, (3) password managers help heroes remember dozens of keys, and (4) defending the “Finale Forge” means protecting the last gate to the kingdom itself.',
+      quizQuestions: [
+        {
+          key: 'm5q1',
+          prompt: 'What makes a password strong?',
+          correctIndex: 2,
+          options: [
+            { label: 'Using your name and birthday' },
+            { label: 'Short and easy to remember' },
+            { label: 'Long with a mix of symbols, numbers, and letters' },
+            { label: 'A single common word' }
+          ]
+        },
+        {
+          key: 'm5q2',
+          prompt: 'Which of the following is the safest password?',
+          correctIndex: 3,
+          options: [
+            { label: 'password123' },
+            { label: 'Summer2024!' },
+            { label: 'qwerty' },
+            { label: 'G!7rP#9wL2@' }
+          ]
+        },
+        {
+          key: 'm5q3',
+          prompt:
+            'Why should you avoid using the same password everywhere?',
+          correctIndex: 1,
+          options: [
+            { label: 'It’s annoying to type different passwords' },
+            {
+              label:
+                'Hackers could access multiple accounts if one password is leaked'
+            },
+            { label: "Websites don’t allow reused passwords" },
+            { label: 'It makes you forget your email' }
+          ]
+        },
+        {
+          key: 'm5q4',
+          prompt: 'What is a password manager?',
+          correctIndex: 0,
+          options: [
+            {
+              label: 'A program that stores and helps create strong passwords'
+            },
+            {
+              label: 'A tool that automatically sends your passwords to friends'
+            },
+            { label: 'A physical book where you write passwords' },
+            { label: 'A type of computer virus' }
+          ]
+        }
+      ]
     }
   ];
 
@@ -266,6 +327,10 @@ const ModulesPage = () => {
   const [totalPercentAccum, setTotalPercentAccum] = useState(0);
 
   const activeModule = modules.find((m) => m.id === activeModuleId);
+
+  // Split modules so 1–4 stay in the grid, 5 is full-width at bottom
+  const mainModules = modules.filter((m) => m.id !== 5);
+  const finaleModule = modules.find((m) => m.id === 5);
 
   // --- STYLES ---
   const styles = {
@@ -408,6 +473,42 @@ const ModulesPage = () => {
       cursor: 'pointer',
       boxShadow: '0 10px 30px rgba(0, 188, 212, 0.5)',
       transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+    },
+    finaleWrapper: {
+      marginTop: '2.5rem'
+    },
+    finaleLabel: {
+      fontSize: '1rem',
+      textTransform: 'uppercase',
+      letterSpacing: '0.12em',
+      opacity: 0.8,
+      marginBottom: '0.5rem'
+    },
+    finaleCard: {
+      background: 'rgba(255, 255, 255, 0.09)',
+      borderRadius: '22px',
+      border: '1px solid rgba(0, 255, 200, 0.4)',
+      boxShadow: '0 22px 50px rgba(0, 0, 0, 0.7)',
+      padding: '1.75rem 2rem',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1rem'
+    },
+    finaleHeaderRow: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '1rem',
+      flexWrap: 'wrap'
+    },
+    finaleTitle: {
+      fontSize: '1.6rem',
+      fontWeight: '900'
+    },
+    finaleSubtitle: {
+      fontSize: '0.95rem',
+      color: '#d0d0d0',
+      maxWidth: '500px'
     },
     quizOverlay: {
       position: 'fixed',
@@ -585,7 +686,7 @@ const ModulesPage = () => {
         </div>
         <ul className="nav-links">
           <li><a href="/" className="nav-link">Home</a></li>
-          <li><a href='/aboutus' className="nav-link">About Us</a></li>
+          <li><a href="/aboutus" className="nav-link">About Us</a></li>
           <li><a href="/lessons" className="nav-link">Lessons</a></li>
           <li><a href="/games" className="nav-link">Games</a></li>
         </ul>
@@ -615,18 +716,18 @@ const ModulesPage = () => {
           <div style={styles.badgeRow}>
             <div style={styles.badge}>
               <Shield size={16} color="#00bcd4" />
-              4 Story-Driven Cyber Modules
+              5 Story-Driven Cyber Modules
             </div>
             <div style={styles.badge}>
               <Sparkles size={16} color="#9c27b0" />
-              Quizzes & Progress Feedback
+              Quizzes &amp; Progress Feedback
             </div>
           </div>
         </header>
 
-        {/* MODULE CARDS */}
+        {/* MODULE CARDS (1–4 in grid) */}
         <div style={styles.modulesGrid}>
-          {modules.map((mod) => (
+          {mainModules.map((mod) => (
             <section key={mod.id} style={styles.moduleCard}>
               <div>
                 <h2 style={styles.moduleTitle}>{mod.title}</h2>
@@ -652,6 +753,42 @@ const ModulesPage = () => {
             </section>
           ))}
         </div>
+
+        {/* FULL-WIDTH FINALE MODULE (5) */}
+        {finaleModule && (
+          <div style={styles.finaleWrapper}>
+            <div style={styles.finaleLabel}>Finale Module</div>
+            <section style={styles.finaleCard}>
+              <div style={styles.finaleHeaderRow}>
+                <div>
+                  <h2 style={styles.finaleTitle}>{finaleModule.title}</h2>
+                  <p style={styles.finaleSubtitle}>
+                    The Final Forge of the kingdom: protect your passwords, rescue Ailithm from corruption,
+                    and deny Lagdrakul the keys to every gate.
+                  </p>
+                </div>
+                <button
+                  style={styles.startQuizBtn}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.boxShadow =
+                      '0 14px 36px rgba(0, 188, 212, 0.7)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow =
+                      '0 10px 30px rgba(0, 188, 212, 0.5)';
+                  }}
+                  onClick={() => openQuiz(finaleModule.id)}
+                >
+                  <Sparkles size={18} />
+                  Start Quiz for {finaleModule.shortTitle}
+                </button>
+              </div>
+              <p style={styles.moduleText}>{finaleModule.content}</p>
+            </section>
+          </div>
+        )}
       </div>
 
       {/* QUIZ POPUP */}

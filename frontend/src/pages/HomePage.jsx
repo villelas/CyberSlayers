@@ -110,12 +110,7 @@ export default function HomePage() {
             </button>
             
             {/* View Notes now sits where the demo button used to be */}
-            <button 
-              className="btn-secondary" 
-              onClick={() => navigate('/commentspage')}
-            >
-              View Notes
-            </button>
+            
           </div>
 
           <div className="stats-container">
