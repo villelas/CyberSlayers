@@ -7,7 +7,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [isHovering, setIsHovering] = useState(false);
 
-  const DEMO_VIDEO_URL = 'https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID';
+  const DEMO_VIDEO_URL = 'https://youtu.be/y2akAu1yFOw';
 
   const styles = {
     main: {
