@@ -34,10 +34,9 @@ const POST_GAME_DIALOGUE = {
     id: 'post_game_2_to_deepfakes',
     gameNum: 2,
     spriteByLine: [hero2,AilithmG,AilithmG,hero2],
-    speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       'Te-Qwuiz: I\'ve gained some armor and learned something too! He\'s planning to steal people\'s identities and corrupt them. Those etched runes told us a lot about Lagdrakul\'s plan.',
-      'Ailithm: Lagdrakul will not just steal faces from the crowd, Te-Qwuiz. He will forge them — shadow helms, mimicking trusted figures.',
+      'Ailithm: Lagdrakul will not just steal faces from the crowd, Te-Qwuiz. He will forge them, shadow helms, mimicking trusted figures.',
       'Ailithm: When a face or voice feels familiar, that is when you must doubt it the most. Familiarity is his favorite disguise.',
       'Te-Qwuiz: Then our next trial is clear; we learn to split truth from forged faces before his illusions reach the throne.'
     ]
@@ -46,8 +45,7 @@ const POST_GAME_DIALOGUE = {
     id: 'post_game_3_to_phishing',
     gameNum: 3,
     spriteByLine: [hero3,AilithmG,hero3, AilithmG],
-    speaker: 'Te-Qwuiz & Ailithm',
-    lines: ['Te-Qwuiz: WOW! Thanks for helping me find the fragemnts to my sword! It\'s lucky we found some of the Lagdrakul\'s shadow helms too, but the air still feels... tainted. Like something evil is on it\'s way',
+    lines: ['Te-Qwuiz: WOW! Thanks for helping me find the fragments to my sword! It\'s lucky we found some of the Lagdrakul\'s shadow helms too, but the air still feels... tainted. Like something evil is on it\'s way',
       'Ailithm: Ah yes, I\'d say that his next step would be to trap us all in one area, to attempt to corrupt the kingdom.',
       'Te-Qwuiz: Well then we must prepare ourselves to face his tricks. What should we look out for?',
       'Ailithm: Lagdrakul\'s phishing scams use urgency and pressure to make us act without thinking. Try multiple paths to verify information before acting. Let us find you a steed, staying mobile and staying vigilant is key. '
@@ -57,7 +55,6 @@ const POST_GAME_DIALOGUE = {
     id: 'post_game_4_to_public_networks',
     gameNum: 4,
     spriteByLine: [AilithmG, hero4, AilithmG, hero4],
-    speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       "Ailithm: But those were just his opening moves. Now come the scrollstorms.",
       'Te-Qwuiz: Scrolls that scream "urgent," seals that look royal, coins promised for a single click… it feels like a net tightening.',
@@ -66,10 +63,9 @@ const POST_GAME_DIALOGUE = {
     ]
   },
   5: {
-    id: 'post_game_4_to_public_networks',
+    id: 'post_game_5_to_public_networks',
     gameNum: 5,
     spriteByLine: [hero4, AilithmG, AilithmG, hero4, Lagdrakul2, Lagdrakul2A, AilithmG, AilithmV, AilithmV],
-    speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       'Te-Qwuiz: The Phishers\' Net is torn, but the air still feels… fouled.',
       'Ailithm: Lagdrakul has moved on to poisoning the shared wells. The public networks where travelers drink data without shields.',
@@ -83,15 +79,13 @@ const POST_GAME_DIALOGUE = {
     ]
   },
   6: {
-    id: 'post_game_5_to_password_forge',
-    gameNum: 5,
+    id: 'post_game_6_to_password_forge',
+    gameNum: 6,
     spriteByLine: [AilithmG, hero4, AilithmG, hero4],
-    
-    speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       "Ailithm: Thank you! You have seen Lagdrakul's code up close now… very few return from that gaze unchanged. I didn\'t.",
       "Te-Qwuiz: His power drips through weak locks and lazy runes. Doors meant for one soul are flung open to an army.",
-      'Ailithm: Then we step out of the Password Forge — where keys are tempered, lengthened, and made unreadable to his claws.',
+      'Ailithm: Then we step out of the Password Forge, where keys are tempered, lengthened, and made unreadable to his claws.',
       "Te-Qwuiz: If our keys hold, the dragon's talons will find only cold iron and closed gates. Never able to claw his way back."
     ]
   }
@@ -127,7 +121,7 @@ const EDUCATIONAL_MODULES = {
         question: 'Is online information easily erased once posted?',
         options: [
           'Yes, you can always delete it completely',
-          'No — once shared, it becomes part of your permanent digital footprint',
+          'No, once shared, it becomes part of your permanent digital footprint',
           'Only if you delete it within 24 hours',
           'Yes, but only with special software'
         ],
@@ -175,7 +169,7 @@ const EDUCATIONAL_MODULES = {
         question: 'Can a forged image or voice appear convincingly real?',
         options: [
           'No, you can always tell',
-          'Yes — deepfakes can imitate trusted people with high accuracy',
+          'Yes, deepfakes can imitate trusted people with high accuracy',
           'Only in movies',
           'Only for celebrities'
         ],
@@ -186,7 +180,7 @@ const EDUCATIONAL_MODULES = {
           'When you recognize a face or voice online, should you automatically trust it?',
         options: [
           'Yes, if it looks real it must be real',
-          "No — familiarity doesn't prove authenticity, especially celebrities and politicians",
+          "No, familiarity doesn't prove authenticity, especially celebrities and politicians",
           'Only trust videos, not images',
           'Always trust voices but not faces'
         ],
@@ -237,7 +231,7 @@ const EDUCATIONAL_MODULES = {
         options: [
           'Yes, if they ask nicely',
           'Only to family members',
-          'No — no legitimate organization or ally will request them',
+          'No, no legitimate organization or ally will request them',
           "Yes, if it's urgent"
         ],
         correctIndex: 2
@@ -427,15 +421,6 @@ export default function GameDashboard() {
           if (postBeat) {
             hasPostGameDialogue = true;
             combinedBeats = [...combinedBeats, postBeat];
-
-            // If you later add a specific pre-boss intro, you can still do it here
-            // Example:
-            // if (gameIndex === 4) {
-            //   const preBossIntro = PRE_GAME_STORY[5];
-            //   if (preBossIntro && !shownIds.includes(preBossIntro.id)) {
-            //     combinedBeats = [...combinedBeats, preBossIntro];
-            //   }
-            // }
           }
         }
 
@@ -495,10 +480,7 @@ export default function GameDashboard() {
     return { status: 'diamond', color: '#00bcd4', icon: Zap };
   };
 
-  /**
-   * When a node on the map is clicked:
-   * - open the training modal
-   */
+
   const handleArenaClick = (arenaData) => {
     setSelectedArena(arenaData);
     setShowModal(true);
@@ -588,7 +570,7 @@ export default function GameDashboard() {
     },
     {
       gameNum: 5,
-      name: 'Password Tester',
+      name: 'Password Security',
       description: 'Learn how to build strong, secure passwords',
       emoji: '🔑',
       icon: Lock,
@@ -620,8 +602,8 @@ export default function GameDashboard() {
     sortedArenas.length > 0
       ? sortedArenas
           .map((arena, index) => {
-            const x = parseFloat(arena.position.left); // "10%" -> 10
-            const y = parseFloat(arena.position.top); // "65%" -> 65
+            const x = parseFloat(arena.position.left); 
+            const y = parseFloat(arena.position.top); 
             return `${index === 0 ? 'M' : 'L'} ${x} ${y + 10}`; // line runs under cards
           })
           .join(' ')
@@ -1136,21 +1118,7 @@ function StoryDialoguePopup({ beat, onAdvance }) {
             position: 'relative'
           }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              top: '-14px',
-              left: '1.5rem',
-              padding: '0.2rem 0.8rem',
-              borderRadius: '999px',
-              background: 'linear-gradient(135deg, #00bcd4, #9c27b0)',
-              fontWeight: 'bold',
-              fontSize: '0.85rem',
-              textTransform: 'uppercase'
-            }}
-          >
-            {speaker}
-          </div>
+          {/* Speaker bubble removed */}
 
           <div
             style={{
@@ -1217,12 +1185,7 @@ function ArenaLocation({ arena, onClick, styles }) {
   );
 }
 
-/**
- * Generic LearningModule overlay:
- * - Uses EDUCATIONAL_MODULES data (title, content, quiz)
- * - Shows scroll, then quiz, then result
- * - Calls onEnterGame(gameNum) when passed and player presses "Enter the Game Arena!"
- */
+
 function LearningModule({ gameNum, module, onEnterGame, onClose }) {
   const [stage, setStage] = useState('scroll'); // 'scroll' | 'quiz' | 'result'
   const [currentQuestion, setCurrentQuestion] = useState(0);

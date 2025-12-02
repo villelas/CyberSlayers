@@ -22,7 +22,7 @@ const ModulesPage = () => {
             { label: 'Yes, you can always delete it completely' },
             {
               label:
-                'No — once shared, it becomes part of your permanent digital footprint'
+                'No, once shared, it becomes part of your permanent digital footprint'
             },
             { label: 'Only if you delete it within 24 hours' },
             { label: 'Yes, but only with special software' }
@@ -79,7 +79,7 @@ const ModulesPage = () => {
       title: 'Module 2 – Deepfakes (False Faces)',
       shortTitle: 'Deepfakes (False Faces)',
       content:
-        'As the investigation deepens, Te-Qwuiz discovers “shadow helms” — forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn’t guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.',
+        'As the investigation deepens, Te-Qwuiz discovers “shadow helms” forged faces mimicking trusted figures: (1) deepfakes can look and sound convincingly real, (2) familiarity doesn’t guarantee authenticity, (3) verifying sources before believing is essential, and (4) cross-checking information across multiple channels exposes impersonation. In a world of illusions, the sharpest weapon is skepticism.',
       quizQuestions: [
         {
           key: 'm2q1',
@@ -89,7 +89,7 @@ const ModulesPage = () => {
             { label: 'No, you can always tell' },
             {
               label:
-                'Yes — deepfakes can imitate trusted people with high accuracy'
+                'Yes, deepfakes can imitate trusted people with high accuracy'
             },
             { label: 'Only in movies' },
             { label: 'Only for celebrities' }
@@ -104,7 +104,7 @@ const ModulesPage = () => {
             { label: 'Yes, if it looks real it must be real' },
             {
               label:
-                "No — familiarity doesn't prove authenticity, especially celebrities and politicians"
+                "No, familiarity doesn't prove authenticity, especially celebrities and politicians"
             },
             { label: 'Only trust videos, not images' },
             { label: 'Always trust voices but not faces' }
@@ -163,7 +163,7 @@ const ModulesPage = () => {
             { label: 'Only to family members' },
             {
               label:
-                'No — no legitimate organization or ally will request them'
+                'No, no legitimate organization or ally will request them'
             },
             { label: "Yes, if it's urgent" }
           ]

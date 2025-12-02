@@ -6,7 +6,6 @@ const DASHBOARD_ROUTE = '/dashboard';
 
 const GAME_NUM_FOR_STORY = 5;
 
-// ADJUSTED: shrink height a bit so the whole layout fits in 1 viewport
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 540; // was 700
 
@@ -120,7 +119,7 @@ function WaveMeter({ currentWave, totalWaves, lives, maxLives, score }) {
     <div
       style={{
         minWidth: '200px',
-        padding: '0.5rem', // ADJUSTED: slightly tighter
+        padding: '0.5rem', 
         borderRadius: '12px',
         border: '1px solid rgba(148,163,184,0.6)',
         background:
@@ -129,7 +128,7 @@ function WaveMeter({ currentWave, totalWaves, lives, maxLives, score }) {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.3rem',
-        fontSize: '0.8rem', // ADJUSTED
+        fontSize: '0.8rem', 
       }}
     >
       <div
@@ -866,7 +865,7 @@ export default function GalagaGame() {
   return (
     <div
       style={{
-        height: '100vh', // ADJUSTED: fixed to viewport
+        height: '100vh', 
         background:
           'radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%)',
         display: 'flex',
@@ -876,11 +875,11 @@ export default function GalagaGame() {
         color: 'white',
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        padding: '0.5rem 1rem 0.75rem', // ADJUSTED
-        gap: '0.5rem', // ADJUSTED
+        padding: '0.5rem 1rem 0.75rem', 
+        gap: '0.5rem', 
         position: 'relative',
         boxSizing: 'border-box',
-        overflow: 'hidden', // ADJUSTED: prevent page scroll
+        overflow: 'hidden',
       }}
     >
       <button
@@ -904,7 +903,7 @@ export default function GalagaGame() {
 
       <h1
         style={{
-          fontSize: '1.6rem', // ADJUSTED
+          fontSize: '1.6rem', 
           textAlign: 'center',
           margin: 0,
         }}
@@ -947,8 +946,8 @@ export default function GalagaGame() {
           gap: '0.75rem',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          flexWrap: 'nowrap', // ADJUSTED: keep WaveMeter beside game to avoid extra vertical
-          maxHeight: GAME_HEIGHT, // ADJUSTED: ensure row doesn't grow taller
+          flexWrap: 'nowrap', 
+          maxHeight: GAME_HEIGHT, 
         }}
       >
         <div

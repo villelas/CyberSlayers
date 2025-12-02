@@ -7,7 +7,6 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [isHovering, setIsHovering] = useState(false);
 
-  // Placeholder demo video URL – replace with your actual YouTube link later
   const DEMO_VIDEO_URL = 'https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID';
 
   const styles = {

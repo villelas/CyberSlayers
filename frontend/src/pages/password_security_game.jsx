@@ -37,8 +37,8 @@ function ArmorMeter({ score }) {
   return (
     <div
       style={{
-        minWidth: "180px", // ADJUSTED
-        padding: "0.75rem 0.85rem", // ADJUSTED
+        minWidth: "180px", 
+        padding: "0.75rem 0.85rem", 
         borderRadius: "12px",
         border: "1px solid rgba(148,163,184,0.6)",
         background:
@@ -47,8 +47,8 @@ function ArmorMeter({ score }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
-        gap: "0.4rem", // ADJUSTED
-        fontSize: "0.8rem", // ADJUSTED
+        gap: "0.4rem", 
+        fontSize: "0.8rem", 
       }}
     >
       <div
@@ -56,7 +56,7 @@ function ArmorMeter({ score }) {
           display: "flex",
           alignItems: "center",
           gap: "0.45rem",
-          marginBottom: "0.15rem", // ADJUSTED
+          marginBottom: "0.15rem", 
         }}
       >
         <span style={{ fontSize: "1.6rem" }}>🛡</span>
@@ -151,7 +151,7 @@ export default function SnakeGame() {
   const [food, setFood] = useState(getRandomFood);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState("playing"); // 'playing' | 'win'
+  const [gameState, setGameState] = useState("playing"); 
 
   // Guard against double-scoring if two ticks happen on the same food
   const justAteRef = useRef(false);
@@ -264,14 +264,14 @@ export default function SnakeGame() {
   };
 
   // Layout
-  const CELL_SIZE = 40; // ADJUSTED (was 44)
+  const CELL_SIZE = 40; 
   const boardStyle = {
     display: "grid",
     gridTemplateColumns: `repeat(${BOARD_SIZE}, ${CELL_SIZE}px)`,
     gridTemplateRows: `repeat(${BOARD_SIZE}, ${CELL_SIZE}px)`,
     background: "#020617",
-    padding: "4px", // ADJUSTED
-    border: "3px solid #4b5563", // ADJUSTED
+    padding: "4px", 
+    border: "3px solid #4b5563", 
     borderRadius: "12px",
     boxShadow: "0 0 24px rgba(0,0,0,0.7)",
   };
@@ -282,7 +282,7 @@ export default function SnakeGame() {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "30px", // ADJUSTED
+    fontSize: "30px", 
     userSelect: "none",
   };
 
@@ -303,21 +303,21 @@ export default function SnakeGame() {
   return (
     <div
       style={{
-        height: "100vh", // ADJUSTED
+        height: "100vh", 
         background:
           "radial-gradient(circle at top, #0f172a 0, #020617 50%, #000 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "flex-start", // ADJUSTED
+        justifyContent: "flex-start", 
         color: "white",
-        padding: "0.5rem 1rem 0.75rem", // ADJUSTED
-        gap: "0.5rem", // ADJUSTED
+        padding: "0.5rem 1rem 0.75rem", 
+        gap: "0.5rem", 
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         position: "relative",
         boxSizing: "border-box",
-        overflow: "hidden", // ADJUSTED: prevent scrolling
+        overflow: "hidden", 
       }}
     >
       {/* Exit button */}
@@ -325,15 +325,15 @@ export default function SnakeGame() {
         onClick={() => handleExit(false)}
         style={{
           position: "absolute",
-          top: "0.5rem", // ADJUSTED
-          right: "0.5rem", // ADJUSTED
+          top: "0.5rem", 
+          right: "0.5rem", 
           background: "rgba(0,0,0,0.6)",
           borderRadius: "999px",
           border: "1px solid rgba(255,255,255,0.3)",
           color: "white",
-          padding: "0.35rem 0.7rem", // ADJUSTED
+          padding: "0.35rem 0.7rem", 
           cursor: "pointer",
-          fontSize: "0.8rem", // ADJUSTED
+          fontSize: "0.8rem", 
         }}
       >
         ✕ Exit
@@ -345,7 +345,7 @@ export default function SnakeGame() {
           opacity: 0.8,
           textAlign: "center",
           maxWidth: "480px",
-          fontSize: "0.85rem", // ADJUSTED
+          fontSize: "0.85rem", 
           margin: 0,
         }}
       >
@@ -358,9 +358,9 @@ export default function SnakeGame() {
 
       <div
         style={{
-          fontSize: "1rem", // ADJUSTED
+          fontSize: "1rem", 
           marginTop: "0.25rem",
-          marginBottom: "0.15rem", // ADJUSTED
+          marginBottom: "0.15rem", 
         }}
       >
         Ingots: <strong>{score}</strong> / {WIN_SCORE}
@@ -371,11 +371,11 @@ export default function SnakeGame() {
         style={{
           display: "flex",
           flexDirection: "row",
-          gap: "1.2rem", // ADJUSTED
+          gap: "1.2rem", 
           alignItems: "center",
           justifyContent: "center",
-          flexWrap: "nowrap", // keep them side-by-side
-          maxHeight: CELL_SIZE * BOARD_SIZE + 12, // ADJUSTED: keep row compact
+          flexWrap: "nowrap", 
+          maxHeight: CELL_SIZE * BOARD_SIZE + 12, 
         }}
       >
         <div style={boardStyle}>{cells}</div>
@@ -385,13 +385,13 @@ export default function SnakeGame() {
       {gameOver && gameState !== "win" && (
         <div
           style={{
-            marginTop: "0.5rem", // ADJUSTED
-            padding: "0.6rem 1rem", // ADJUSTED
+            marginTop: "0.5rem", 
+            padding: "0.6rem 1rem", 
             background: "rgba(239, 68, 68, 0.15)",
             border: "1px solid rgba(248, 113, 113, 0.8)",
             borderRadius: "8px",
             textAlign: "center",
-            fontSize: "0.85rem", // ADJUSTED
+            fontSize: "0.85rem", 
           }}
         >
           💀 You crashed in the forge!
@@ -400,14 +400,14 @@ export default function SnakeGame() {
             onClick={handleRestart}
             style={{
               marginTop: "0.5rem",
-              padding: "0.45rem 0.9rem", // ADJUSTED
+              padding: "0.45rem 0.9rem", 
               borderRadius: "999px",
               border: "none",
               background: "linear-gradient(135deg, #22c55e, #16a34a)",
               color: "white",
               fontWeight: "bold",
               cursor: "pointer",
-              fontSize: "0.85rem", // ADJUSTED
+              fontSize: "0.85rem", 
             }}
           >
             Restart
@@ -435,16 +435,7 @@ export default function SnakeGame() {
   );
 }
 
-/**
- * Reusable: QuestCompleteOverlay
- * -------------------------------------------
- * Same pattern as the Shadow Helms game.
- * Use for other minigames by passing:
- * - title: string
- * - bodyLines: string[]
- * - primaryLabel, onPrimary
- * - secondaryLabel, onSecondary
- */
+
 function QuestCompleteOverlay({
   title,
   bodyLines,

@@ -16,9 +16,8 @@ const BATTLE_BOX = {
 const PLAYER_SIZE = 18;
 const PLAYER_SPEED = 5;
 
-const STAGE_ONE_DURATION = 20000; // ms: Stage 1 length
-const STAGE_TWO_DURATION = 25000; // ms: Stage 2 length
-
+const STAGE_ONE_DURATION = 20000; 
+const STAGE_TWO_DURATION = 25000; 
 const DASHBOARD_ROUTE = "/dashboard";
 
 // This boss fight is thematically Act IV – The Polluted Well (Module 4).
@@ -49,14 +48,14 @@ function bulletInSafeZone(bullet, safeZone) {
 function BossFight() {
   const navigate = useNavigate();
 
-  const [gameState, setGameState] = useState("intro"); // intro | playing | midbreak | win
+  const [gameState, setGameState] = useState("intro");
   const [playerPos, setPlayerPos] = useState({
     x: BATTLE_BOX.x + BATTLE_BOX.width / 2 - PLAYER_SIZE / 2,
     y: BATTLE_BOX.y + BATTLE_BOX.height / 2 - PLAYER_SIZE / 2,
   });
   const [bossHealth, setBossHealth] = useState(100);
   const [bossBullets, setBossBullets] = useState([]);
-  const [hitsTaken, setHitsTaken] = useState(0); // hit tally
+  const [hitsTaken, setHitsTaken] = useState(0); 
 
   // Energy shields
   const [shields, setShields] = useState([]);

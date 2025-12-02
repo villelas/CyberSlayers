@@ -714,15 +714,7 @@ export default function ScamProfileGame() {
   );
 }
 
-/**
- * Reusable: QuestCompleteOverlay
- * -------------------------------------------
- * Use this in other games by passing:
- * - title: string
- * - bodyLines: string[]
- * - primaryLabel, onPrimary
- * - secondaryLabel, onSecondary
- */
+
 function QuestCompleteOverlay({
   title,
   bodyLines,
