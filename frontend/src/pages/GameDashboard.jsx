@@ -95,7 +95,7 @@ const PRE_GAME_STORY = {
   1: {
     id: 'pregame_1_snake_intro',
     gameNum: 1, 
-    spriteByLine: [hero1,AilithmG, AilithmG, hero1, Lagdrakul1, Lagdrakul2, hero1, AilithmG],
+    spriteByLine: [hero1,AilithmG, AilithmG, hero1, hero1, AilithmG, AilithmG, hero1],
     speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       "Te-Qwuiz: Hi there, I've heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?",
@@ -363,7 +363,7 @@ export default function GameDashboard() {
   const [selectedArena, setSelectedArena] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // which game's full-screen module is open (1–5) or null
+  // which game's full-screen module is open 1–5 or null
   const [learningGameNum, setLearningGameNum] = useState(null);
 
 
@@ -405,7 +405,6 @@ export default function GameDashboard() {
       return;
     }
 
-    // ───────── Post-game dialogue when returning from a game ─────────
     try {
       const rawGame = localStorage.getItem('cyberslayers_last_completed_game');
       const rawStatus = localStorage.getItem(
@@ -432,10 +431,7 @@ export default function GameDashboard() {
       // ignore localStorage errors
     }
 
-    // ───────── FIRST-TIME DASHBOARD POPUP ─────────
-    // Only if:
-    //  - player has NEVER seen the dashboard before, and
-    //  - we are NOT coming directly from a completed game (no post-game dialogue)
+
     if (!hasVisitedDashboard && !hasPostGameDialogue) {
       const dashboardIntro = PRE_GAME_STORY[1]; // your existing intro beat
       if (dashboardIntro) {
@@ -1034,20 +1030,20 @@ function StoryDialoguePopup({ beat, onAdvance }) {
 
   // Decide which sprites to show for the current line
   const spritesForCurrentLine = (() => {
-    // Highest priority: spriteByLine (per-line, can be 1 or many per line)
+    
     if (spriteByLine && Array.isArray(spriteByLine)) {
       const entry =
         spriteByLine[lineIndex] ??
-        spriteByLine[spriteByLine.length - 1]; // fallback to last defined
+        spriteByLine[spriteByLine.length - 1]; 
 
-      if (Array.isArray(entry)) return entry; // e.g. [hero4, AilithmG]
-      if (entry) return [entry];             // single sprite in that slot
+      if (Array.isArray(entry)) return entry; 
+      if (entry) return [entry];             
     }
 
     // Fallback: sprite field
     if (!sprite) return [];
-    if (Array.isArray(sprite)) return sprite; // treat as "always show these"
-    return [sprite];                          // single image
+    if (Array.isArray(sprite)) return sprite; 
+    return [sprite];                          
   })();
 
   return (
