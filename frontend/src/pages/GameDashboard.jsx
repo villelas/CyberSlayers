@@ -95,17 +95,13 @@ const PRE_GAME_STORY = {
   1: {
     id: 'pregame_1_snake_intro',
     gameNum: 1, 
-    spriteByLine: [hero1,AilithmG, AilithmG, hero1, hero1, AilithmG, AilithmG, hero1],
+    spriteByLine: [hero1,AilithmG, AilithmG, hero1,],
     speaker: 'Te-Qwuiz & Ailithm',
     lines: [
       "Te-Qwuiz: Hi there, I've heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?",
       "Ailithm: Why of course! He's planning to steal information about influential people like myself to impersonate them and then corrupt everything.",
       "Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.",
-      "Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted.",
-      "Te-Qwuiz: Hi there, I've heard rumors that Lagdrakul is planning some shenanigans for the kingdom. Do you know anything about him or how to stop it?",
-      "Ailithm: Why of course! He's planning to steal information about influential people like myself to impersonate them and then corrupt everything.",
-      "Ailithm: Your digital footprint is the first piece of armor against malicious people. Every careless mark you leave makes his job easier.",
-      "Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted."
+      "Te-Qwuiz: Then we tighten our armor first. Show me how to keep a good digital footprint so we can hunt him without being hunted.", 
     ]
   }, 
 };
